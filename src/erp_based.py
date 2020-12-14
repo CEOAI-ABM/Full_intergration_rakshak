@@ -25,3 +25,6 @@ class course:
         self.code = course_num
         self.slot = slot
         self.class_location = loc
+
+
+#adding a comment here
