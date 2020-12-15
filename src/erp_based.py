@@ -4,7 +4,7 @@ class student:
         self.program = prog
         self.dep = dep
     def default_timetable(self):
-        return self.dep.depth_courses[str(self.year)]
+        pass
 
 def recognize_year(s):
     return s[2]
