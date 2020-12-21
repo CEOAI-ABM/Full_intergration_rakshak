@@ -77,22 +77,24 @@ def gen_timetable(file_path, schedule, grades, grades_18A, grades_18S):
     room_dict = {}
     for room in schedule:
         occupancy = schedule[room]
-        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+        days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
+        timmings = ['8-9','9-10','10-11','11-12','12-13','14-15','16,17','17-18']
         day_dict = {}
         for i in range(5):
             day = occupancy[i]
-            strengths = []
-            for course in day:
+            strengths = {}
+            for j in range(8):
+                course  = day[j]
                 if course != "":
                     print(course + " initiated")
-                    strengths.append(total_students(course, grades, grades_18A, grades_18S, na_list))
+                    strengths[timmings[j]] = total_students(course, grades, grades_18A, grades_18S, na_list)
                 else:
-                    strengths.append(0)
+                    strengths[timmings[j]] = 0
 
             day_dict[days[i]] = strengths
         room_dict[room] = day_dict
 
-    with open(file_path + "/occupancy.json", 'w') as fp:
+    with open(file_path + "/occupancy_2.json", 'w') as fp:
         json.dump(room_dict, fp, sort_keys=True, indent=3)
 
     for entry in na_list:
@@ -101,7 +103,9 @@ def gen_timetable(file_path, schedule, grades, grades_18A, grades_18S):
     return na_list
 
 def main():
+    # Can be set to wherever the json files are present
     file_path = os.getcwd() + "/Timetable"
+
     with open(file_path + "/Schedule/schedule.json", 'r') as fp:
         schedule = json.load(fp)
 
