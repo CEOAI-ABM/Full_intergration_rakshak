@@ -44,16 +44,21 @@ class Timetable:
 
         print("Occupancy Dictionary loaded successfully")
     
-    def get_strength(self,room,day,time):
-        """Gets strength of students
+    def get_info(self,room,day,time,flag):
+        """Gets course being conducted at the time.
 
         Args:
             room (str): Room No.
             day (str): Day of the Week
             time (str): Class timming in Railway format Eg. "1430"
+            flag (int): flag for waht data is needed.
+                0- timmings
+                1- course
+                2- both
         Returns:
             strength (int): No. students present at that time.
         """
+
         day = day.lower()
         room = room.upper()
         hour = time[0:2]
@@ -65,16 +70,19 @@ class Timetable:
         timming = hour + "-" + str(int(hour)+1)
 
         try:
-            return self.occupancy[room][day][timming]
+            if flag ==2:
+                return self.occupancy[room][day][timming]
+            else:
+                return self.occupancy[room][day][timming][flag]
 
         except KeyError:
             print("Room Data Unavailable")
         
-        
 
 
-
+# For Debugging
 if __name__ == "__main__":
-    file_name = os.getcwd() + "/Timetable/occupancy_2.json"
+    file_name = os.getcwd() + "/Timetable/occupancy_3.json"
     abc = Timetable(file_name)
-    print(abc.get_strength("nc342","Thursday","1115"))
+    print(abc.get_info("nc342", "Thursday", "1115",2))
+    print(abc.get_info("nc342", "Thursday", "1115",1))

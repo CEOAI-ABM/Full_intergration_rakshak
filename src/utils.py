@@ -23,7 +23,7 @@ def total_students(course, grades, grades_18A, grades_18S, na_list):
             print(course_grades[grade])
             strength = strength + course_grades[grade]
 
-        return strength
+        return (strength, course)
 
     except KeyError:
         if course in grades_18A:
@@ -34,7 +34,7 @@ def total_students(course, grades, grades_18A, grades_18S, na_list):
                 print(course_grades[grade])
                 strength = strength + course_grades[grade]
 
-            return strength
+            return (strength, course)
         elif course in grades_18S:
             course_grades = grades_18S[course]["grades"]
 
@@ -43,7 +43,7 @@ def total_students(course, grades, grades_18A, grades_18S, na_list):
                 print(course_grades[grade])
                 strength = strength + course_grades[grade]
 
-            return strength
+            return (strength,course)
         else:
             try:
                 txt = course + "- " + grades[course]["name"]
@@ -54,7 +54,7 @@ def total_students(course, grades, grades_18A, grades_18S, na_list):
                     na_list.append(course)
 
             print(course + " grades not found")
-            return ("NA: " + course)
+            return ("NA",course)
 
 
 def gen_timetable(file_path, schedule, grades, grades_18A, grades_18S):
@@ -82,7 +82,7 @@ def gen_timetable(file_path, schedule, grades, grades_18A, grades_18S):
         day_dict = {}
         for i in range(5):
             day = occupancy[i]
-            strengths = {}
+            stsrengths = {}
             for j in range(8):
                 course  = day[j]
                 if course != "":
@@ -94,7 +94,7 @@ def gen_timetable(file_path, schedule, grades, grades_18A, grades_18S):
             day_dict[days[i]] = strengths
         room_dict[room] = day_dict
 
-    with open(file_path + "/occupancy_2.json", 'w') as fp:
+    with open(file_path + "/occupancy_3.json", 'w') as fp:
         json.dump(room_dict, fp, sort_keys=True, indent=3)
 
     for entry in na_list:
