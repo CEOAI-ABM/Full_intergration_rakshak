@@ -68,7 +68,7 @@ class Academic:
 #    a = Academic([[2,2,1],[20,10,5],[[1,2],[3,4],[5]],[[1,2],[3,4],[5]],[[1,2],[3,4],[5]],[[10,20],[30,40],[5]]])
 #    print(a.Daily_People_Expectation)
 #    print(a.Units_Placeholder)
-import numpy as np
+
 
 class Residence_Unit:
     """A Class for storing a unit of a Residence i.e., a room of a hostel or a house or mess
