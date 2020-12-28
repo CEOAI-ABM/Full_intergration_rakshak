@@ -72,10 +72,15 @@ class Academic:
 
 class Residence_Unit:
     """A Class for storing a unit of a Residence i.e., a room of a hostel or a house or mess
-        Takes 5 parameters
-        Id no. for an residence i.e., each residence is given a Id No.
-        Room No. of place
-        Height and Location
+        Takes 8 parameters
+        Id                          Id of place
+        Building                    Building to which the unit belongs (Eg. MS Hall)
+        Daily_People_Expectation    Daily expectation of people
+        Number_Workers              Number of staff working here
+        Height                      Floor
+        x_coordinate                Location
+        y_coordinate                Location
+        Residence                    Pointer to the Residence class object calling it
     """
     def __init__(self,Id,Building,Daily_People_Expectation,Number_Workers,Height,x_coordinate,y_coordinate,Inter_Person_Distance):
 
@@ -96,10 +101,12 @@ class Residence:
     Args:
         0th pm is number of rooms
         1st pm is the number of workers
-        2nd pm is the x-coordinates
-        3rd pm is the y-coordinates
-        4th pm the heights
-        5th pm the hostel name
+        2nd pm the heights
+        3rd pm is the x-coordinates
+        4th pm is the y-coordinates
+        5th pm daily people expectation
+        6th pm name of the Residence
+        7th pm inter person distance
     """
     def __init__(self,pm):
 
