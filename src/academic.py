@@ -64,7 +64,7 @@ class Academic:
                     self.Units_Placeholder[k].append(Academic_Unit(j,building,self.Daily_People_Expectation[building][j],self.Number_Workers[building],self.Height[building][j],self.Location[0][building][j],self.Location[1][building][j],self))
             k+=1
 
-
-a = Academic([[2,2,1],[20,10,5],[[1,2],[3,4],[5]],[[1,2],[3,4],[5]],[[1,2],[3,4],[5]],[[10,20],[30,40],[5]]])
-print(a.Daily_People_Expectation)
-print(a.Units_Placeholder)
+#if __name__ == '__main__':
+#    a = Academic([[2,2,1],[20,10,5],[[1,2],[3,4],[5]],[[1,2],[3,4],[5]],[[1,2],[3,4],[5]],[[10,20],[30,40],[5]]])
+#    print(a.Daily_People_Expectation)
+#    print(a.Units_Placeholder)
