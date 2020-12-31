@@ -1,5 +1,5 @@
 import numpy as np
-
+from parm import Parameters
 class Academic_Unit():
     '''A Class for storing a unit of a Academic chain like a Nalanda classrooms, Department office etc.
         Takes 8 arguments:
@@ -30,10 +30,10 @@ class Academic:
         Takes list of parameters as argument:
         0th pm is list of number of units of each academic 'Building'
         1st pm is list of number of workers
-        2nd pm is list of heights
-        3rd pm is list of x-coordinates
-        4th pm is list of y-coordinates
-        5th pm is list of expected visitors coming in per day
+        2nd pm is list of list of heights
+        3rd pm is list of list of x-coordinates
+        4th pm is list of list of y-coordinates
+        5th pm is list of list of expected visitors coming in per day
     '''
     def __init__(self,pm):
         self.Number_Units               = pm[0]
@@ -44,10 +44,10 @@ class Academic:
         self.Daily_People_Expectation   = pm[5]
 
         self.Index_Holder          = []
-        self.Units_Placeholder          = {i:[] for i in range(self.Total_Num_Buildings)}
+        self.Units_Placeholder          = {i:{} for i in range(self.Total_Num_Buildings)}
 
         self.People_In_Buildings        = [0]*(self.Total_Num_Buildings)
-        self.Number_Workplaces          = [0]*(self.Total_Num_Buildings)
+        #self.Number_Workplaces          = [0]*(self.Total_Num_Buildings)
         self.initialize_units()
 
     def PeopleInAcademic(self):
@@ -55,19 +55,24 @@ class Academic:
 
     def initialize_units(self):
         k = 0
-        self.Index_Holder.append(k)
         for building in range(self.Total_Num_Buildings):
-            #self.Number_Workplaces[building] = np.round(np.random.normal(self.Daily_People_Expectation[building],self.Daily_People_Expectation[building]/6)).astype(np.int)
-            #self.Units_Placeholder[k] = []
+            self.Index_Holder.append(k)
+            #self.Number_Workplaces[building] = np.round(np.random.normal(np.array(self.Daily_People_Expectation[building]),np.array(self.Daily_People_Expectation[building])/6)).astype(np.int)
+
             if(self.Number_Units[building]>0):
                 for j in range(self.Number_Units[building]):
-                    self.Units_Placeholder[k].append(Academic_Unit(j,building,self.Daily_People_Expectation[building][j],self.Number_Workers[building],self.Height[building][j],self.Location[0][building][j],self.Location[1][building][j],self))
-            k+=1
+                    self.Units_Placeholder[building][k]=Academic_Unit(j,building,self.Daily_People_Expectation[building][j],self.Number_Workers[building],self.Height[building][j],self.Location[0][building][j],self.Location[1][building][j],self)
+                    k+=1
 
-#if __name__ == '__main__':
-#    a = Academic([[2,2,1],[20,10,5],[[1,2],[3,4],[5]],[[1,2],[3,4],[5]],[[1,2],[3,4],[5]],[[10,20],[30,40],[5]]])
-#    print(a.Daily_People_Expectation)
-#    print(a.Units_Placeholder)
+'''                    
+if __name__ == '__main__':
+    pm = Parameters('Academic')
+    i = pm.BuildingInfo(BuildingName="Mechanical Engineering")['id']
+    a = Academic(pm.returnParam())
+    print("The Mechanical Engineering Building has rooms with following (ids,visitors) :",[(k,a.Units_Placeholder[i][k].visiting) for k in a.Units_Placeholder[i].keys()])
+    print(pm.BuildingInfo(BuildingName="Mechanical Engineering"))
+    print(a.Index_Holder)
+'''
 
 
 class Residence_Unit:
