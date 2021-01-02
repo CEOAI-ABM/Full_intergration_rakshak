@@ -12,12 +12,12 @@ class Unit():
         Height                      Floor
         x_coordinate                Location
         y_coordinate                Location
-        Academic                    Pointer to the Academic class object calling it
+        Sector                    Pointer to the Sector class object calling it
     '''
     def __init__(self,Id,Building,Daily_People_Expectation,Number_Workers,Height,x_coordinate,y_coordinate,Sector):
         self.Id                         = Id
         self.Building                   = Building
-        self.Sector                   = Sector
+        self.Sector                     = Sector
         self.Daily_People_Expectation   = Daily_People_Expectation
         self.Number_Workers             = Number_Workers
         self.height                     = Height
@@ -30,7 +30,7 @@ class Unit():
 class Sector:
     '''Class for initializing the academic workplaces
         Takes list of parameters as argument:
-        0th pm is list of number of units of each academic 'Building'
+        0th pm is list of number of units of each 'Building'
         1st pm is list of number of workers
         2nd pm is list of list of heights
         3rd pm is list of list of x-coordinates
@@ -47,11 +47,11 @@ class Sector:
         self.Daily_People_Expectation   = pm[5]
         self.ParamObj                   = pm[6]
 
-        self.Index_Holder          = []
+        self.Index_Holder               = []
         self.Units_Placeholder          = {i:{} for i in range(self.Total_Num_Buildings)}
 
         self.People_In_Buildings        = [0]*(self.Total_Num_Buildings)
-        #self.Number_Workplaces          = [0]*(self.Total_Num_Buildings)
+        #self.Number_Workplaces         = [0]*(self.Total_Num_Buildings)
         self.initialize_units()
 
     def PeopleInAcademic(self):
@@ -67,10 +67,10 @@ class Sector:
                 for j in range(self.Number_Units[building]):
                     self.Units_Placeholder[building][k]=Unit(j,building,self.Daily_People_Expectation[building][j],self.Number_Workers[building],self.Height[building][j],self.Location[0][building][j],self.Location[1][building][j],self)
                     k+=1
-                    
-                    
+
+
 class Restaurant(Sector):
-    def __init__(self,pm):People_Expectation
+    def __init__(self,pm):
         super().__init__(pm[:-1])
         self.Types=['Dine In','Take Away']
         self.Capacity={}
@@ -96,7 +96,7 @@ class Market(Sector):
 
 class GymKhana(Sector):
     def __init__(self,pm):
-        super()__init(pm)
+        super().__init(pm)
         self.Types=['Indoor', 'Outdoor']
         self.Capacity={}
 
