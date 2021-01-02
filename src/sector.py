@@ -67,6 +67,39 @@ class Sector:
                 for j in range(self.Number_Units[building]):
                     self.Units_Placeholder[building][k]=Unit(j,building,self.Daily_People_Expectation[building][j],self.Number_Workers[building],self.Height[building][j],self.Location[0][building][j],self.Location[1][building][j],self)
                     k+=1
+                    
+                    
+class Restaurant(Sector):
+    def __init__(self,pm):People_Expectation
+        super().__init__(pm[:-1])
+        self.Types=['Dine In','Take Away']
+        self.Capacity={}
+        self.Factor=pm[-1]
+        def update_capacity(self):
+            for i in range(len(self.Number_Units)):
+                self.Capacity[self.Types[i]]=self.Factor[i]*self.Sub_Class_People[i]
+
+class Healthcare(Sector):
+    def __init__(self,pm):
+        super().__init__(pm[:-1])
+        self.Types = ['Care_Center', 'Health_Center', 'Hospital']
+        self.Capacity={}
+        self.Factor=pm[-1]
+        def update_capacity(self):
+            for i in range(len(self.Number_Units)):
+                self.Capacity[self.Types[i]]=self.Factor[i]*self.Sub_Class_People[i]
+
+class Market(Sector):
+    def __init__(self,pm):
+        super().__init__(pm)
+        self.Types=['Stationary', 'Vegetable Market', 'Department Store', 'Electronics Store']
+
+class GymKhana(Sector):
+    def __init__(self,pm):
+        super()__init(pm)
+        self.Types=['Indoor', 'Outdoor']
+        self.Capacity={}
+
 
 if __name__ == '__main__':
     pm = Parameters('Untitled layer.shp')
