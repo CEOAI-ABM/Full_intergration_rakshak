@@ -29,7 +29,7 @@ class population_spread:
 			wifi_data is a dictionary of thr form:
 			{"Saturday":{"3-4": [2,3]}} the 2D list for each time stores the conunt of number of people connected to each modem
 			the above implies => 2 people conneced to modem0 on saturday between 3 and 4 am;
-								 2 people conneced to modem1 on saturday between 3 and 4 am;
+					     3 people conneced to modem1 on saturday between 3 and 4 am;
 		"""
 		for day in wifi_data:
 			self.distribution[day]={}
