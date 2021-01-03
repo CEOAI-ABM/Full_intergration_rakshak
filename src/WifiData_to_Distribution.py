@@ -64,12 +64,10 @@ if __name__=='__main__':
 		for j in range(n):
 			locations.append((np.random.randint(0,L),np.random.randint(0,W)))
 		locations=Counter(locations).keys()
-		# print(locations)
 		N=len(locations)
 		coverage=[]
 		for j in range(N):
 			coverage.append(np.random.randint(1,L+W))
-		# print(coverage)
 		grid=population_spread([L,W,locations,coverage])
 		data=WIFI.copy();
 		for j in data:
