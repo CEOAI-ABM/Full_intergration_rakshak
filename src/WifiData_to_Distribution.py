@@ -74,7 +74,7 @@ if __name__=='__main__':
 		data=WIFI.copy();
 		for j in data:
 			for k in range(24):
-				data[j][str(k)+'-'+str(k+1)]=np.random.randint(1,100,N)
+				data[j][str(k)+":00"+'-'+str(k)+":59"]=np.random.randint(1,100,N)
 		grid.find_actual_distribution(data)
 		print(grid.distribution)
 
