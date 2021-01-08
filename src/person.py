@@ -15,13 +15,14 @@ class person():
     Args:
         pm(object): parameter objects
         ID(int): ID of person
+        role(str): student, faculty, staff
         dept(str): Department (Only applicable for students & faculty)
         inCampus(bool):
         year(int): only applicable for students
         schedule(dict): semester timetable for person
         master(object): master object
     """
-    def __init__(self,pm=None,ID=0,dept=None,inCampus=True,age=-1,ageclass=-1,role="student",year=None,schedule=None,master=None):
+    def __init__(self,pm=None,ID=0,dept=None,inCampus=True,age=-1,ageclass=-1,role="student",residence=None,year=None,schedule=None,master=None):
         super(person, self).__init__()
 
         self.ID         = ID
@@ -33,7 +34,7 @@ class person():
         # Whether the person is in 
         self.inCapmus   = inCampus
 
-        self.location = []
+        self.residence = residence
 
         #  Namely student, faculty or staff
         self.Role = role
@@ -62,7 +63,7 @@ def __init_students__(schedule):
         for i in range(2,5):
             for j in range(1,random.randrange(40,60)):
                 person_schedule = schedule[dept][i]
-                age             = str(18 + (i-1) + random.choice([0,1]))   
+                age = str(18 + (i-1) + random.choice([0,1]))   
                 junta = person(role="student",ID=ctr,age=age,year=j,schedule=person_schedule,dept=dept)
                 people.append(junta)
     

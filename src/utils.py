@@ -162,8 +162,10 @@ def form_schedule(file_path=None,save=False):
             year_schedule = {}
             lab_slot_taken = []
             occupied_slots = []
+
+            # Allotting Lab Courses
             for j in range(1,random.randrange(3,5)):
-                room    = dept + "-" + str(i) +  "-Lab-" + str(j)
+                room    = dept + str(i) +  "L" + str(j)
                 slot    = random.choice(slots_lab)
 
                 while(slot in lab_slot_taken):
@@ -173,7 +175,8 @@ def form_schedule(file_path=None,save=False):
                     occupied_slots.append(slot)
                     lab_slot_taken.append(slot)
                     year_schedule[room] = {"slot" : slot, "room" : room}
-
+            
+            # Allotting Theory Courses
             for j in range(1,random.randrange(4,6)):
                 room    = random.choice(rooms)
                 slot    = random.choice(slots_class)
@@ -191,11 +194,11 @@ def form_schedule(file_path=None,save=False):
                         else:
                             room = dept + "-room-" + str(j)
                             occupied.append(room + "_" + slot)
-                            year_schedule[dept + "-" + str(i) + "-" + str(j)] = {"slot" : slot, "room" : room}
+                            year_schedule[dept+ str(i) + "0" + str(j)] = {"slot" : slot, "room" : room}
                     else:
-                        occupied.append(room + "_" + slot)
+                        occupied.append(room + "_" + slot) 
                         occupied_slots.append(slot)
-                        year_schedule[dept + "-" + str(j)] = {"slot" : slot, "room" : room}
+                        year_schedule[dept + str(i) + "0" + str(j)] = {"slot" : slot, "room" : room}
                         
                 
             
