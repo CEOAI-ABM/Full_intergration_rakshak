@@ -115,7 +115,8 @@ def get_from_my_sql_table(conn):
 	for each_module in modules:
 
 		loc=Point(each_module[1],each_module[2]);
-		temp=wifimodule(each_module[0],loc);
+		temp=wifimodule(each_module[0]);
+		temp.location=loc;
 		wifi_list.append(temp);
 
 	return wifi_list;
