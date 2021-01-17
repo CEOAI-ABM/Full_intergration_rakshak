@@ -54,9 +54,9 @@ class person():
         for subject in self.schedule:
             class_room=self.schedule[subject]['room']
             slot_name=self.schedule[subject]['slot']
-            print(slot_name)
+            #print(slot_name)
             for classes,times in slots[slot_name].items():
-                print(times[0]+' '+times[1])
+                #print(times[0]+' '+times[1])
                 if len(slot_name)>3:
                     timing=times[1].split('-');
                     starting=int(timing[0]);
@@ -88,14 +88,15 @@ def __init_students__(schedule):
                 age             = str(18 + (i-1) + random.choice([0,1]))   
                 junta = person(role="student",ID=ctr,age=age,year=j,schedule=person_schedule,dept=dept)
                 people.append(junta)
+    return people
     
     
                 
 
 def main():
     schedule = form_schedule()
-    __init_students__(schedule)
-
+    p = __init_students__(schedule)
+    print(p[0].get_timetable())
 
 if __name__ == "__main__":
     main()
