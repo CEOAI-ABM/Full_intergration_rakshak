@@ -2,17 +2,31 @@ import geopandas as GP
 import matplotlib.pyplot as plt
 from shapely.geometry import Polygon
 import numpy as np
+import pandas as pd
 import random
-from zipfile import ZipFile
 
 class Parameters:
-    def __init__(self, File):
-        gdf = GP.read_file(File)
+    def __init__(self, ShpFile, OtherFile):
+        gdf = GP.read_file(ShpFile)
+        df = pd.read_csv(OtherFile)
         self.building_name = gdf['name']
         self.coordinates, self.ref, self.polygons = cal_coordinates(gdf)
-        self.heights = [random.randint(1,4) for i in range(len(self.building_name))]
         self.rooms = []
-        self.num_rooms = [random.randint(5,10) for i in range(len(self.building_name))]
+        self.num_rooms = list()
+        self.heights = list()
+        lib_area = self.polygons[2].area #area of lib
+        lbs_area = self.polygons[32].area #area of LBS
+        for i in range(len(self.building_name)):
+            try:
+                self.num_rooms.append(int(df['number of rooms/floor'][i]))
+                self.heights.append(int(df['height'][i]))
+            except:
+                if df['description'][i] == 'Academic':
+                    mu = 20*self.polygons[i].area/lib_area
+                else:
+                    mu = 130*self.polygons[i].area/lbs_area
+                self.num_rooms.append(int(abs(np.round(np.random.normal(mu,3,1)))))
+                self.heights.append(int(abs(np.round(np.random.normal(3,0.5,1)))))
         self.cal_rooms(self.num_rooms)
         self.xlist = []
         self.ylist = []
@@ -85,13 +99,14 @@ def random_points_in_polygon(number, polygon):
 
 
 if __name__=='__main__':
-    FilePath = "Untitled layer.shp"
+    ShpFilePath = "shapes/Untitled layer.shp"
+    FilePath = "Campus_data/KGP Data - Sheet1.csv"
 
-    pm = Parameters(FilePath)
+    pm = Parameters(ShpFilePath,FilePath)
     k = 0
     while True:
         try:
-            print(k,pm.building_name[k])
+            print(k,pm.building_name[k],pm.num_rooms[k],pm.heights[k])
             k+=1
         except:
             break
