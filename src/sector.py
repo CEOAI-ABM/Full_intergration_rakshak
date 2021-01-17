@@ -1,6 +1,4 @@
 import numpy as np
-#from parm import Parameters
-import shapes
 from param_with_shp import Parameters
 import matplotlib.pyplot as plt
 class Unit():

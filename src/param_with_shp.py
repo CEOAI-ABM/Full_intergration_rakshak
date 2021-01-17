@@ -10,6 +10,7 @@ class Parameters:
         gdf = GP.read_file(ShpFile)
         df = pd.read_csv(OtherFile)
         self.building_name = gdf['name']
+        self.description = gdf['descriptio']
         self.coordinates, self.ref, self.polygons = cal_coordinates(gdf)
         self.rooms = []
         self.num_rooms = list()
@@ -36,7 +37,7 @@ class Parameters:
             self.ylist.append([i.y for i in buil]*self.num_rooms[j])
             j+=1
 
-        self.pm = [self.num_rooms,[],[],self.xlist,self.ylist,[],self] #(7 parameters to be returned to Academic())
+        self.pm = [self.num_rooms,[],[],self.xlist,self.ylist,[],self] #(7 parameters to be returned to Sector())
         for i in range(len(self.building_name)):
                 self.pm[1].append(np.random.randint(5,50))
                 self.pm[2].append([])
@@ -106,7 +107,7 @@ if __name__=='__main__':
     k = 0
     while True:
         try:
-            print(k,pm.building_name[k],pm.num_rooms[k],pm.heights[k])
+            print(k,pm.building_name[k],"---- DESCRIPTION:",pm.description[k],"---- Number of Rooms:",pm.num_rooms[k],"---- Heights of the buildings",pm.heights[k])
             k+=1
         except:
             break
