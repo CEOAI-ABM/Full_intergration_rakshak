@@ -1,6 +1,7 @@
 import numpy as np
 from param_with_shp import Parameters
 import matplotlib.pyplot as plt
+from shapely.geometry import Point
 class Unit():
     '''A Class for storing a unit of a Academic chain like a Nalanda classrooms, Department office etc.
         Takes 8 arguments:
@@ -20,8 +21,7 @@ class Unit():
         self.Daily_People_Expectation   = Daily_People_Expectation
         self.Number_Workers             = Number_Workers
         self.height                     = Height
-        self.x                          = x_coordinate
-        self.y                          = y_coordinate
+        self.location                   = Point(x_coordinate,y_coordinate)
         self.working                    = []
         self.visiting                   = []
 
@@ -116,13 +116,13 @@ if __name__ == '__main__':
    # p =[]
     #for i in range(len(a.Units_Placeholder)):
      #   p.append(plt.scatter([a.Units_Placeholder[i][k].x for k in a.Units_Placeholder[i]],[a.Units_Placeholder[i][k].y for k in a.Units_Placeholder[i]]))
-    p1 = plt.scatter([a.Units_Placeholder[31][k].x for k in a.Units_Placeholder[31]],[a.Units_Placeholder[31][k].y for k in a.Units_Placeholder[31]],marker='h')
-    p2 = plt.scatter([a.Units_Placeholder[0][k].x for k in a.Units_Placeholder[0]],[a.Units_Placeholder[0][k].y for k in a.Units_Placeholder[0]],marker='.')
-    p3 = plt.scatter([a.Units_Placeholder[2][k].x for k in a.Units_Placeholder[2]],[a.Units_Placeholder[2][k].y for k in a.Units_Placeholder[2]],marker='*')
-    p4 = plt.scatter([a.Units_Placeholder[87][k].x for k in a.Units_Placeholder[87]],[a.Units_Placeholder[87][k].y for k in a.Units_Placeholder[87]],marker='s')
-    p5 = plt.scatter([a.Units_Placeholder[8][k].x for k in a.Units_Placeholder[8]],[a.Units_Placeholder[8][k].y for k in a.Units_Placeholder[8]],marker='v')
-    p6 = plt.scatter([a.Units_Placeholder[100][k].x for k in a.Units_Placeholder[100]],[a.Units_Placeholder[100][k].y for k in a.Units_Placeholder[100]],marker='x')
-    p7 = plt.scatter([a.Units_Placeholder[32][k].x for k in a.Units_Placeholder[32]],[a.Units_Placeholder[32][k].y for k in a.Units_Placeholder[32]],marker="+")
+    p1 = plt.scatter([a.Units_Placeholder[31][k].location.x for k in a.Units_Placeholder[31]],[a.Units_Placeholder[31][k].location.y for k in a.Units_Placeholder[31]],marker='h')
+    p2 = plt.scatter([a.Units_Placeholder[0][k].location.x for k in a.Units_Placeholder[0]],[a.Units_Placeholder[0][k].location.y for k in a.Units_Placeholder[0]],marker='.')
+    p3 = plt.scatter([a.Units_Placeholder[2][k].location.x for k in a.Units_Placeholder[2]],[a.Units_Placeholder[2][k].location.y for k in a.Units_Placeholder[2]],marker='*')
+    p4 = plt.scatter([a.Units_Placeholder[87][k].location.x for k in a.Units_Placeholder[87]],[a.Units_Placeholder[87][k].location.y for k in a.Units_Placeholder[87]],marker='s')
+    p5 = plt.scatter([a.Units_Placeholder[8][k].location.x for k in a.Units_Placeholder[8]],[a.Units_Placeholder[8][k].location.y for k in a.Units_Placeholder[8]],marker='v')
+    p6 = plt.scatter([a.Units_Placeholder[100][k].location.x for k in a.Units_Placeholder[100]],[a.Units_Placeholder[100][k].location.y for k in a.Units_Placeholder[100]],marker='x')
+    p7 = plt.scatter([a.Units_Placeholder[32][k].location.x for k in a.Units_Placeholder[32]],[a.Units_Placeholder[32][k].location.y for k in a.Units_Placeholder[32]],marker="+")
     plt.axis('square')
     plt.show()
 
