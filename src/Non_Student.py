@@ -7,4 +7,7 @@ class professor(person):
         super().__init__(ID=ID,role=role,age=age,residence=residence,dept=dept)
         self.pm = pm
         self.office = self.pm.office
+        self.office_prob = self.pm.office_prob
         self.lab  = self.pm.lab
+        self.lab_prob = self.pm.lab_prob
+        self.prof_timetable = schedule
