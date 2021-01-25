@@ -58,7 +58,7 @@ class person():
     def get_timetable(self):
         for day in self.timetable:
             for i in range(24):
-                self.timetable[day][str(i)+'-'+str(i+1)]=self.residence
+                self.timetable[day][str(i)+'-'+str(i+1)]=self.sector.ParamObj.building_name[self.residence_unit.Building]
         for subject in self.schedule:
             class_room=self.schedule[subject]['room']
             slot_name=self.schedule[subject]['slot']
