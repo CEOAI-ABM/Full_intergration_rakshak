@@ -112,7 +112,7 @@ def __init_students__(schedule,sectorptr=None):
 
 def main():
     schedule = form_schedule()
-    pm = Parameters('shapes/Untitled layer.shp','Campus_data/KGP Data - Sheet1.csv')
+    pm = Parameters('shapes/KgpBuildings.shp','Campus_data/KGP Data - Sheet1.csv')
     a = Sector(pm.returnParam())
     p = __init_students__(schedule,a)
     print(p[0].get_timetable())

@@ -100,7 +100,7 @@ def random_points_in_polygon(number, polygon):
 
 
 if __name__=='__main__':
-    ShpFilePath = "shapes/Untitled layer.shp"
+    ShpFilePath = "shapes/KgpBuildings.shp"
     FilePath = "Campus_data/KGP Data - Sheet1.csv"
 
     pm = Parameters(ShpFilePath,FilePath)
