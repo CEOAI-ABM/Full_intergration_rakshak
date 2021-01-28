@@ -7,7 +7,6 @@ from sector import Sector, Unit
 from param_with_shp import Parameters
 from shapely.geometry import Point
 import matplotlib.pyplot as plt
-import time
 
 from utils import form_schedule
 
