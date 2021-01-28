@@ -7,6 +7,8 @@ from sector import Sector, Unit
 from param_with_shp import Parameters
 from shapely.geometry import Point
 import matplotlib.pyplot as plt
+import geopandas as GP
+import matplotlib.animation as animation
 
 from utils import form_schedule
 
@@ -40,7 +42,7 @@ class person():
         if sectorptr!=None:
             self.residence_unit  = self.sector.Units_Placeholder[self.residence[0]][self.residence[1]+self.sector.Index_Holder[self.residence[0]]]
 
-        # Whether the person is in 
+        # Whether the person is in
         self.inCapmus   = inCampus
         self.timetable={"sunday":{},"monday":{}, "tuesday":{}, "wednesday":{}, "thursday":{}, "friday":{}, "saturday":{}}
 
@@ -51,7 +53,7 @@ class person():
         if(self.Role=="student"):
             self.schedule = schedule
             self.dept = dept
-        
+
         if(self.Role=="faculty"):
             self.dept = dept
 
@@ -82,12 +84,12 @@ class person():
 
     def get_schedule(self):
         pass
-        
+
 
 
 def __init_students__(schedule,sectorptr=None):
     """ For initiating people & giving them their respective schedules
-    Args: 
+    Args:
         schedule(dict): containing year-wise classes+labs with slots & rooms
     """
     depts   = ['AE', 'AG', 'AR', 'BT', 'CE', 'CH', 'CS', 'CY', 'EC', 'EE', 'EX', 'GG', 'HS', 'IE', 'IM', 'MA', 'ME', 'MF', 'MI', 'MT', 'NA', 'PH', 'QE', 'QM']
@@ -113,15 +115,64 @@ def __init_students__(schedule,sectorptr=None):
                     junta = person(role="student",ID=ctr,age=age,year=j,schedule=person_schedule,dept=dept)
                 people.append(junta)
     return people
-    
-    
-                
+
+
+
 
 def main():
     schedule = form_schedule()
     pm = Parameters('shapes/KgpBuildings.shp','Campus_data/KGP Data - Sheet1.csv')
     a = Sector(pm.returnParam())
     p = __init_students__(schedule,a)
+
+    pa=[]
+    pb=[]
+    #print(p[0].get_timetable())
+    for t in range(len(p)):
+        pointa = []
+        pointb = []
+        for key,value in p[t].get_timetable().items():
+            for aa,b in value.items():
+                pointa.append(b.x)
+                pointb.append(b.y)
+        pa.append(pointa)
+        pb.append(pointb)
+
+    """pointa = []
+    pointb = []
+            #m = plt.scatter(b.x,b.y)
+    for key,value in p[1].get_timetable().items():
+        for aa,b in value.items():
+            pointa.append(b.x)
+            pointb.append(b.y)
+    #plt.show()
+    pa.append(pointa)
+    pb.append(pointb)"""
+
+    print(pointa,pointb)
+    fig = plt.figure()
+    for i in a.ParamObj.polygons:
+        plt.plot(*i.exterior.xy)
+    ax = plt.axes(xlim=(-300, 0), ylim=(0,300))
+    x, y = [[],[]]
+    mat, = ax.plot(x, y, 'o')
+
+
+    def init():
+        mat.set_data([],[])
+        for i in a.ParamObj.polygons:
+            plt.plot(*i.exterior.xy)
+
+    # animation function.  This is called sequentially
+    def animate(i):
+        x = [pa[k][i] for k in range(len(p))]
+        y = [pb[k][i] for k in range(len(p))]
+        mat.set_data(x,y)
+        return mat,
+
+    anim = animation.FuncAnimation(fig, animate, interval=200)
+
+    plt.show()
 
 
 if __name__ == "__main__":
