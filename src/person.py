@@ -77,7 +77,7 @@ class person():
                             altroom = sum([ord(char) for char in class_room])+self.sector.Index_Holder[42]
                             self.timetable[times[0]][str(i)+'-'+str(i+1)]=self.sector.Units_Placeholder[42][altroom].location
                 else:
-                    self.timetable[times[0]][times[1]]=self.sector.RoomNo_to_Unit(class_room)
+                    self.timetable[times[0]][times[1]]=self.sector.RoomNo_to_Unit(class_room).location
         return self.timetable
 
     def get_schedule(self):
@@ -124,6 +124,9 @@ def main():
     p = __init_students__(schedule,a)
     plots = []
     print(p[0].get_timetable())
+    for key,value in p[0].get_timetable().items():
+        for a,b in value.items():
+            print(b)
 
 if __name__ == "__main__":
     main()
