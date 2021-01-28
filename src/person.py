@@ -7,6 +7,7 @@ from sector import Sector, Unit
 from param_with_shp import Parameters
 from shapely.geometry import Point
 import matplotlib.pyplot as plt
+import time
 
 from utils import form_schedule
 
@@ -122,11 +123,7 @@ def main():
     pm = Parameters('shapes/KgpBuildings.shp','Campus_data/KGP Data - Sheet1.csv')
     a = Sector(pm.returnParam())
     p = __init_students__(schedule,a)
-    plots = []
-    print(p[0].get_timetable())
-    for key,value in p[0].get_timetable().items():
-        for a,b in value.items():
-            print(b)
+
 
 if __name__ == "__main__":
     main()
