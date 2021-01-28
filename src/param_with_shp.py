@@ -8,7 +8,7 @@ import random
 class Parameters:
     def __init__(self, ShpFile, OtherFile):
         gdf = GP.read_file(ShpFile)
-        df = pd.read_csv(OtherFile)
+        self.df = pd.read_csv(OtherFile)
         self.building_name = gdf['name']
         self.description = gdf['descriptio']
         self.coordinates, self.ref, self.polygons = cal_coordinates(gdf)
@@ -19,10 +19,10 @@ class Parameters:
         lbs_area = self.polygons[32].area #area of LBS
         for i in range(len(self.building_name)):
             try:
-                self.num_rooms.append(int(df['number of rooms/floor'][i]))
-                self.heights.append(int(df['height'][i]))
+                self.num_rooms.append(int(self.df['number of rooms/floor'][i]))
+                self.heights.append(int(self.df['height'][i]))
             except:
-                if df['description'][i] == 'Academic':
+                if self.df['description'][i] == 'Academic':
                     mu = 20*self.polygons[i].area/lib_area
                 else:
                     mu = 130*self.polygons[i].area/lbs_area
@@ -33,8 +33,8 @@ class Parameters:
         self.ylist = []
         j = 0
         for buil in self.rooms:
-            self.xlist.append([i.x for i in buil]*self.num_rooms[j])
-            self.ylist.append([i.y for i in buil]*self.num_rooms[j])
+            self.xlist.append([i.x for i in buil]*self.heights[j])
+            self.ylist.append([i.y for i in buil]*self.heights[j])
             j+=1
 
         self.pm = [self.num_rooms,[],[],self.xlist,self.ylist,[],self] #(7 parameters to be returned to Sector())
@@ -44,7 +44,7 @@ class Parameters:
                 for j in range(1,self.heights[i]+1):
                     for k in range(self.num_rooms[i]):
                         self.pm[2][i].append(j)
-                self.pm[5].append(np.random.randint(0,50,self.num_rooms[i]))
+                self.pm[5].append(np.random.randint(0,50,self.num_rooms[i]*self.heights[i]))
 
 
     def cal_rooms(self, no_rooms):

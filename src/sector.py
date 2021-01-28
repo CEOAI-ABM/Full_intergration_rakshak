@@ -45,7 +45,8 @@ class Sector:
         self.Location                   = [pm[3],pm[4]]
         self.Daily_People_Expectation   = pm[5]
         self.ParamObj                   = pm[6]
-
+        self.RoomCodes                  = []
+        self.Rooms                      = {}
         self.Index_Holder               = []
         self.Units_Placeholder          = {i:{} for i in range(self.Total_Num_Buildings)}
 
@@ -53,8 +54,27 @@ class Sector:
         #self.Number_Workplaces         = [0]*(self.Total_Num_Buildings)
         self.initialize_units()
 
-    def PeopleInAcademic(self):
-        return sum(self.People_In_Buildings)
+    def RoomNo_to_Unit(self,room_name):
+        if room_name[0] == 'V':
+            code = room_name[0]
+            number = room_name[1:]
+        else:
+            code = room_name[0:2]
+            if code == 'NC':
+                allrooms=['NC131', 'NC132', 'NC141', 'NC142', 'NC231', 'NC232', 'NC233', 'NC234', 'NC241', 'NC242', 'NC243', 'NC244', 'NC331', 'NC332', 'NC333', 'NC334', 'NC341', 'NC342', 'NC343', 'NC344', 'NC431', 'NC432', 'NC433', 'NC434', 'NC441', 'NC442', 'NC443', 'NC444']
+                number = str(allrooms.index(room_name))
+            elif code == 'NR':
+                allrooms=['NR121', 'NR122', 'NR123', 'NR124', 'NR221', 'NR222', 'NR223', 'NR224', 'NR321', 'NR322', 'NR323', 'NR324', 'NR421', 'NR422', 'NR423', 'NR424']
+                number = str(allrooms.index(room_name))
+            elif code == 'S-':
+                allrooms = ['S-123', 'S-125', 'S-126', 'S-127', 'S-136', 'S-216', 'S-122A', 'S-301', 'S-302']
+                number = str(allrooms.index(room_name))
+            elif room_name[3]=='L':
+                number = str(int(room_name[2]+room_name[4])-20)
+            else:
+                number = room_name[2:]
+                print(code+number)
+        return self.Rooms[code+number]
 
     def initialize_units(self):
         k = 0
@@ -63,8 +83,16 @@ class Sector:
             #self.Number_Workplaces[building] = np.round(np.random.normal(np.array(self.Daily_People_Expectation[building]),np.array(self.Daily_People_Expectation[building])/6)).astype(np.int)
 
             if(self.Number_Units[building]>0):
-                for j in range(self.Number_Units[building]):
+                temp_room_code = self.ParamObj.df['Abbreviation'][building]
+                if type(temp_room_code) != type(0.1):
+                    self.RoomCodes.append(temp_room_code.split(','))
+                    #print(self.RoomCodes[-1])
+                for j in range(len(self.Height[building])):
+                    #print(len(self.Location[0][building]),j,self.Height[building])
                     self.Units_Placeholder[building][k]=Unit(j,building,self.Daily_People_Expectation[building][j],self.Number_Workers[building],self.Height[building][j],self.Location[0][building][j],self.Location[1][building][j],self)
+                    if type(temp_room_code) != type(0.1):
+                        roomcode = self.RoomCodes[-1][int(j/(len(self.Height[building])/len(self.RoomCodes[-1])))]
+                        self.Rooms[roomcode+str(j-((len(self.Height[building])//len(self.RoomCodes[-1])))*int(j/(len(self.Height[building])/len(self.RoomCodes[-1]))))]=self.Units_Placeholder[building][k]
                     k+=1
 
 
@@ -105,6 +133,9 @@ if __name__ == '__main__':
     #i = pm.BuildingInfo(BuildingName="Mechanical Engineering")['id']
     a = Sector(pm.returnParam())
     print("The Total Number of Buildings: ",a.Total_Num_Buildings)
+    print(a.Rooms)
+    print(a.RoomNo_to_Unit('AI21'))
+    plt.scatter(a.RoomNo_to_Unit('ME3L3').location.x, a.RoomNo_to_Unit('ME3L3').location.y,marker = '*')
 
     print(a.ParamObj.building_name[31])
     print(a.ParamObj.building_name[0])

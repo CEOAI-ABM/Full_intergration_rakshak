@@ -58,7 +58,8 @@ class person():
     def get_timetable(self):
         for day in self.timetable:
             for i in range(24):
-                self.timetable[day][str(i)+'-'+str(i+1)]=self.sector.ParamObj.building_name[self.residence_unit.Building]
+                #self.timetable[day][str(i)+'-'+str(i+1)]=self.sector.ParamObj.building_name[self.residence_unit.Building]
+                self.timetable[day][str(i)+'-'+str(i+1)]=self.residence_unit.location
         for subject in self.schedule:
             class_room=self.schedule[subject]['room']
             slot_name=self.schedule[subject]['slot']
@@ -70,11 +71,17 @@ class person():
                     starting=int(timing[0])
                     ending=int(timing[-1])
                     for i in range(starting, ending):
-                        self.timetable[times[0]][str(i)+'-'+str(i+1)]=class_room
+                        try:
+                            self.timetable[times[0]][str(i)+'-'+str(i+1)]=self.sector.RoomNo_to_Unit(class_room).location
+                        except:
+                            altroom = sum([ord(char) for char in class_room])+self.sector.Index_Holder[42]
+                            self.timetable[times[0]][str(i)+'-'+str(i+1)]=self.sector.Units_Placeholder[42][altroom].location
                 else:
-                    self.timetable[times[0]][times[1]]=class_room
+                    self.timetable[times[0]][times[1]]=self.sector.RoomNo_to_Unit(class_room)
         return self.timetable
 
+    def get_schedule(self):
+        pass
         
 
 
@@ -83,7 +90,7 @@ def __init_students__(schedule,sectorptr=None):
     Args: 
         schedule(dict): containing year-wise classes+labs with slots & rooms
     """
-    depts   = ['AE', 'AG', 'AI', 'BT', 'CE', 'CH', 'CS', 'CY', 'EC', 'EE', 'EX', 'GG', 'HS', 'IE', 'IM', 'MA', 'ME', 'MF', 'MI', 'MT', 'NA', 'PH', 'QE', 'QM', 'RR']
+    depts   = ['AE', 'AG', 'AR', 'BT', 'CE', 'CH', 'CS', 'CY', 'EC', 'EE', 'EX', 'GG', 'HS', 'IE', 'IM', 'MA', 'ME', 'MF', 'MI', 'MT', 'NA', 'PH', 'QE', 'QM']
 
     people = []
 
@@ -100,7 +107,7 @@ def __init_students__(schedule,sectorptr=None):
                 age = str(18 + (i-1) + random.choice([0,1]))
                 if sectorptr!=None:
                     hall = random.choices(residence_indices,weights)[0]
-                    room = random.randint(0,sectorptr.Number_Units[hall]-1)
+                    room = random.randint(0,len(sectorptr.Height[hall])-1)
                     junta = person(sectorptr=sectorptr,role="student",ID=ctr,age=age,year=j,schedule=person_schedule,dept=dept,residence=[hall,room])
                 else:
                     junta = person(role="student",ID=ctr,age=age,year=j,schedule=person_schedule,dept=dept)
@@ -115,10 +122,8 @@ def main():
     pm = Parameters('shapes/KgpBuildings.shp','Campus_data/KGP Data - Sheet1.csv')
     a = Sector(pm.returnParam())
     p = __init_students__(schedule,a)
-    print(p[0].get_timetable())
     plots = []
-    for i in p:
-        print(a.ParamObj.building_name[i.residence_unit.Building],i.residence_unit.location)
+    print(p[0].get_timetable())
 
 if __name__ == "__main__":
     main()

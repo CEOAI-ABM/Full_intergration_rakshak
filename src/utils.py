@@ -146,8 +146,8 @@ def form_schedule(file_path=None,save=False):
         save(bool): Whether to store the schedule  
     """
 
-    depts   = ['AE', 'AG', 'AI', 'BT', 'CE', 'CH', 'CS', 'CY', 'EC', 'EE', 'EX', 'GG', 'HS', 'IE', 'IM', 'MA', 'ME', 'MF', 'MI', 'MT', 'NA', 'PH', 'QE', 'QM', 'RR']
-    rooms   = ['NC131', 'NC132', 'NC141', 'NC142', 'NC231', 'NC232', 'NC233', 'NC234', 'NC241', 'NC242', 'NC243', 'NC244', 'NC331', 'NC332', 'NC333', 'NC334', 'NC341', 'NC342', 'NC343', 'NC344', 'NC431', 'NC432', 'NC433', 'NC434', 'NC441', 'NC442', 'NC443', 'NC444', 'NEX201', 'NR121', 'NR122', 'NR123', 'NR124', 'NR221', 'NR222', 'NR223', 'NR224', 'NR321', 'NR322', 'NR323', 'NR324', 'NR421', 'NR422', 'NR423', 'S-123', 'S-125', 'S-126', 'S-127', 'S-136', 'S-216', 'S-122A', 'S-301', 'S-302', 'V1', 'V2', 'V3', 'V4']
+    depts   = ['AE', 'AG', 'AR', 'BT', 'CE', 'CH', 'CS', 'CY', 'EC', 'EE', 'EX', 'GG', 'HS', 'IE', 'IM', 'MA', 'ME', 'MF', 'MI', 'MT', 'NA', 'PH', 'QE', 'QM']
+    rooms   = ['NC131', 'NC132', 'NC141', 'NC142', 'NC231', 'NC232', 'NC233', 'NC234', 'NC241', 'NC242', 'NC243', 'NC244', 'NC331', 'NC332', 'NC333', 'NC334', 'NC341', 'NC342', 'NC343', 'NC344', 'NC431', 'NC432', 'NC433', 'NC434', 'NC441', 'NC442', 'NC443', 'NC444', 'NR121', 'NR122', 'NR123', 'NR124', 'NR221', 'NR222', 'NR223', 'NR224', 'NR321', 'NR322', 'NR323', 'NR324', 'NR421', 'NR422', 'NR423', 'NR424', 'S-123', 'S-125', 'S-126', 'S-127', 'S-136', 'S-216', 'S-122A', 'S-301', 'S-302', 'V1', 'V2', 'V3', 'V4']
     slots_class   = ['A3', 'B3', 'C3', 'C4', 'D3', 'D4', 'E3', 'E4', 'F3', 'F4', 'G3', 'H3', 'S3', 'U3', 'U4', 'V3', 'V4', 'X4']
     slots_lab = ['J-Lab', 'K-Lab', 'L-Lab', 'M-Lab', 'N-Lab', 'O-Lab', 'P-Lab', 'Q-Lab', 'R-Lab', 'X-Lab']
     
@@ -169,7 +169,7 @@ def form_schedule(file_path=None,save=False):
                 slot    = random.choice(slots_lab)
 
                 while(slot in lab_slot_taken):
-                    room    = random.choice(rooms)
+                    #room    = random.choice(rooms)
                     slot    = random.choice(slots_lab)
                 else:
                     occupied_slots.append(slot)
@@ -217,22 +217,22 @@ def main():
     # Can be set to wherever the json files are present
     file_path = os.getcwd() + "/Timetable"
 
-    with open(file_path + "/Schedule/schedule.json", 'r') as fp:
+    with open(file_path + "/Schedule/schedule.json", 'r',encoding='utf8') as fp:
         schedule = json.load(fp)
 
-    with open(file_path + "/Grades/courses.json", 'r') as fp:
+    with open(file_path + "/Grades/courses.json", 'r',encoding='utf8') as fp:
         grades = json.load(fp)
 
-    with open(file_path + "/Grades/2018Autumn.json", 'r') as fp:
+    with open(file_path + "/Grades/2018Autumn.json", 'r',encoding='utf8') as fp:
         grades_18A = json.load(fp)
 
-    with open(file_path + "/Grades/2018Spring.json", 'r') as fp:
+    with open(file_path + "/Grades/2018Spring.json", 'r',encoding='utf8') as fp:
         grades_18S = json.load(fp)
 
-    with open(file_path + "/subjects.json",'r') as fp:
+    with open(file_path + "/subjects.json",'r',encoding='utf8') as fp:
         subjects = json.load(fp)
 
-    with open(file_path + "/Schedule/slots.json",'r') as fp:
+    with open(file_path + "/Schedule/slots.json",'r',encoding='utf8') as fp:
         slots = json.load(fp)
 
     schedule = form_schedule(file_path)
