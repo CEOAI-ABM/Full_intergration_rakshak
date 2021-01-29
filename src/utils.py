@@ -164,7 +164,7 @@ def form_schedule(file_path=None,save=False):
             occupied_slots = []
 
             # Allotting Lab Courses
-            for j in range(1,random.randrange(3,5)):
+            for j in range(1,random.randrange(4,6)):
                 room    = dept + str(i) +  "L" + str(j)
                 slot    = random.choice(slots_lab)
 
@@ -177,7 +177,7 @@ def form_schedule(file_path=None,save=False):
                     year_schedule[room] = {"slot" : slot, "room" : room}
             
             # Allotting Theory Courses
-            for j in range(1,random.randrange(4,6)):
+            for j in range(1,random.randrange(5,8)):
                 room    = random.choice(rooms)
                 slot    = random.choice(slots_class)
 
