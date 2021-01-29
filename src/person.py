@@ -124,7 +124,6 @@ def main():
     pm = Parameters('shapes/KgpBuildings.shp','Campus_data/KGP Data - Sheet1.csv')
     a = Sector(pm.returnParam())
     p = __init_students__(schedule,a)
-    print(p[0].get_timetable())
 
     pa=[]
     pb=[]
@@ -150,19 +149,19 @@ def main():
     pa.append(pointa)
     pb.append(pointb)"""
 
-    #print(pointa,pointb)
+    print(pointa,pointb)
     fig = plt.figure()
     for i in a.ParamObj.polygons:
-        plt.plot(*i.exterior.xy,lw = 1)
-    ax = plt.axes(xlim=(-300, 0), ylim=(0,300),aspect='equal')
+        plt.plot(*i.exterior.xy)
+    ax = plt.axes(xlim=(-300, 0), ylim=(0,300))
     x, y = [[],[]]
-    mat, = ax.plot(x, y, '.',markersize=1)
+    mat, = ax.plot(x, y, 'o')
 
 
     def init():
         mat.set_data([],[])
         for i in a.ParamObj.polygons:
-            ax.plot(*i.exterior.xy,lw=1)
+            plt.plot(*i.exterior.xy)
 
     # animation function.  This is called sequentially
     def animate(i):
@@ -171,7 +170,8 @@ def main():
         mat.set_data(x,y)
         return mat,
 
-    anim = animation.FuncAnimation(fig, animate,init_func=init, interval=600)
+    anim = animation.FuncAnimation(fig, animate, interval=200)
+
     plt.show()
 
 

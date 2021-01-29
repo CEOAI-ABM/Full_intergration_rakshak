@@ -3,15 +3,15 @@ import json
 import random
 
 def total_students(course, grades, grades_18A, grades_18S, na_list):
-    """Gives the count of total students present in the course
+    """Gives the count of total students present in the course 
         by adding all the grade allocations.
-
+    
     Args:
         course (str): Course code
         grades,grades_18A,grades_18S (dict): Course Grade Report
         na_list (list): A list of the subjects with name (wherever possible)
                         whose strength couldn't be determined.
-
+    
     Returns:
         strength (int): Strngth of the course.
     """
@@ -65,7 +65,7 @@ def gen_timetable(file_path, schedule, grades, grades_18A, grades_18S):
         file_path (str): path where the json are present.
         schedule (dict): Day-Wise course occupancy of the rooms
         grades,grades_18A,grades_18S (dict): Course Grade Report
-
+    
     Returns:
         na_list (list): A list of the subjects with name (wherever possible)
                         whose strength couldn't be determined.
@@ -113,30 +113,29 @@ def form_subjects_real(file_path, subjects, grades, grades_18A, grades_18S):
         temp["slots"] = subjects[subject][0]
         temp['room'] = subjects[subject][1]
         final_subjects[subject] = temp
-
+    
     with open(file_path + "/subjects.json",'w') as fp:
         json.dump(final_subjects, fp, sort_keys=True, indent=3)
-
+    
     return na_list
 
 def is_valid(subject):
-    """ Checks whether the subject has sufficient information to be added to the
+    """ Checks whether the subject has sufficient information to be added to the 
     """
     if(subject["strength"]=="NA"):
         return False
-
+    
     return True
 
 def is_clash(slot,lab_slots):
-    """ Checks for clash of slot with
+    """ Checks for clash of slot with 
     """
-    #clash   = {'Q-Lab' : ['C3','B3','D3','D4'], "J-Lab" : ['H3','U3','U4'], "K-Lab" : ['D2','D3','D3','A3'], "L-Lab" : ['H2','H3','U3','U4'], "R-Lab" : ['F3','F4','G3','E3','E4'], "X-Lab" : ['X4'], "M-Lab" : ['C4','E3','E4','G3'], "N-Lab" : ['I2','V3','V3','V4'], "O-Lab" : ['E2','E4','F4','F3'], "P-Lab" : ['V4','V3','I2']}
-    clash    = {'J-Lab': ['U3', 'H3', 'U4'], 'K-Lab': ['A3', 'D2', 'D4', 'D3'], 'L-Lab': ['H2', 'U3', 'H3', 'U4'], 'M-Lab': ['E3', 'C4', 'E4', 'G3'], 'N-Lab': ['V3', 'V4'], 'O-Lab': ['E2', 'F4', 'F3', 'F2', 'E4'], 'P-Lab': ['I2', 'V3', 'V4'], 'Q-Lab': ['C3', 'D4', 'B3', 'D3', 'C4'], 'R-Lab': ['G3', 'F3', 'F4', 'E3', 'E4'], 'X-Lab': ['X4']}
+    clash   = {'Q-Lab' : ['C3','B3','D3','D4'], "J-Lab" : ['H3','U3','U4'], "K-Lab" : ['D2','D3','D3','A3'], "L-Lab" : ['H2','H3','U3','U4'], "R-Lab" : ['F3','F4','G3','E3','E4'], "X-Lab" : ['X4'], "M-Lab" : ['C4','E3','E4','G3'], "N-Lab" : ['I2','V3','V3','V4'], "O-Lab" : ['E2','E4','F4','F3'], "P-Lab" : ['V4','V3','I2']}
 
     for entry in lab_slots:
         if(slot in clash[entry]):
             return True
-
+    
     return False
 
 def form_schedule(file_path=None,save=False):
@@ -144,15 +143,14 @@ def form_schedule(file_path=None,save=False):
 
     Args:
         file_path(str): For storing the schedule.json
-        save(bool): Whether to store the schedule
+        save(bool): Whether to store the schedule  
     """
 
     depts   = ['AE', 'AG', 'AR', 'BT', 'CE', 'CH', 'CS', 'CY', 'EC', 'EE', 'EX', 'GG', 'HS', 'IE', 'IM', 'MA', 'ME', 'MF', 'MI', 'MT', 'NA', 'PH', 'QE', 'QM']
     rooms   = ['NC131', 'NC132', 'NC141', 'NC142', 'NC231', 'NC232', 'NC233', 'NC234', 'NC241', 'NC242', 'NC243', 'NC244', 'NC331', 'NC332', 'NC333', 'NC334', 'NC341', 'NC342', 'NC343', 'NC344', 'NC431', 'NC432', 'NC433', 'NC434', 'NC441', 'NC442', 'NC443', 'NC444', 'NR121', 'NR122', 'NR123', 'NR124', 'NR221', 'NR222', 'NR223', 'NR224', 'NR321', 'NR322', 'NR323', 'NR324', 'NR421', 'NR422', 'NR423', 'NR424', 'S-123', 'S-125', 'S-126', 'S-127', 'S-136', 'S-216', 'S-122A', 'S-301', 'S-302', 'V1', 'V2', 'V3', 'V4']
-    #slots_class   = ['A3', 'B3', 'C3', 'C4', 'D3', 'D4', 'E3', 'E4', 'F3', 'F4', 'G3', 'H3', 'S3', 'U3', 'U4', 'V3', 'V4', 'X4']
-    slots_class   = ['A2', 'A3', 'B2', 'B3', 'C2', 'C3', 'C4', 'D2', 'D3', 'D4', 'E2', 'E3', 'E4', 'F2', 'F3', 'F4', 'G3', 'H2', 'H3', 'I2', 'S3', 'U3', 'U4', 'V3', 'V4', 'X4']
+    slots_class   = ['A3', 'B3', 'C3', 'C4', 'D3', 'D4', 'E3', 'E4', 'F3', 'F4', 'G3', 'H3', 'S3', 'U3', 'U4', 'V3', 'V4', 'X4']
     slots_lab = ['J-Lab', 'K-Lab', 'L-Lab', 'M-Lab', 'N-Lab', 'O-Lab', 'P-Lab', 'Q-Lab', 'R-Lab', 'X-Lab']
-
+    
 
     occupied = []
     schedule = {}
@@ -177,7 +175,7 @@ def form_schedule(file_path=None,save=False):
                     occupied_slots.append(slot)
                     lab_slot_taken.append(slot)
                     year_schedule[room] = {"slot" : slot, "room" : room}
-
+            
             # Allotting Theory Courses
             for j in range(1,random.randrange(4,6)):
                 room    = random.choice(rooms)
@@ -198,19 +196,19 @@ def form_schedule(file_path=None,save=False):
                             occupied.append(room + "_" + slot)
                             year_schedule[dept+ str(i) + "0" + str(j)] = {"slot" : slot, "room" : room}
                     else:
-                        occupied.append(room + "_" + slot)
+                        occupied.append(room + "_" + slot) 
                         occupied_slots.append(slot)
                         year_schedule[dept + str(i) + "0" + str(j)] = {"slot" : slot, "room" : room}
-
-
-
+                        
+                
+            
             if(dept in schedule):
                 schedule[dept].update({i:year_schedule})
-
+            
             else:
                 temp_dict[i] = year_schedule
                 schedule[dept] = temp_dict
-
+            
     return schedule
 
 
@@ -242,7 +240,7 @@ def main():
 
     # na_list = form_subjects_real(file_path, subjects, grades, grades_18A, grades_18S)
     # na_list = gen_timetable(file_path, schedule, grades, grades_18A, grades_18S)
-
+    
     # with open(file_path + "/na_subjects_list.txt",'w') as fp:
     #     for entry in na_list:
     #         fp.write(entry + "\n")
