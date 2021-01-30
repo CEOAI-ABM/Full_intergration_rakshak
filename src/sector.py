@@ -133,8 +133,6 @@ if __name__ == '__main__':
     #i = pm.BuildingInfo(BuildingName="Mechanical Engineering")['id']
     a = Sector(pm.returnParam())
     print("The Total Number of Buildings: ",a.Total_Num_Buildings)
-    print(a.Rooms)
-    print(a.RoomNo_to_Unit('AI21'))
     plt.scatter(a.RoomNo_to_Unit('ME3L3').location.x, a.RoomNo_to_Unit('ME3L3').location.y,marker = '*')
 
     print(a.ParamObj.building_name[31])
