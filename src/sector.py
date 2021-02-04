@@ -14,7 +14,7 @@ class Unit():
         y_coordinate                Location
         Sector                    Pointer to the Sector class object calling it
     '''
-    def __init__(self,Id,Building,Daily_People_Expectation,Number_Workers,Height,x_coordinate,y_coordinate,Sector):
+    def __init__(self,Id,Building,Daily_People_Expectation,Number_Workers,Height,x_coordinate,y_coordinate,Sector,isclassroom=False):
         self.Id                         = Id
         self.Building                   = Building
         self.Sector                     = Sector
@@ -24,6 +24,7 @@ class Unit():
         self.location                   = Point(x_coordinate,y_coordinate)
         self.working                    = []
         self.visiting                   = []
+        self.isclassroom                = isclassroom
 
 
 class Sector:
@@ -69,11 +70,11 @@ class Sector:
             elif code == 'S-':
                 allrooms = ['S-123', 'S-125', 'S-126', 'S-127', 'S-136', 'S-216', 'S-122A', 'S-301', 'S-302']
                 number = str(allrooms.index(room_name))
-            elif room_name[3]=='L':
+            elif len(room_name) == 5 and room_name[3]=='L':
                 number = str(int(room_name[2]+room_name[4])-20)
             else:
                 number = room_name[2:]
-                print(code+number)
+                #print(code+number)
         return self.Rooms[code+number]
 
     def initialize_units(self):
@@ -91,8 +92,10 @@ class Sector:
                     #print(len(self.Location[0][building]),j,self.Height[building])
                     self.Units_Placeholder[building][k]=Unit(j,building,self.Daily_People_Expectation[building][j],self.Number_Workers[building],self.Height[building][j],self.Location[0][building][j],self.Location[1][building][j],self)
                     if type(temp_room_code) != type(0.1):
-                        roomcode = self.RoomCodes[-1][int(j/(len(self.Height[building])/len(self.RoomCodes[-1])))]
-                        self.Rooms[roomcode+str(j-((len(self.Height[building])//len(self.RoomCodes[-1])))*int(j/(len(self.Height[building])/len(self.RoomCodes[-1]))))]=self.Units_Placeholder[building][k]
+                        some_temp_no = int(j/(len(self.Height[building])//len(self.RoomCodes[-1])))
+                        if some_temp_no >= len(self.RoomCodes[-1]): some_temp_no = len(self.RoomCodes[-1])-1
+                        roomcode = self.RoomCodes[-1][some_temp_no]
+                        self.Rooms[roomcode+str(j-((len(self.Height[building])//len(self.RoomCodes[-1])))*some_temp_no)]=self.Units_Placeholder[building][k]
                     k+=1
 
 
@@ -133,7 +136,8 @@ if __name__ == '__main__':
     #i = pm.BuildingInfo(BuildingName="Mechanical Engineering")['id']
     a = Sector(pm.returnParam())
     print("The Total Number of Buildings: ",a.Total_Num_Buildings)
-    plt.scatter(a.RoomNo_to_Unit('ME3L3').location.x, a.RoomNo_to_Unit('ME3L3').location.y,marker = '*')
+    #print([d for d in a.Rooms if d[0:2]=='NA'])
+    print(a.Rooms['NA0'])
 
     print(a.ParamObj.building_name[31])
     print(a.ParamObj.building_name[0])
