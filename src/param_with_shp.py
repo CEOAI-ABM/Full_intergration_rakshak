@@ -8,7 +8,7 @@ import random
 class Parameters:
     def __init__(self, ShpFile, OtherFile):
         gdf = GP.read_file(ShpFile)
-        self.df = pd.read_csv(OtherFile)
+        self.df = pd.read_csv(OtherFile,na_filter=False)
         self.building_name = gdf['name']
         self.description = gdf['descriptio']
         self.coordinates, self.ref, self.polygons = cal_coordinates(gdf)

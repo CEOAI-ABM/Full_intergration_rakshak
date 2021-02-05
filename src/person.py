@@ -75,11 +75,14 @@ class person():
                     for i in range(starting, ending):
                         try:
                             self.timetable[times[0]][str(i)+'-'+str(i+1)]=self.sector.RoomNo_to_Unit(class_room).location
+                            self.sector.RoomNo_to_Unit(class_room).isclassroom = True
                         except:
                             altroom = sum([ord(char) for char in class_room])+self.sector.Index_Holder[42]
                             self.timetable[times[0]][str(i)+'-'+str(i+1)]=self.sector.Units_Placeholder[42][altroom].location
+                            self.sector.Units_Placeholder[42][altroom].isclassroom = True
                 else:
                     self.timetable[times[0]][times[1]]=self.sector.RoomNo_to_Unit(class_room).location
+                    self.sector.RoomNo_to_Unit(class_room).isclassroom = True
         return self.timetable
 
     def get_schedule(self):
