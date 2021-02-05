@@ -85,13 +85,13 @@ class Sector:
 
             if(self.Number_Units[building]>0):
                 temp_room_code = self.ParamObj.df['Abbreviation'][building]
-                if type(temp_room_code) != type(0.1):
+                if len(temp_room_code) != 0:
                     self.RoomCodes.append(temp_room_code.split(','))
                     #print(self.RoomCodes[-1])
                 for j in range(len(self.Height[building])):
                     #print(len(self.Location[0][building]),j,self.Height[building])
                     self.Units_Placeholder[building][k]=Unit(j,building,self.Daily_People_Expectation[building][j],self.Number_Workers[building],self.Height[building][j],self.Location[0][building][j],self.Location[1][building][j],self)
-                    if type(temp_room_code) != type(0.1):
+                    if len(temp_room_code) != 0:
                         some_temp_no = int(j/(len(self.Height[building])//len(self.RoomCodes[-1])))
                         if some_temp_no >= len(self.RoomCodes[-1]): some_temp_no = len(self.RoomCodes[-1])-1
                         roomcode = self.RoomCodes[-1][some_temp_no]
@@ -136,8 +136,6 @@ if __name__ == '__main__':
     #i = pm.BuildingInfo(BuildingName="Mechanical Engineering")['id']
     a = Sector(pm.returnParam())
     print("The Total Number of Buildings: ",a.Total_Num_Buildings)
-    #print([d for d in a.Rooms if d[0:2]=='NA'])
-    print(a.Rooms['NA0'])
 
     print(a.ParamObj.building_name[31])
     print(a.ParamObj.building_name[0])
