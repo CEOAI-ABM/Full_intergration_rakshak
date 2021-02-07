@@ -19,6 +19,7 @@ class wifimodule(Random):
 		self.module_name=module_name;
 		self.seed=seed if seed!=None else self.generate_seed();
 		self.location=Point(0,0);
+		self.coverage=.1;
 
 		super().seed(seed);
 
@@ -46,7 +47,7 @@ def Conn():
 	Returns:
 		connection object: object contains mysql server information
 	"""
-	conn=conn = mysql.connector.connect(user='root', password='welcome123', host='localhost', port=3306, auth_plugin='mysql_native_password', database="wifi");
+	conn=mysql.connector.connect(user='root', password='welcome123', host='localhost', port=3306, auth_plugin='mysql_native_password', database="wifi");
 
 	return conn;
 
@@ -77,21 +78,22 @@ def generate_modules(parameters,conn):
 
 	conn.commit();
 
-	cursor.execute("CREATE TABLE modules (name INTEGER(200), latitude FLOAT(200,30), longitude FLOAT(200,30))");
+	cursor.execute("CREATE TABLE modules (name INTEGER(200), latitude FLOAT(200,30), longitude FLOAT(200,30), coverage FLOAT(200,30))");
 	cursor.execute("CREATE TABLE data (name INTEGER(100), day INTEGER(100), seconds INTEGER(100), people INTEGER(100))");
 
 	wifi_list=[];
 
-	sqlform="INSERT INTO modules (name, latitude, longitude) VALUES (%s, %s, %s)"
+	sqlform="INSERT INTO modules (name, latitude, longitude, coverage) VALUES (%s, %s, %s, %s)"
 
 	for each_module in parameters:
 
 		# print(loc);
 		loc=generate_random_location()
 		temp=wifimodule(each_module.name);
+		temp.coverage=random.uniform(0.1,10);
 		temp.location=loc;
 		wifi_list.append(temp);
-		cur_module=(temp.module_name, temp.location.coords[0][0], temp.location.coords[0][1]);
+		cur_module=(temp.module_name, temp.location.coords[0][0], temp.location.coords[0][1], temp.coverage);
 		cursor.execute(sqlform, cur_module);
 
 	conn.commit();
@@ -116,12 +118,13 @@ def get_from_my_sql_table(conn):
 
 		loc=Point(each_module[1],each_module[2]);
 		temp=wifimodule(each_module[0]);
+		temp.coverage=each_module[3];
 		temp.location=loc;
 		wifi_list.append(temp);
 
 	return wifi_list;
 
-def populate(parameters,start_time,wifi_list,conn):
+def populate(parameters,wifi_list,conn):
 	"""Populates a mysql data table
 	Args:
 		parameters(list): list of several struct_time objects
@@ -136,8 +139,8 @@ def populate(parameters,start_time,wifi_list,conn):
 
 		for each_module in wifi_list:
 
-			day=((int)(time.mktime(each_time)-time.mktime(start_time)))/86400;
-			seconds=((int)(time.mktime(each_time)-time.mktime(start_time)))%86400;
+			day=((int)(time.mktime(each_time)))/86400;
+			seconds=((int)(time.mktime(each_time)))%86400;
 
 			cur_stamp=(each_module.module_name, day, seconds, each_module.get_value());
 
@@ -170,14 +173,13 @@ if __name__=='__main__':
 	conn=Conn();
 	d2=time.strptime("29 Jul 2015", "%d %b %Y")
 	d1=time.strptime("15 Jul 2015", "%d %b %Y")
-	start_time=time.strptime("1 Jul 2015", "%d %b %Y")
 	parameters=[d1,d2];
 	m1=online_module(1);
 	m2=online_module(2);
 	pms=[m1,m2];
 	wifi_list=generate_modules(pms,conn);
 	# print(wifi_list);
-	populate(parameters,start_time,wifi_list,conn);
+	populate(parameters,wifi_list,conn);
 
 
 
