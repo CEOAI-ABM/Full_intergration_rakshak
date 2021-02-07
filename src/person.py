@@ -62,7 +62,7 @@ class person():
         for day in self.timetable:
             for i in range(24):
                 #self.timetable[day][str(i)+'-'+str(i+1)]=self.sector.ParamObj.building_name[self.residence_unit.Building]
-                self.timetable[day][str(i)]=self.residence_unit
+                self.timetable[day][i]=self.residence_unit
         for subject in self.schedule:
             class_room=self.schedule[subject]['room']
             slot_name=self.schedule[subject]['slot']
@@ -75,14 +75,14 @@ class person():
                     ending=int(timing[-1])
                     for i in range(starting, ending):
                         try:
-                            self.timetable[times[0]][str(i)]=self.sector.RoomNo_to_Unit(class_room)
+                            self.timetable[times[0]][i]=self.sector.RoomNo_to_Unit(class_room)
                             self.sector.RoomNo_to_Unit(class_room).isclassroom = True
                         except:
                             altroom = sum([ord(char) for char in class_room])+self.sector.Index_Holder[42]
-                            self.timetable[times[0]][str(i)]=self.sector.Units_Placeholder[42][altroom]
+                            self.timetable[times[0]][i]=self.sector.Units_Placeholder[42][altroom]
                             self.sector.Units_Placeholder[42][altroom].isclassroom = True
                 else:
-                    self.timetable[times[0]][times[1]]=self.sector.RoomNo_to_Unit(class_room)
+                    self.timetable[times[0]][int(times[1][0])]=self.sector.RoomNo_to_Unit(class_room)
                     self.sector.RoomNo_to_Unit(class_room).isclassroom = True
         return self.timetable
 
@@ -141,7 +141,7 @@ def __init_students__(schedule,sectorptr=None):
 
 def main():
     schedule = form_schedule()
-    pm = Parameters('shapes/KgpBuildings.shp','Campus_data/KGP Data - Sheet1.csv')
+    pm = Parameters('shapes/kgpbuildings.shp','Campus_data/KGP Data - Sheet1.csv')
     a = Sector(pm.returnParam())
     p = __init_students__(schedule,a)
 
