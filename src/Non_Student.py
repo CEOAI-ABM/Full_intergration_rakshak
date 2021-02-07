@@ -82,6 +82,13 @@ class professor(person):
                             altroom = sum([ord(char) for char in value['room']])+self.sector.Index_Holder[42]
                             self.daily_schedule_expected[day][start_time]=self.sector.Units_Placeholder[42][altroom].location
 
+class non_acad_staff(person):
+    pass
+
+
+
+
+
 def __init_profs__(schedule_data,sectorptr=None):
     people = []
     houseno = 0
@@ -118,6 +125,23 @@ def init_profs_from_schedule(schedule,sectorptr):
                 dept_roomno+=1
     return people
 
+def start_movement(person,schedule,no_of_days):
+    curr = time.localtime()
+    day1 = time.mktime(time.struct_time((curr.tm_year,curr.tm_mon,curr.tm_mday,0,0,0,curr.tm_wday,curr.tm_yday,curr.tm_isdst)))
+    tmstamp = day1
+    newschedule = {}
+    day = {0:'monday',1:'tuesday',2:'wednesday',3:'thursday',4:'friday',5:'saturday',6:'sunday'}
+    for i in range(no_of_days):
+        for j in range(24):
+            try:
+                tp = schedule['monday'][0]
+                j1 = j
+            except:
+                j1 = str(j)
+            temp = tmstamp + j*60*60 + 24*60*60*i
+            newschedule[time.localtime(temp)] = schedule[time.strftime("%A",time.localtime(temp)).casefold()][j1]
+    person.schedule = newschedule
+
 
 
 if __name__=='__main__':
@@ -130,7 +154,12 @@ if __name__=='__main__':
     p = init_profs_from_schedule(schedule,a)
     print(p[0].residence_point)
     print(p[0].dept,p[0].daily_schedule_expected)
-
+    #print(p[0].Role,p[0].schedule)
+    for k in range(len(p)):
+        start_movement(p[k], p[k].daily_schedule_expected, no_of_days=7)
+    for key in p[0].schedule:
+        print(time.strftime("%c",key),p[0].schedule[key])
+    '''
     pa = []
     pb = []
 #    print(p[0].get_timetable())
@@ -193,3 +222,4 @@ if __name__=='__main__':
 #    writergif = animation.PillowWriter(fps=50)
 #    anim.save('student.gif',writer=writergif)
     plt.show()
+    '''
