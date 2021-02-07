@@ -9,6 +9,7 @@ from shapely.geometry import Point
 import matplotlib.pyplot as plt
 import geopandas as GP
 import matplotlib.animation as animation
+import time
 
 from utils import form_schedule
 
@@ -61,7 +62,7 @@ class person():
         for day in self.timetable:
             for i in range(24):
                 #self.timetable[day][str(i)+'-'+str(i+1)]=self.sector.ParamObj.building_name[self.residence_unit.Building]
-                self.timetable[day][str(i)+'-'+str(i+1)]=self.residence_unit.location
+                self.timetable[day][str(i)]=self.residence_unit
         for subject in self.schedule:
             class_room=self.schedule[subject]['room']
             slot_name=self.schedule[subject]['slot']
@@ -74,20 +75,36 @@ class person():
                     ending=int(timing[-1])
                     for i in range(starting, ending):
                         try:
-                            self.timetable[times[0]][str(i)+'-'+str(i+1)]=self.sector.RoomNo_to_Unit(class_room).location
+                            self.timetable[times[0]][str(i)]=self.sector.RoomNo_to_Unit(class_room)
                             self.sector.RoomNo_to_Unit(class_room).isclassroom = True
                         except:
                             altroom = sum([ord(char) for char in class_room])+self.sector.Index_Holder[42]
-                            self.timetable[times[0]][str(i)+'-'+str(i+1)]=self.sector.Units_Placeholder[42][altroom].location
+                            self.timetable[times[0]][str(i)]=self.sector.Units_Placeholder[42][altroom]
                             self.sector.Units_Placeholder[42][altroom].isclassroom = True
                 else:
-                    self.timetable[times[0]][times[1]]=self.sector.RoomNo_to_Unit(class_room).location
+                    self.timetable[times[0]][times[1]]=self.sector.RoomNo_to_Unit(class_room)
                     self.sector.RoomNo_to_Unit(class_room).isclassroom = True
         return self.timetable
 
     def get_schedule(self):
         pass
 
+def start_movement(person,schedule,no_of_days):
+    curr = time.localtime()
+    day1 = time.mktime(time.struct_time((curr.tm_year,curr.tm_mon,curr.tm_mday,0,0,0,curr.tm_wday,curr.tm_yday,curr.tm_isdst)))
+    tmstamp = day1
+    newschedule = {}
+    day = {0:'monday',1:'tuesday',2:'wednesday',3:'thursday',4:'friday',5:'saturday',6:'sunday'}
+    for i in range(no_of_days):
+        for j in range(24):
+            try:
+                tp = schedule['monday'][0]
+                j1 = j
+            except:
+                j1 = str(j)
+            temp = tmstamp + j*60*60 + 24*60*60*i
+            newschedule[time.localtime(temp)] = schedule[time.strftime("%A",time.localtime(temp)).casefold()][j1]
+    person.schedule = newschedule
 
 
 def __init_students__(schedule,sectorptr=None):
@@ -128,55 +145,11 @@ def main():
     a = Sector(pm.returnParam())
     p = __init_students__(schedule,a)
 
-    pa=[]
-    pb=[]
-    #print(p[0].get_timetable())
-    for t in range(len(p)):
-        pointa = []
-        pointb = []
-        for key,value in p[t].get_timetable().items():
-            for aa,b in value.items():
-                pointa.append(b.x)
-                pointb.append(b.y)
-        pa.append(pointa)
-        pb.append(pointb)
-
-    """pointa = []
-    pointb = []
-            #m = plt.scatter(b.x,b.y)
-    for key,value in p[1].get_timetable().items():
-        for aa,b in value.items():
-            pointa.append(b.x)
-            pointb.append(b.y)
-    #plt.show()
-    pa.append(pointa)
-    pb.append(pointb)"""
-
-    print(pointa,pointb)
-    fig = plt.figure()
-    for i in a.ParamObj.polygons:
-        plt.plot(*i.exterior.xy)
-    ax = plt.axes(xlim=(-300, 0), ylim=(0,300))
-    x, y = [[],[]]
-    mat, = ax.plot(x, y, 'o')
-
-
-    def init():
-        mat.set_data([],[])
-        for i in a.ParamObj.polygons:
-            plt.plot(*i.exterior.xy)
-
-    # animation function.  This is called sequentially
-    def animate(i):
-        x = [pa[k][i] for k in range(len(p))]
-        y = [pb[k][i] for k in range(len(p))]
-        mat.set_data(x,y)
-        return mat,
-
-    anim = animation.FuncAnimation(fig, animate, interval=200)
-
-    plt.show()
-
+    print(p[0].get_timetable())
+    for i in range(len(p)):
+        start_movement(p[i],p[i].get_timetable(),7)
+    for key in p[0].schedule:
+        print(time.strftime("%c",key),p[0].schedule[key])
 
 if __name__ == "__main__":
     main()

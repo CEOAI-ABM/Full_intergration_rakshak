@@ -8,6 +8,7 @@ from utils import form_schedule
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
+from person import start_movement
 
 slots=json.load(open('Timetable/Schedule/slots.json'))
 
@@ -44,16 +45,16 @@ class professor(person):
         for day in self.daily_schedule_expected:
                 for i in range(24):
                     if i < 8 or i > 18 or i == 13:
-                        self.daily_schedule_expected[day][i] = self.residence_point
+                        self.daily_schedule_expected[day][i] = self.residence_unit
                         #self.daily_schedule_expected[day][i] = 'residence'+str(self.residence_building_id)
                     else:
                         if day != 'sunday':
-                            self.daily_schedule_expected[day][i] = self.office_point
+                            self.daily_schedule_expected[day][i] = self.office_unit
                             gaus_val = np.random.normal(0,1,1)
-                            if gaus_val >= -1 and gaus_val <=1: self.daily_schedule_expected[day][i] = self.lab_point
+                            if gaus_val >= -1 and gaus_val <=1: self.daily_schedule_expected[day][i] = self.lab_unit
                             #self.daily_schedule_expected[day][i] = 'office'+self.office
                         else:
-                            self.daily_schedule_expected[day][i] = self.residence_point
+                            self.daily_schedule_expected[day][i] = self.residence_unit
                             #self.daily_schedule_expected[day][i] = 'residence'+str(self.residence_building_id)
 
         day = {'0':'monday','1':'tuesday','2':'wednesday','3':'thursday','4':'friday','5':'saturday','6':'sunday'}
@@ -74,13 +75,13 @@ class professor(person):
                             #    if value['room'][0:2] == 'NR' or value['room'][0:2] == 'NC':
                             #        print(value['room'])
                             #        print(start_time)
-                            self.daily_schedule_expected[day][start_time] = self.sector.RoomNo_to_Unit(value['room']).location
+                            self.daily_schedule_expected[day][start_time] = self.sector.RoomNo_to_Unit(value['room'])
                             #self.daily_schedule_expected[day][start_time] = key
                             #if day == 'wednesday': print(self.daily_schedule_expected['wednesday'])
                         except:
                             #print(value['room'])
                             altroom = sum([ord(char) for char in value['room']])+self.sector.Index_Holder[42]
-                            self.daily_schedule_expected[day][start_time]=self.sector.Units_Placeholder[42][altroom].location
+                            self.daily_schedule_expected[day][start_time]=self.sector.Units_Placeholder[42][altroom]
 
 class non_acad_staff(person):
     pass
@@ -125,23 +126,6 @@ def init_profs_from_schedule(schedule,sectorptr):
                 dept_roomno+=1
     return people
 
-def start_movement(person,schedule,no_of_days):
-    curr = time.localtime()
-    day1 = time.mktime(time.struct_time((curr.tm_year,curr.tm_mon,curr.tm_mday,0,0,0,curr.tm_wday,curr.tm_yday,curr.tm_isdst)))
-    tmstamp = day1
-    newschedule = {}
-    day = {0:'monday',1:'tuesday',2:'wednesday',3:'thursday',4:'friday',5:'saturday',6:'sunday'}
-    for i in range(no_of_days):
-        for j in range(24):
-            try:
-                tp = schedule['monday'][0]
-                j1 = j
-            except:
-                j1 = str(j)
-            temp = tmstamp + j*60*60 + 24*60*60*i
-            newschedule[time.localtime(temp)] = schedule[time.strftime("%A",time.localtime(temp)).casefold()][j1]
-    person.schedule = newschedule
-
 
 
 if __name__=='__main__':
@@ -159,7 +143,7 @@ if __name__=='__main__':
         start_movement(p[k], p[k].daily_schedule_expected, no_of_days=7)
     for key in p[0].schedule:
         print(time.strftime("%c",key),p[0].schedule[key])
-    '''
+
     pa = []
     pb = []
 #    print(p[0].get_timetable())
@@ -170,8 +154,8 @@ if __name__=='__main__':
             if key not in ['wednesday'] :
                 continue
             for aa, b in value.items():
-                pointa.append(b.x)
-                pointb.append(b.y)
+                pointa.append(b.location.x)
+                pointb.append(b.location.y)
         pa.append(pointa)
         pb.append(pointb)
 
@@ -222,4 +206,4 @@ if __name__=='__main__':
 #    writergif = animation.PillowWriter(fps=50)
 #    anim.save('student.gif',writer=writergif)
     plt.show()
-    '''
+
