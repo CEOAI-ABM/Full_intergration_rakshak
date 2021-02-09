@@ -194,7 +194,7 @@ if __name__=='__main__':
 	wifi_list=generate_modules(pms,conn);
 
 	start_time=time.strptime("01 Jan 2021", "%d %b %Y");
-	stop_time=time.strptime("02 Jan 2021", "%d %b %Y");
+	stop_time=time.strptime("31 Mar 2021", "%d %b %Y");
 	
 	parameters=[];
 	# print(time.mktime(start_time));
