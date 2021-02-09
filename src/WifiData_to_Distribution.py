@@ -6,6 +6,9 @@ from shapely.geometry import Point
 import mysql.connector
 import random
 
+from param_with_shp import Parameters
+from sector import Sector
+
 class population_spread:
 	"""A Class that stores the distribution dictionary and WiFi_data
 		Input Type:
@@ -46,6 +49,8 @@ class population_spread:
 				if abs(record[2]-location.coords[0][0])+abs(record[3]-location.coords[0][1]) <= record[4]:
 					cnt=cnt+1;
 
+			cnt=min(cnt,5);
+
 			total=record[5];
 			for i in range(cnt):
 
@@ -76,21 +81,29 @@ def generate_random_location():
 
 if __name__=='__main__':
 
+
+
 	conn=mysql.connector.connect(user='root', password='welcome123', host='localhost', port=3306, auth_plugin='mysql_native_password', database="wifi");
 	cursor=conn.cursor();
 	cursor.execute("SELECT data.day, data.seconds, modules.latitude, modules.longitude, modules.coverage, data.people FROM data LEFT JOIN modules ON data.name=modules.name");
 
 	data=cursor.fetchall();
 
-	num=np.random.randint(5,15);
 	# print(num)
 
-	locations=[];
-	for i in range(num):
-		locations.append(generate_random_location());
+	pm = Parameters('shapes/kgpbuildings.shp','Campus_data/KGP Data - Sheet1.csv')
+	a = Sector(pm.returnParam())
+	locations = [];
+	for building in a.Units_Placeholder:
+	    for k in a.Units_Placeholder[building]:
+	        locations.append(a.Units_Placeholder[building][k].location);
+	
+	# print(locations);
 
 	# print(locations)
 	# print(data);
 
 	distribution=population_spread((data,locations));
+
 	print(distribution.dist);
+
