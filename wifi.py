@@ -4,6 +4,7 @@ from shapely.geometry import Point
 import mysql.connector
 import hashlib
 import time
+import numpy as np
 
 class wifimodule(Random):
 	"""Stores info about a specific wifi module(router):
@@ -19,7 +20,7 @@ class wifimodule(Random):
 		self.module_name=module_name;
 		self.seed=seed if seed!=None else self.generate_seed();
 		self.location=Point(0,0);
-		self.coverage=.1;
+		self.coverage=1;
 
 		super().seed(seed);
 
@@ -47,7 +48,19 @@ def Conn():
 	Returns:
 		connection object: object contains mysql server information
 	"""
-	conn=mysql.connector.connect(user='root', password='welcome123', host='localhost', port=3306, auth_plugin='mysql_native_password', database="wifi");
+	conn = mysql.connector.connect(user='root', password='welcome123', host='localhost', port=3306, auth_plugin='mysql_native_password');
+
+	cursor=conn.cursor();
+
+	cursor.execute("DROP DATABASE IF EXISTS wifi");
+
+	conn.commit();
+
+	cursor.execute("CREATE DATABASE wifi");
+
+	conn.commit();
+
+	conn = mysql.connector.connect(user='root', password='welcome123', host='localhost', port=3306, auth_plugin='mysql_native_password', database='wifi');
 
 	return conn;
 
@@ -56,8 +69,8 @@ def generate_random_location():
 	Returns:
 		Shapely Point : object 
 	"""
-	latitude=random.uniform(-90,90);
-	longitude=random.uniform(-180,180);
+	latitude=random.uniform(-260,70);
+	longitude=random.uniform(100,260);
 
 	temp=Point(latitude,longitude);
 
@@ -90,7 +103,7 @@ def generate_modules(parameters,conn):
 		# print(loc);
 		loc=generate_random_location()
 		temp=wifimodule(each_module.name);
-		temp.coverage=random.uniform(0.1,10);
+		temp.coverage=1.5+0.5*np.random.randn();
 		temp.location=loc;
 		wifi_list.append(temp);
 		cur_module=(temp.module_name, temp.location.coords[0][0], temp.location.coords[0][1], temp.coverage);
@@ -139,6 +152,8 @@ def populate(parameters,wifi_list,conn):
 
 		for each_module in wifi_list:
 
+			print(each_time, each_module);
+
 			day=((int)(time.mktime(each_time)))/86400;
 			seconds=((int)(time.mktime(each_time)))%86400;
 
@@ -169,21 +184,38 @@ if __name__=='__main__':
 		def __init__(self,name):
 			self.name=name;
 
-
 	conn=Conn();
-	d2=time.strptime("29 Jul 2015", "%d %b %Y")
-	d1=time.strptime("15 Jul 2015", "%d %b %Y")
-	parameters=[d1,d2];
-	m1=online_module(1);
-	m2=online_module(2);
-	pms=[m1,m2];
+
+
+	N=random.randint(3000,3500);
+	pms=[];
+	for i in range(1,N):
+		pms.append(online_module(i));
 	wifi_list=generate_modules(pms,conn);
+
+	start_time=time.strptime("01 Jan 2021", "%d %b %Y");
+	stop_time=time.strptime("31 Mar 2021", "%d %b %Y");
+	
+	parameters=[];
+	# print(time.mktime(start_time));
+	for i in range(int(time.mktime(start_time)),int(time.mktime(stop_time)),1800):
+		parameters.append(time.gmtime(i));
+
+
+	# print(parameters);
+
+	# m1=online_module(1);
+	# m2=online_module(2);
+
+	# pms=[m1,m2];
+	# wifi_list=generate_modules(pms,conn);
 	# print(wifi_list);
+
 	populate(parameters,wifi_list,conn);
 
 
 
-
+# router-location, coverage, at different times (input) -> how many people are connected 
 
 
 
