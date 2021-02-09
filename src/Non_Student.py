@@ -129,7 +129,7 @@ def init_profs_from_schedule(schedule,sectorptr):
 
 
 if __name__=='__main__':
-    pm = Parameters('shapes/KgpBuildings.shp','Campus_data/KGP Data - Sheet1.csv')
+    pm = Parameters('shapes/kgpbuildings.shp','Campus_data/KGP Data - Sheet1.csv')
     a = Sector(pm.returnParam())
 #    with open('TimeTable_Faculty/data.json') as fh:
 #        data = json.load(fh)

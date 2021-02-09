@@ -132,7 +132,7 @@ class GymKhana(Sector):
 
 
 if __name__ == '__main__':
-    pm = Parameters('shapes/KgpBuildings.shp','Campus_data/KGP Data - Sheet1.csv')
+    pm = Parameters('shapes/kgpbuildings.shp','Campus_data/KGP Data - Sheet1.csv')
     #i = pm.BuildingInfo(BuildingName="Mechanical Engineering")['id']
     a = Sector(pm.returnParam())
     print("The Total Number of Buildings: ",a.Total_Num_Buildings)
