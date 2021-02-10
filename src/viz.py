@@ -1,12 +1,15 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
+import time
 
 from utils import form_schedule
 from param_with_shp import Parameters
 from sector import Sector
-from person import __init_students__
+from person import __init_students__, start_movement
 from Non_Student import init_profs_from_schedule
+from utils import create_db_publish_locations
+from utils import publish_loc
 
 
 def main():
@@ -24,7 +27,7 @@ def main():
     for t in range(len(p)):
         pointa = []
         pointb = []
-        for key, value in p[t].get_timetable().items():
+        for key, value in p[t].daily_schedule_expected().items():
             if key not in ['monday'] :
                 continue
             for aa, b in value.items():
@@ -103,6 +106,22 @@ def main():
 #    anim.save('student_and_prof.gif',writer=writergif)
     plt.show()
 
+def main2():
+    schedule = form_schedule()
+    pm = Parameters('shapes/kgpbuildings.shp', 'Campus_data/KGP Data - Sheet1.csv')
+    a = Sector(pm.returnParam())
+    population = __init_students__(schedule, a)
+    profs = init_profs_from_schedule(schedule,a,len(population)+1)
+    population.extend(profs)
+    for i in range(len(population)):
+        if population[i].Role == 'student':
+            start_movement(population[i],population[i].get_timetable(),7)
+        else:
+            start_movement(population[i],population[i].daily_schedule_expected,7)
+    dbname, pswd = create_db_publish_locations()
+    l = list(population[0].schedule.keys())
+    publish_loc(population,l[0],dbname,pswd,insert=True)
 
 if __name__ == "__main__":
-    main()
+#    main()
+    main2()

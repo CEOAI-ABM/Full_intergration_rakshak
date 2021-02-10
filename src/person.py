@@ -131,6 +131,7 @@ def __init_students__(schedule,sectorptr=None):
                     hall = random.choices(residence_indices,weights)[0]
                     room = random.randint(0,len(sectorptr.Height[hall])-1)
                     junta = person(sectorptr=sectorptr,role="student",ID=ctr,age=age,year=j,schedule=person_schedule,dept=dept,residence=[hall,room])
+                    ctr += 1
                 else:
                     junta = person(role="student",ID=ctr,age=age,year=j,schedule=person_schedule,dept=dept)
                 people.append(junta)
