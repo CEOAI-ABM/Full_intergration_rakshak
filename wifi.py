@@ -103,7 +103,7 @@ def generate_modules(parameters,conn):
 		# print(loc);
 		loc=generate_random_location()
 		temp=wifimodule(each_module.name);
-		temp.coverage=1.5+0.5*np.random.randn();
+		temp.coverage=abs(2+0.5*np.random.randn());
 		temp.location=loc;
 		wifi_list.append(temp);
 		cur_module=(temp.module_name, temp.location.coords[0][0], temp.location.coords[0][1], temp.coverage);

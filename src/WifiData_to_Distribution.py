@@ -49,7 +49,7 @@ class population_spread:
 				if abs(record[2]-location.coords[0][0])+abs(record[3]-location.coords[0][1]) <= record[4]:
 					cnt=cnt+1;
 
-			cnt=min(cnt,5);
+			cnt=max(cnt,10);
 
 			total=record[5];
 			for i in range(cnt):
