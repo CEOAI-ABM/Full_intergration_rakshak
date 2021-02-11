@@ -18,11 +18,12 @@ class population_spread:
 			pm[1]: list of all the locations that the people of the campus can be at
 
 	"""
-	def __init__(self, pm):
+	def __init__(self, pm, conn):
 
 		self.data=pm[0];
 		self.locations=pm[1];
 		self.dist={};
+		self.conn=conn;
 
 		self.find_actual_distribution();
 
@@ -42,11 +43,11 @@ class population_spread:
 
 		"""
 		for record in self.data:
-			self.locations = sorted(self.locations, key=lambda temp: abs(record[2]-temp.coords[0][0])+abs(record[3]-temp.coords[0][1]), reverse=False);
+			self.locations = sorted(self.locations, key=lambda temp: abs(record[2]-temp[0].coords[0][0])+abs(record[3]-temp[0].coords[0][1]) + abs(temp[1]-record[6]), reverse=False);
 
 			cnt=0;
 			for location in self.locations:
-				if abs(record[2]-location.coords[0][0])+abs(record[3]-location.coords[0][1]) <= record[4]:
+				if abs(record[2]-location[0].coords[0][0])+abs(record[3]-location[0].coords[0][1]) + abs(location[1]-record[6])  <= record[4]:
 					cnt=cnt+1;
 
 			cnt=max(cnt,10);
@@ -60,11 +61,34 @@ class population_spread:
 				if time.gmtime(record[0]*86400 + record[1]) not in self.dist.keys():
 					self.dist[time.gmtime(record[0]*86400 + record[1])]={};
 
-				if (self.locations[i].coords[0][0],self.locations[i].coords[0][1]) not in self.dist[time.gmtime(record[0]*86400 + record[1])].keys():
-					self.dist[time.gmtime(record[0]*86400 + record[1])][(self.locations[i].coords[0][0],self.locations[i].coords[0][1])]=0;
+				if (self.locations[i][0].coords[0][0],self.locations[i][0].coords[0][1],self.locations[i][1]) not in self.dist[time.gmtime(record[0]*86400 + record[1])].keys():
+					self.dist[time.gmtime(record[0]*86400 + record[1])][(self.locations[i][0].coords[0][0],self.locations[i][0].coords[0][1],self.locations[i][1])]=0;
 
-				self.dist[time.gmtime(record[0]*86400 + record[1])][(self.locations[i].coords[0][0],self.locations[i].coords[0][1])]+=people_here;
+				self.dist[time.gmtime(record[0]*86400 + record[1])][(self.locations[i][0].coords[0][0],self.locations[i][0].coords[0][1],self.locations[i][1])]+=people_here;
 
+		cursor=self.conn.cursor();
+
+		cursor.execute("DROP TABLE IF EXISTS distribution");
+		self.conn.commit();
+
+		cursor.execute("CREATE TABLE distribution (day INTEGER(200), seconds INTEGER(200), latitude FLOAT(200,30), longitude FLOAT(200,30), height INTEGER(200), people INTEGER(200))");		
+
+		sqlform="INSERT INTO distribution (day, seconds, latitude, longitude, height, people) VALUES (%s, %s, %s, %s, %s, %s)"
+
+		for TIME in self.dist:
+			i=0;
+			for location in self.locations:
+				i=i+1; 
+				print(i, location);
+				if (location[0].coords[0][0],location[0].coords[0][1], location[1]) not in self.dist[TIME].keys():
+					self.dist[TIME][(location[0].coords[0][0],location[0].coords[0][1], location[1])]=0;
+
+
+				cur_module=(((int)(time.mktime(TIME)))//86400, ((int)(time.mktime(TIME)))%86400, location[0].coords[0][0], location[0].coords[0][1], location[1], self.dist[TIME][(location[0].coords[0][0],location[0].coords[0][1], location[1])]);
+
+				cursor.execute(sqlform, cur_module);		
+
+		self.conn.commit();
 
 def generate_random_location():
 	"""Creates and assigns random coordinates to a Shapely Point
@@ -78,32 +102,33 @@ def generate_random_location():
 
 	return temp;
 
+def Conn():
+	"""Conn function to establish contact with MySQL server
+	Returns:
+		connection object: object contains mysql server information
+	"""
+	conn = mysql.connector.connect(user='root', password='welcome123', host='localhost', port=3306, auth_plugin='mysql_native_password', database='wifi');
+
+	return conn;
+
 
 if __name__=='__main__':
 
-
-
-	conn=mysql.connector.connect(user='root', password='welcome123', host='localhost', port=3306, auth_plugin='mysql_native_password', database="wifi");
+	conn=Conn();
 	cursor=conn.cursor();
-	cursor.execute("SELECT data.day, data.seconds, modules.latitude, modules.longitude, modules.coverage, data.people FROM data LEFT JOIN modules ON data.name=modules.name");
+	cursor.execute("SELECT data.day, data.seconds, modules.latitude, modules.longitude, modules.coverage, data.people, modules.height FROM data LEFT JOIN modules ON data.name=modules.name");
 
 	data=cursor.fetchall();
 
-	# print(num)
-
-	pm = Parameters('shapes/kgpbuildings.shp','Campus_data/KGP Data - Sheet1.csv')
-	a = Sector(pm.returnParam())
+	pm = Parameters('shapes/kgpbuildings.shp','Campus_data/KGP Data - Sheet1.csv');
+	a = Sector(pm.returnParam());
+	
 	locations = [];
 	for building in a.Units_Placeholder:
 	    for k in a.Units_Placeholder[building]:
-	        locations.append(a.Units_Placeholder[building][k].location);
-	
-	# print(locations);
+	        locations.append((a.Units_Placeholder[building][k].location, a.Units_Placeholder[building][k].height));
 
-	# print(locations)
-	# print(data);
+	distribution=population_spread((data,locations),conn);
 
-	distribution=population_spread((data,locations));
-
-	print(distribution.dist);
+	# print(distribution.dist);
 

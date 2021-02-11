@@ -12,7 +12,7 @@ class wifimodule(Random):
 	def __init__(self,module_name,seed=None):
 		"""3 Parameters	
 			module_name is the ID of the router
-			Seed help generate the value of number of people connected to this router.
+			Seed help generate the value of number of people connected to this router, the coverage and height.
 			location is the location of the router (it is a shapely point object);
 		"""
 		super().__init__();
@@ -20,7 +20,8 @@ class wifimodule(Random):
 		self.module_name=module_name;
 		self.seed=seed if seed!=None else self.generate_seed();
 		self.location=Point(0,0);
-		self.coverage=1;
+		self.coverage=self.gauss(2,0.5);
+		self.height=self.randint(1,5);
 
 		super().seed(seed);
 
@@ -91,22 +92,21 @@ def generate_modules(parameters,conn):
 
 	conn.commit();
 
-	cursor.execute("CREATE TABLE modules (name INTEGER(200), latitude FLOAT(200,30), longitude FLOAT(200,30), coverage FLOAT(200,30))");
+	cursor.execute("CREATE TABLE modules (name INTEGER(200), latitude FLOAT(200,30), longitude FLOAT(200,30), height INTEGER(200), coverage FLOAT(200,30))");
 	cursor.execute("CREATE TABLE data (name INTEGER(100), day INTEGER(100), seconds INTEGER(100), people INTEGER(100))");
 
 	wifi_list=[];
 
-	sqlform="INSERT INTO modules (name, latitude, longitude, coverage) VALUES (%s, %s, %s, %s)"
+	sqlform="INSERT INTO modules (name, latitude, longitude, height, coverage) VALUES (%s, %s, %s, %s, %s)"
 
 	for each_module in parameters:
 
 		# print(loc);
 		loc=generate_random_location()
 		temp=wifimodule(each_module.name);
-		temp.coverage=abs(2+0.5*np.random.randn());
 		temp.location=loc;
 		wifi_list.append(temp);
-		cur_module=(temp.module_name, temp.location.coords[0][0], temp.location.coords[0][1], temp.coverage);
+		cur_module=(temp.module_name, temp.location.coords[0][0], temp.location.coords[0][1], temp.height, temp.coverage);
 		cursor.execute(sqlform, cur_module);
 
 	conn.commit();
@@ -152,12 +152,12 @@ def populate(parameters,wifi_list,conn):
 
 		for each_module in wifi_list:
 
-			print(each_time, each_module);
-
-			day=((int)(time.mktime(each_time)))/86400;
+			day=((int)(time.mktime(each_time)))//86400;
 			seconds=((int)(time.mktime(each_time)))%86400;
 
 			cur_stamp=(each_module.module_name, day, seconds, each_module.get_value());
+
+			print(cur_stamp);
 
 			cursor.execute(sqlform,cur_stamp);
 
@@ -186,7 +186,6 @@ if __name__=='__main__':
 
 	conn=Conn();
 
-
 	N=random.randint(3000,3500);
 	pms=[];
 	for i in range(1,N):
@@ -197,25 +196,12 @@ if __name__=='__main__':
 	stop_time=time.strptime("31 Mar 2021", "%d %b %Y");
 	
 	parameters=[];
-	# print(time.mktime(start_time));
+
 	for i in range(int(time.mktime(start_time)),int(time.mktime(stop_time)),1800):
 		parameters.append(time.gmtime(i));
 
-
-	# print(parameters);
-
-	# m1=online_module(1);
-	# m2=online_module(2);
-
-	# pms=[m1,m2];
-	# wifi_list=generate_modules(pms,conn);
-	# print(wifi_list);
-
 	populate(parameters,wifi_list,conn);
 
-
-
-# router-location, coverage, at different times (input) -> how many people are connected 
 
 
 
