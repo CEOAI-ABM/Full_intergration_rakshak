@@ -20,7 +20,7 @@ class wifimodule(Random):
 		self.module_name=module_name;
 		self.seed=seed if seed!=None else self.generate_seed();
 		self.location=Point(0,0);
-		self.coverage=self.gauss(2,0.5);
+		self.coverage=abs(self.gauss(0.0005,0.0002));
 		self.height=self.randint(1,5);
 
 		super().seed(seed);
@@ -70,8 +70,8 @@ def generate_random_location():
 	Returns:
 		Shapely Point : object 
 	"""
-	latitude=random.uniform(-260,70);
-	longitude=random.uniform(100,260);
+	latitude=random.uniform(87.29398,87.3233);
+	longitude=random.uniform(22.30806,22.32312);
 
 	temp=Point(latitude,longitude);
 
@@ -157,7 +157,7 @@ def populate(parameters,wifi_list,conn):
 
 			cur_stamp=(each_module.module_name, day, seconds, each_module.get_value());
 
-			print(cur_stamp);
+			# print(cur_stamp);
 
 			cursor.execute(sqlform,cur_stamp);
 
@@ -187,6 +187,7 @@ if __name__=='__main__':
 	conn=Conn();
 
 	N=random.randint(3000,3500);
+	
 	pms=[];
 	for i in range(1,N):
 		pms.append(online_module(i));

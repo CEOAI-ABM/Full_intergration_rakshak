@@ -37,17 +37,17 @@ class population_spread:
 	def find_actual_distribution(self):
 		"""Method that calculates the distribution given the wifi data
 			wifi_data is a dictionary of the form:
-			{'struc_time_object':{(x,y): }} ->  This represents the number of people at location of
-												(latitude, longitude) =(x,y) at the time represented by
+			{'struc_time_object':{(x,y,h): }} ->  This represents the number of people at location of
+												(latitude, longitude) =(x,y,h) at the time represented by
 												the time object;
 
 		"""
 		for record in self.data:
-			self.locations = sorted(self.locations, key=lambda temp: abs(record[2]-temp[0].coords[0][0])+abs(record[3]-temp[0].coords[0][1]) + abs(temp[1]-record[6]), reverse=False);
+			self.locations = sorted(self.locations, key=lambda temp: abs(record[2]-temp[0].coords[0][0])+abs(record[3]-temp[0].coords[0][1]) + 0.00025*abs(temp[1]-record[6]), reverse=False);
 
 			cnt=0;
 			for location in self.locations:
-				if abs(record[2]-location[0].coords[0][0])+abs(record[3]-location[0].coords[0][1]) + abs(location[1]-record[6])  <= record[4]:
+				if abs(record[2]-location[0].coords[0][0])+abs(record[3]-location[0].coords[0][1]) + 0.00025*abs(location[1]-record[6])  <= record[4]:
 					cnt=cnt+1;
 
 			cnt=max(cnt,10);
