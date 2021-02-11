@@ -140,12 +140,13 @@ def main2():
     population.extend(profs)
     for i in range(len(population)):
         if population[i].Role == 'student':
-            start_movement(population[i],population[i].get_timetable(),7)
+            start_movement(population[i],population[i].get_timetable(),2)
         else:
-            start_movement(population[i],population[i].daily_schedule_expected,7)
+            start_movement(population[i],population[i].daily_schedule_expected,2)
     dbname, pswd = create_db_publish_locations()
     l = list(population[0].schedule.keys())
-    publish_loc(population,l[0],dbname,pswd,insert=True)
+    for t in l:
+        publish_loc(population,t,dbname,pswd,insert=True)
 
 if __name__ == "__main__":
 #    main()

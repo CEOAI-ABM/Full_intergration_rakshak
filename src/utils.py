@@ -2,6 +2,7 @@ import os
 import json
 import random
 import mysql.connector
+import time
 
 def total_students(course, grades, grades_18A, grades_18S, na_list):
     """Gives the count of total students present in the course 
@@ -231,7 +232,19 @@ def create_db_publish_locations():
     mycursor.execute(stmt)
     stmt1 = '''DROP TABLE IF EXISTS people_locations'''
     mycursor.execute(stmt1)
-    stmt2 = '''CREATE TABLE people_locations(person_id INT PRIMARY KEY, person_role VARCHAR(10), person_age INT, person_status VARCHAR(20), location_x DOUBLE, location_y DOUBLE, location_building_id INT, location_unit_id INT)'''
+    stmt2 = '''CREATE TABLE people_locations(
+                        person_id INT,
+                        timestamp VARCHAR(20),
+                        person_role VARCHAR(10),
+                        person_age INT,
+                        person_status VARCHAR(20),
+                        location_x DOUBLE,
+                        location_y DOUBLE,
+                        location_building_id INT,
+                        location_unit_id INT,
+                        PRIMARY KEY(person_id, timestamp)
+                );
+                '''
     mycursor.execute(stmt2)
 
     return 'current_locations', pswd
@@ -240,17 +253,16 @@ def publish_loc(persons, timestmp, dbname, pswd, insert=False):
     mydb = mysql.connector.connect(host='localhost', user='root', passwd=pswd, database=dbname)
     mycursor = mydb.cursor()
     if insert:
-        stmt = '''INSERT INTO people_locations VALUES (%s, %s, %s, %s, %s, %s, %s, %s)'''
+        stmt = '''INSERT INTO people_locations VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)'''
         data_ins = list()
-        times = list(persons[0].schedule.keys())
+        tmstmp = time.strftime("%Y-%m-%d %H:%M:%S",timestmp)
         for person in persons:
             unit  = person.schedule[timestmp]
-            print(unit)
             loc = unit.location
             x, y = loc.x, loc.y
             building_id = unit.Building
             unit_id = unit.Id + unit.Sector.Index_Holder[building_id]
-            data_ins.append((person.ID, person.Role, person.Age, None, x, y, building_id, unit_id))
+            data_ins.append((person.ID, tmstmp, person.Role, person.Age, None, x, y, building_id, unit_id))
         mycursor.executemany(stmt, data_ins)
         mydb.commit()
 
