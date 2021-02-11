@@ -82,7 +82,7 @@ class person():
                             self.timetable[times[0]][i]=self.sector.Units_Placeholder[42][altroom]
                             self.sector.Units_Placeholder[42][altroom].isclassroom = True
                 else:
-                    self.timetable[times[0]][int(times[1][0])]=self.sector.RoomNo_to_Unit(class_room)
+                    self.timetable[times[0]][int(times[1].split('-')[0])]=self.sector.RoomNo_to_Unit(class_room)
                     self.sector.RoomNo_to_Unit(class_room).isclassroom = True
         return self.timetable
 

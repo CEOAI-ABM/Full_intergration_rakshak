@@ -140,9 +140,9 @@ def main2():
     population.extend(profs)
     for i in range(len(population)):
         if population[i].Role == 'student':
-            start_movement(population[i],population[i].get_timetable(),2)
+            start_movement(population[i],population[i].get_timetable(),1)
         else:
-            start_movement(population[i],population[i].daily_schedule_expected,2)
+            start_movement(population[i],population[i].daily_schedule_expected,1)
     dbname, pswd = create_db_publish_locations()
     l = list(population[0].schedule.keys())
     for t in l:
