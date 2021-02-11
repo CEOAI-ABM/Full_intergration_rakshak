@@ -76,10 +76,8 @@ class population_spread:
 		sqlform="INSERT INTO distribution (day, seconds, latitude, longitude, height, people) VALUES (%s, %s, %s, %s, %s, %s)"
 
 		for TIME in self.dist:
-			i=0;
 			for location in self.locations:
-				i=i+1; 
-				print(i, location);
+				
 				if (location[0].coords[0][0],location[0].coords[0][1], location[1]) not in self.dist[TIME].keys():
 					self.dist[TIME][(location[0].coords[0][0],location[0].coords[0][1], location[1])]=0;
 
@@ -122,7 +120,7 @@ if __name__=='__main__':
 
 	pm = Parameters('shapes/kgpbuildings.shp','Campus_data/KGP Data - Sheet1.csv');
 	a = Sector(pm.returnParam());
-	
+
 	locations = [];
 	for building in a.Units_Placeholder:
 	    for k in a.Units_Placeholder[building]:
