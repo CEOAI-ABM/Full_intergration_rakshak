@@ -1,6 +1,7 @@
 import os
 import json
 import random
+import mysql.connector
 
 def total_students(course, grades, grades_18A, grades_18S, na_list):
     """Gives the count of total students present in the course 
@@ -211,6 +212,48 @@ def form_schedule(file_path=None,save=False):
             
     return schedule
 
+def create_db():
+    pswd = input("Enter the password for your database server: ")
+    mydb = mysql.connector.connect(host='localhost', user='root', passwd=pswd)
+    stmt = 'CREATE DATABASE IF NOT EXISTS locations'
+    mycursor = mydb.cursor()
+    mycursor.execute(stmt)
+    return 'locations', pswd
+
+
+def create_db_publish_locations():
+    pswd = input("Enter the password for your database server: ")
+    mydb = mysql.connector.connect(host='localhost', user='root', passwd=pswd)
+    mycursor = mydb.cursor()
+    stmt = '''CREATE DATABASE IF NOT EXISTS current_locations'''
+    mycursor.execute(stmt)
+    stmt = '''USE current_locations'''
+    mycursor.execute(stmt)
+    stmt1 = '''DROP TABLE IF EXISTS people_locations'''
+    mycursor.execute(stmt1)
+    stmt2 = '''CREATE TABLE people_locations(person_id INT PRIMARY KEY, person_role VARCHAR(10), person_age INT, person_status VARCHAR(20), location_x DOUBLE, location_y DOUBLE, location_building_id INT, location_unit_id INT)'''
+    mycursor.execute(stmt2)
+
+    return 'current_locations', pswd
+
+def publish_loc(persons, timestmp, dbname, pswd, insert=False):
+    mydb = mysql.connector.connect(host='localhost', user='root', passwd=pswd, database=dbname)
+    mycursor = mydb.cursor()
+    if insert:
+        stmt = '''INSERT INTO people_locations VALUES (%s, %s, %s, %s, %s, %s, %s, %s)'''
+        data_ins = list()
+        times = list(persons[0].schedule.keys())
+        for person in persons:
+            unit  = person.schedule[timestmp]
+            print(unit)
+            loc = unit.location
+            x, y = loc.x, loc.y
+            building_id = unit.Building
+            unit_id = unit.Id + unit.Sector.Index_Holder[building_id]
+            data_ins.append((person.ID, person.Role, person.Age, None, x, y, building_id, unit_id))
+        mycursor.executemany(stmt, data_ins)
+        mydb.commit()
+
 
 
 def main():
@@ -248,3 +291,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+#    dbname, pwd = create_db_publish_locations()
+#    print(dbname,pwd)

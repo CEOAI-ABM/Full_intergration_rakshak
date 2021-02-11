@@ -4,6 +4,7 @@ from shapely.geometry import Point
 import mysql.connector
 import hashlib
 import time
+import numpy as np
 
 class wifimodule(Random):
 	"""Stores info about a specific wifi module(router):
@@ -11,7 +12,7 @@ class wifimodule(Random):
 	def __init__(self,module_name,seed=None):
 		"""3 Parameters	
 			module_name is the ID of the router
-			Seed help generate the value of number of people connected to this router.
+			Seed help generate the value of number of people connected to this router, the coverage and height.
 			location is the location of the router (it is a shapely point object);
 		"""
 		super().__init__();
@@ -19,7 +20,8 @@ class wifimodule(Random):
 		self.module_name=module_name;
 		self.seed=seed if seed!=None else self.generate_seed();
 		self.location=Point(0,0);
-		self.coverage=.1;
+		self.coverage=self.gauss(2,0.5);
+		self.height=self.randint(1,5);
 
 		super().seed(seed);
 
@@ -47,7 +49,19 @@ def Conn():
 	Returns:
 		connection object: object contains mysql server information
 	"""
-	conn=mysql.connector.connect(user='root', password='welcome123', host='localhost', port=3306, auth_plugin='mysql_native_password', database="wifi");
+	conn = mysql.connector.connect(user='root', password='welcome123', host='localhost', port=3306, auth_plugin='mysql_native_password');
+
+	cursor=conn.cursor();
+
+	cursor.execute("DROP DATABASE IF EXISTS wifi");
+
+	conn.commit();
+
+	cursor.execute("CREATE DATABASE wifi");
+
+	conn.commit();
+
+	conn = mysql.connector.connect(user='root', password='welcome123', host='localhost', port=3306, auth_plugin='mysql_native_password', database='wifi');
 
 	return conn;
 
@@ -56,8 +70,8 @@ def generate_random_location():
 	Returns:
 		Shapely Point : object 
 	"""
-	latitude=random.uniform(-90,90);
-	longitude=random.uniform(-180,180);
+	latitude=random.uniform(-260,70);
+	longitude=random.uniform(100,260);
 
 	temp=Point(latitude,longitude);
 
@@ -78,22 +92,21 @@ def generate_modules(parameters,conn):
 
 	conn.commit();
 
-	cursor.execute("CREATE TABLE modules (name INTEGER(200), latitude FLOAT(200,30), longitude FLOAT(200,30), coverage FLOAT(200,30))");
+	cursor.execute("CREATE TABLE modules (name INTEGER(200), latitude FLOAT(200,30), longitude FLOAT(200,30), height INTEGER(200), coverage FLOAT(200,30))");
 	cursor.execute("CREATE TABLE data (name INTEGER(100), day INTEGER(100), seconds INTEGER(100), people INTEGER(100))");
 
 	wifi_list=[];
 
-	sqlform="INSERT INTO modules (name, latitude, longitude, coverage) VALUES (%s, %s, %s, %s)"
+	sqlform="INSERT INTO modules (name, latitude, longitude, height, coverage) VALUES (%s, %s, %s, %s, %s)"
 
 	for each_module in parameters:
 
 		# print(loc);
 		loc=generate_random_location()
 		temp=wifimodule(each_module.name);
-		temp.coverage=random.uniform(0.1,10);
 		temp.location=loc;
 		wifi_list.append(temp);
-		cur_module=(temp.module_name, temp.location.coords[0][0], temp.location.coords[0][1], temp.coverage);
+		cur_module=(temp.module_name, temp.location.coords[0][0], temp.location.coords[0][1], temp.height, temp.coverage);
 		cursor.execute(sqlform, cur_module);
 
 	conn.commit();
@@ -139,10 +152,12 @@ def populate(parameters,wifi_list,conn):
 
 		for each_module in wifi_list:
 
-			day=((int)(time.mktime(each_time)))/86400;
+			day=((int)(time.mktime(each_time)))//86400;
 			seconds=((int)(time.mktime(each_time)))%86400;
 
 			cur_stamp=(each_module.module_name, day, seconds, each_module.get_value());
+
+			print(cur_stamp);
 
 			cursor.execute(sqlform,cur_stamp);
 
@@ -169,20 +184,23 @@ if __name__=='__main__':
 		def __init__(self,name):
 			self.name=name;
 
-
 	conn=Conn();
-	d2=time.strptime("29 Jul 2015", "%d %b %Y")
-	d1=time.strptime("15 Jul 2015", "%d %b %Y")
-	parameters=[d1,d2];
-	m1=online_module(1);
-	m2=online_module(2);
-	pms=[m1,m2];
+
+	N=random.randint(3000,3500);
+	pms=[];
+	for i in range(1,N):
+		pms.append(online_module(i));
 	wifi_list=generate_modules(pms,conn);
-	# print(wifi_list);
+
+	start_time=time.strptime("01 Jan 2021", "%d %b %Y");
+	stop_time=time.strptime("31 Mar 2021", "%d %b %Y");
+	
+	parameters=[];
+
+	for i in range(int(time.mktime(start_time)),int(time.mktime(stop_time)),1800):
+		parameters.append(time.gmtime(i));
+
 	populate(parameters,wifi_list,conn);
-
-
-
 
 
 

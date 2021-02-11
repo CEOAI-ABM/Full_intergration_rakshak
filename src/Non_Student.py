@@ -98,7 +98,7 @@ def __init_profs__(schedule_data,sectorptr=None):
         houseno+=1
     return people
 
-def init_profs_from_schedule(schedule,sectorptr):
+def init_profs_from_schedule(schedule,sectorptr,id):
     '''Takes the dict returned by form_schedule
         Assigns 1 prof 1 course
     '''
@@ -121,7 +121,7 @@ def init_profs_from_schedule(schedule,sectorptr):
                     if someno < 0:
                         office = lab
                 #print(office,lab)
-                people.append(professor(sectorptr=sectorptr,HouseNo=houseno,ID=houseno,dept=dept,schedule=subj,lab=lab,office=office))
+                people.append(professor(sectorptr=sectorptr,HouseNo=houseno,ID=id+houseno,dept=dept,schedule=subj,lab=lab,office=office))
                 houseno+=1
                 dept_roomno+=1
     return people
@@ -135,7 +135,7 @@ if __name__=='__main__':
 #        data = json.load(fh)
 #    p = __init_profs__(data,a)
     schedule = form_schedule()
-    p = init_profs_from_schedule(schedule,a)
+    p = init_profs_from_schedule(schedule,a,1)
     print(p[0].residence_point)
     print(p[0].dept,p[0].daily_schedule_expected)
     #print(p[0].Role,p[0].schedule)
