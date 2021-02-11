@@ -71,9 +71,12 @@ def cal_coordinates(df):
     for i in range(len(temp)):
         build_cord = []
         for j in range(len(temp[i])):
-            x = (temp[i][j][0] * 100) % 100
-            y = (temp[i][j][1] * 100) % 100
-            xy = [round((x - ref[0]) * 100, 3), round((y - ref[1]) * 100, 3)]
+            #x = (temp[i][j][0] * 100) % 100
+            #y = (temp[i][j][1] * 100) % 100
+            #xy = [round((x - ref[0]) * 100, 3), round((y - ref[1]) * 100, 3)]
+            x = temp[i][j][0]
+            y = temp[i][j][1]
+            xy = [x,y]
             build_cord.append(xy)
         coordinates.append(build_cord)
 
@@ -102,7 +105,6 @@ def random_points_in_polygon(number, polygon):
 if __name__=='__main__':
     ShpFilePath = "shapes/kgpbuildings.shp"
     FilePath = "Campus_data/KGP Data - Sheet1.csv"
-
     pm = Parameters(ShpFilePath,FilePath)
     k = 0
     while True:

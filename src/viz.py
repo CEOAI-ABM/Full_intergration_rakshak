@@ -14,12 +14,46 @@ from utils import publish_loc
 
 def main():
     schedule = form_schedule()
-    pm = Parameters('shapes/kgpbuildings.shp', 'Campus_data/KGP Data - Sheet1.csv')
+    pm = Parameters('shapes/KgpBuildings.shp', 'Campus_data/KGP Data - Sheet1.csv')
     a = Sector(pm.returnParam())
     p = __init_students__(schedule, a)
     profs = init_profs_from_schedule(schedule,a)
     print(p[0].get_timetable())
     print(profs[1].daily_schedule_expected)
+
+    d = dict()
+    for t in range(len(p)):
+        for day,sched in p[t].get_timetable().items():
+            if day not in ['monday'] :
+                continue
+            for time,loc in sched.items():
+                if time not in ['10'] :
+                    continue
+                d[loc.Building] = d.get(loc.Building,0) +1
+
+    for t in range(len(profs)):
+        for day, sched in profs[t].daily_schedule_expected.items():
+            if day not in ['monday'] :
+                continue
+            for time, loc in sched.items():
+                if time not in [10] :
+                    continue
+                d[loc.Building] = d.get(loc.Building,0) +1
+
+
+    fig = plt.figure()
+    ax = fig.add_axes([0,0,1,1])
+    ax.axis('equal')
+    place =[]
+    hours =[]
+    k = 1
+    for loc,time in d.items():
+        place.append(a.ParamObj.building_name[loc])
+
+        hours.append(time)
+
+    ax.pie(hours, labels = place,autopct='%1.2f%%')
+    plt.show()
 
     pa = []
     pb = []
@@ -31,21 +65,11 @@ def main():
             if key not in ['monday'] :
                 continue
             for aa, b in value.items():
-                pointa.append(b.x)
-                pointb.append(b.y)
+                pointa.append(b.location.x)
+                pointb.append(b.location.y)
         pa.append(pointa)
         pb.append(pointb)
 
-    """pointa = []
-    pointb = []
-            #m = plt.scatter(b.x,b.y)
-    for key,value in p[1].get_timetable().items():
-        for aa,b in value.items():
-            pointa.append(b.x)
-            pointb.append(b.y)
-    #plt.show()
-    pa.append(pointa)
-    pb.append(pointb)"""
 
     for t in range(len(profs)):
         pointa = []
@@ -54,8 +78,8 @@ def main():
             if key not in ['monday'] :
                 continue
             for aa, b in value.items():
-                pointa.append(b.x)
-                pointb.append(b.y)
+                pointa.append(b.location.x)
+                pointb.append(b.location.y)
         pa.append(pointa)
         pb.append(pointb)
 
@@ -106,6 +130,7 @@ def main():
 #    anim.save('student_and_prof.gif',writer=writergif)
     plt.show()
 
+  
 def main2():
     schedule = form_schedule()
     pm = Parameters('shapes/kgpbuildings.shp', 'Campus_data/KGP Data - Sheet1.csv')
