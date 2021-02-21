@@ -1,20 +1,15 @@
-import random
-import ctypes
-import numpy as np
 import os
 import json
-from sector import Sector, Unit
-from param_with_shp import Parameters
-from shapely.geometry import Point
-import matplotlib.pyplot as plt
-import geopandas as GP
-import matplotlib.animation as animation
 import time
+import ctypes
+import random
+import numpy as np
+import geopandas as GP
+import matplotlib.pyplot as plt
+from shapely.geometry import Point
+import matplotlib.animation as animation
 
-from utils import form_schedule
-
-# class person(ContactTracing, AgentStateA, TestingState):
-slots=json.load(open('Timetable/Schedule/slots.json'))
+from .parameters import slots
 
 class person():
     """ Class for describing students
@@ -29,7 +24,7 @@ class person():
         master(object): master object
     """
 
-    def __init__(self,sectorptr=None,pm=None,ID=0,dept=None,inCampus=True,age=-1,ageclass=-1,role="student",year=None,schedule=None,master=None,residence='Hostel'):
+    def __init__(self, Campus=None, pm=None, ID=0, dept=None, inCampus=True, age=-1, ageclass=-1, role="student", year=None, schedule=None, master=None, residence='Hostel'):
 
         super(person, self).__init__()
 
@@ -39,14 +34,14 @@ class person():
         self.AgeClass   = ageclass
         self.master     = master
         self.residence  = residence
-        self.sector     = sectorptr
-        if sectorptr!=None:
-            self.residence_unit  = self.sector.Units_Placeholder[self.residence[0]][self.residence[1]+self.sector.Index_Holder[self.residence[0]]]
+        self.Campus     = Campus
+        
+        if self.Campus!=None:
+            self.residence_unit  = self.Campus.Units_Placeholder[self.residence[0]][self.residence[1]+self.Campus.Index_Holder[self.residence[0]]]
 
         # Whether the person is in
         self.inCapmus   = inCampus
         self.timetable={"sunday":{},"monday":{}, "tuesday":{}, "wednesday":{}, "thursday":{}, "friday":{}, "saturday":{}}
-
 
         #  Namely student, faculty or staff
         self.Role = role
@@ -61,7 +56,7 @@ class person():
     def get_timetable(self):
         for day in self.timetable:
             for i in range(24):
-                #self.timetable[day][str(i)+'-'+str(i+1)]=self.sector.ParamObj.building_name[self.residence_unit.Building]
+                #self.timetable[day][str(i)+'-'+str(i+1)]=self.Campus.ParamObj.building_name[self.residence_unit.Building]
                 self.timetable[day][i]=self.residence_unit
         for subject in self.schedule:
             class_room=self.schedule[subject]['room']
@@ -75,21 +70,94 @@ class person():
                     ending=int(timing[-1])
                     for i in range(starting, ending):
                         try:
-                            self.timetable[times[0]][i]=self.sector.RoomNo_to_Unit(class_room)
-                            self.sector.RoomNo_to_Unit(class_room).isclassroom = True
+                            self.timetable[times[0]][i]=self.Campus.RoomNo_to_Unit(class_room)
+                            self.Campus.RoomNo_to_Unit(class_room).isclassroom = True
                         except:
-                            altroom = sum([ord(char) for char in class_room])+self.sector.Index_Holder[42]
-                            self.timetable[times[0]][i]=self.sector.Units_Placeholder[42][altroom]
-                            self.sector.Units_Placeholder[42][altroom].isclassroom = True
+                            altroom = sum([ord(char) for char in class_room])+self.Campus.Index_Holder[42]
+                            self.timetable[times[0]][i]=self.Campus.Sector['Academic'].Units_Placeholder[42][altroom]
+                            self.Campus.Units_Placeholder[42][altroom].isclassroom = True
                 else:
-                    self.timetable[times[0]][int(times[1].split('-')[0])]=self.sector.RoomNo_to_Unit(class_room)
-                    self.sector.RoomNo_to_Unit(class_room).isclassroom = True
+                    self.timetable[times[0]][int(times[1].split('-')[0])]=self.Campus.RoomNo_to_Unit(class_room)
+                    self.Campus.RoomNo_to_Unit(class_room).isclassroom = True
         return self.timetable
 
     def get_schedule(self):
         pass
 
-def start_movement(person,schedule,no_of_days):
+# TODO: Make a separate student class that also inherits from person
+
+class professor(person):
+    def __init__(self, lab=None, office=None, Campus=None, HouseNo=None, pm=None, ID=0, dept=None, inCampus=True, age=-1, ageclass=-1, role="faculty", year=None, schedule=None, master=None):
+        super().__init__(ID=ID, role=role, age=age, dept=dept)
+        self.Campus = Campus
+        self.residence = "Faculty Quarters"
+        self.residence_building_id = [i for i in range(len(self.Campus.pm.description)) if self.Campus.pm.description[i]=='Faculty Residence'][0]
+        self.residence_unit = Campus.Units_Placeholder[self.residence_building_id][HouseNo+self.Campus.Index_Holder[self.residence_building_id]]
+        self.residence_point = self.residence_unit.location
+        self.office = office
+        try:
+            self.office_unit = self.Campus.RoomNo_to_Unit(self.office)
+            self.office_point = self.office_unit.location
+        except:
+            altroom = sum([ord(char) for char in office])+self.Campus.Index_Holder[42]
+            self.office_unit = self.Campus.Units_Placeholder[42][altroom]
+            self.office_point = self.office_unit.location
+        self.lab = lab
+        try:
+            self.lab_unit = self.Campus.RoomNo_to_Unit(self.lab)
+            self.lab_point = self.lab_unit.location
+        except:
+            altroom = sum([ord(char) for char in office])+self.Campus.Index_Holder[42]
+            self.lab_unit = self.Campus.Units_Placeholder[42][altroom]
+            self.lab_point = self.lab_unit.location
+        self.pm = pm
+        self.prof_timetable = schedule
+        self.daily_schedule_expected = {"monday":{},"tuesday":{},"wednesday":{},"thursday":{},"friday":{},"saturday":{},"sunday":{}}
+        self.generate_exp_schedule()
+
+    def generate_exp_schedule(self):
+        for day in self.daily_schedule_expected:
+                for i in range(24):
+                    if i < 8 or i > 18 or i == 13:
+                        self.daily_schedule_expected[day][i] = self.residence_unit
+                        #self.daily_schedule_expected[day][i] = 'residence'+str(self.residence_building_id)
+                    else:
+                        if day != 'sunday':
+                            self.daily_schedule_expected[day][i] = self.office_unit
+                            gaus_val = np.random.normal(0,1,1)
+                            if gaus_val >= -1 and gaus_val <=1: self.daily_schedule_expected[day][i] = self.lab_unit
+                            #self.daily_schedule_expected[day][i] = 'office'+self.office
+                        else:
+                            self.daily_schedule_expected[day][i] = self.residence_unit
+                            #self.daily_schedule_expected[day][i] = 'residence'+str(self.residence_building_id)
+
+        day = {'0':'monday','1':'tuesday','2':'wednesday','3':'thursday','4':'friday','5':'saturday','6':'sunday'}
+        class_start_time = {'0':'8','1':'9','2':'10','3':'11','4':'12','5':'14','6':'15','7':'16','8':'17'}
+        try:
+            for i in self.prof_timetable:
+                for j in i[0]:
+                    self.prof_timetable[day[j[0]]][class_start_time[j[1]]] = i[1]
+        except:
+            # Enters this block when the schedule is given as a single subject
+            for key, value in self.prof_timetable.items():
+                for n in slots[value['slot']]:
+                    day = slots[value['slot']][n][0]
+                    times = map(int,slots[value['slot']][n][1].split('-'))
+                    for start_time in range(*times):
+                        try:
+                            #if day == 'wednesday':
+                            #    if value['room'][0:2] == 'NR' or value['room'][0:2] == 'NC':
+                            #        print(value['room'])
+                            #        print(start_time)
+                            self.daily_schedule_expected[day][start_time] = self.Campus.RoomNo_to_Unit(value['room'])
+                            #self.daily_schedule_expected[day][start_time] = key
+                            #if day == 'wednesday': print(self.daily_schedule_expected['wednesday'])
+                        except:
+                            #print(value['room'])
+                            altroom = sum([ord(char) for char in value['room']])+self.Campus.Index_Holder[42]
+                            self.daily_schedule_expected[day][start_time]=self.Campus.Units_Placeholder[42][altroom]
+
+def get_movement_time_series(person, schedule, no_of_days):
     curr = time.localtime()
     day1 = time.mktime(time.struct_time((curr.tm_year,curr.tm_mon,curr.tm_mday,0,0,0,curr.tm_wday,curr.tm_yday,curr.tm_isdst)))
     tmstamp = day1
@@ -106,41 +174,11 @@ def start_movement(person,schedule,no_of_days):
             newschedule[time.localtime(temp)] = schedule[time.strftime("%A",time.localtime(temp)).casefold()][j1]
     person.schedule = newschedule
 
-
-def __init_students__(schedule,sectorptr=None):
-    """ For initiating people & giving them their respective schedules
-    Args:
-        schedule(dict): containing year-wise classes+labs with slots & rooms
-    """
-    depts   = ['AE', 'AG', 'AR', 'BT', 'CE', 'CH', 'CS', 'CY', 'EC', 'EE', 'EX', 'GG', 'HS', 'IE', 'IM', 'MA', 'ME', 'MF', 'MI', 'MT', 'NA', 'PH', 'QE', 'QM']
-
-    people = []
-
-    if sectorptr!=None:
-        residence_indices = [i for i in range(len(sectorptr.ParamObj.description)) if sectorptr.ParamObj.description[i]=='Residence']
-        weights = [sectorptr.Number_Units[i] for i in residence_indices]
-
-    ctr=1
-    for dept in depts:
-        dept_schedule = schedule[dept]
-        for i in range(2,5):
-            for j in range(1,random.randrange(40,60)):
-                person_schedule = schedule[dept][i]
-                age = str(18 + (i-1) + random.choice([0,1]))
-                if sectorptr!=None:
-                    hall = random.choices(residence_indices,weights)[0]
-                    room = random.randint(0,len(sectorptr.Height[hall])-1)
-                    junta = person(sectorptr=sectorptr,role="student",ID=ctr,age=age,year=j,schedule=person_schedule,dept=dept,residence=[hall,room])
-                    ctr += 1
-                else:
-                    junta = person(role="student",ID=ctr,age=age,year=j,schedule=person_schedule,dept=dept)
-                people.append(junta)
-    return people
-
-
-
-
 def main():
+    from .utils import form_schedule
+    from .campus import Sector, Unit
+    from .parameters import Parameters, slots
+
     schedule = form_schedule()
     pm = Parameters('shapes/kgpbuildings.shp','Campus_data/KGP Data - Sheet1.csv')
     a = Sector(pm.returnParam())

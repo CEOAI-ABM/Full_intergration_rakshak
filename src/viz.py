@@ -13,9 +13,9 @@ from utils import publish_loc
 
 
 def main():
-    schedule = form_schedule()
-    pm = Parameters('shapes/KgpBuildings.shp', 'Campus_data/KGP Data - Sheet1.csv')
-    a = Sector(pm.returnParam())
+    schedule = form_schedule() # dept, year wise timetable
+    pm = Parameters('shapes/KgpBuildings.shp', 'Campus_data/KGP Data - Sheet1.csv') # buildings related information
+    a = Sector(pm.returnParam()) 
     p = __init_students__(schedule, a)
     profs = init_profs_from_schedule(schedule,a)
     print(p[0].get_timetable())

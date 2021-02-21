@@ -1,6 +1,20 @@
-from . import spatial
-from . import parameter as param
+from .Campus_Model import Campus
 
-def Run():
-    prm = param.Param()
-    spt  = spatial.Spatial(pm=prm)
+class Master(Campus):
+	"""
+	Handles all the initialization and eventually parallelization (if required)
+	"""
+	
+	def __init__(self, pm):
+		self.pm = pm
+
+		super(Master, self).__init__()
+	
+	def initiate(self):
+		
+		#self.initialize_campus()
+
+def StartSimulation(pm):
+	m = Master(pm)
+	print(m)
+	m.initiate()

@@ -1,8 +1,8 @@
 import os
 import json
+import time
 import random
 import mysql.connector
-import time
 
 def total_students(course, grades, grades_18A, grades_18S, na_list):
     """Gives the count of total students present in the course 

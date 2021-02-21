@@ -1,6 +1,5 @@
 import numpy as np
 
-
 class Spatial(object):
     def __init__(self,pm):
         """Initialization of Spatial Class
