@@ -14,7 +14,7 @@ class Unit():
         y_coordinate                Location
         Sector                    Pointer to the Sector class object calling it
     '''
-    def __init__(self,Id,Building,Daily_People_Expectation,Number_Workers,Height,x_coordinate,y_coordinate,Sector,isclassroom=False):
+    def __init__(self,Id,Building,Daily_People_Expectation,Number_Workers,Height,x_coordinate,y_coordinate,Sector,area,isclassroom=False):
         self.Id                         = Id
         self.Building                   = Building
         self.Sector                     = Sector
@@ -25,43 +25,101 @@ class Unit():
         self.working                    = []
         self.visiting                   = []
         self.isclassroom                = isclassroom
+        self.area                       = area
+        self.interpersonDist            = None  #function(self.area,self.working+self.visiting)
 
-# class Sector()
+class Sector():
 
-# class Academic
+    #def __init__(self,Num_Units_per_Floor,Building,Daily_People_Expectation,Number_Workers,Height,x_coordinate,y_coordinate,building_area)
+    def __init__(self,pm,SectorName):
+        self.building_ids               = []
+        self.SectorName                 = SectorName
+        self.num_rooms_per_floor        = {}
+        self.Daily_People_Expectation   = {}
+        self.Number_Workers             = {}
+        self.height                     = {}
+        self.location                   = {}
+        self.building_area              = {}
+        self.Units_list                 = {}
+        self.rooms_packing_fraction     = {} # denotes how much of the area of a floor is covered by all the rooms
+        self.room_area                       = {}
 
-# TODO: All will inherit from sector
-"""
-class Restaurant():
+        self.__get_building_ids__(pm)
+
+        self.Number_Buildings                   = len(self.building_ids)
+
+        for i in self.building_ids:
+            self.Units_list[i]                  = {}
+            self.num_rooms_per_floor[i]         = pm.num_rooms_per_floor[i]
+            self.Daily_People_Expectation[i]    = pm.Daily_People_Expectation[i]
+            self.Number_Workers[i]              = pm.Number_Workers[i]
+            self.height[i]                      = pm.heights[i]
+            self.location[i]                    = [pm.xlist[i], pm.ylist[i]]
+            self.building_area[i]               = pm.polygons[i].area
+            self.rooms_packing_fraction[i]      = pm.rooms_packing_fraction[i]
+            self.room_area[i]                   = self.rooms_packing_fraction[i]*self.building_area[i]/self.num_rooms_per_floor[i]
+
+
+    def __get_building_ids__(self,pm):
+        i = 0
+        while i < len(pm.description):
+            if pm.description[i] in self.SectorName:
+                self.building_ids.append(i)
+            i+=1
+
+class Academic(Sector):
     def __init__(self,pm):
-        super().__init__(pm[:-1])
-        self.Types=['Dine In','Take Away']
-        self.Capacity={}
-        self.Factor=pm[-1]
+        super().__init__(pm, ['Academic'])
+        self.Types              = ['Classroom', 'Office']
+
+class Residence(Sector):
+    def __init__(self,pm):
+        super().__init__(pm, ['Residence', 'Faculty Residence'])
+        self.Types              = ['Student Residence', 'Faculty Residence', 'Guest House', 'Staff Residence']
+
+# TO DO: All will inherit from sector
+
+class Restaurant(Sector):
+    def __init__(self,pm, Factor=None):
+        super().__init__(pm, ['Restaurant'])
+        self.Types              = ['Dine In','Take Away']
+        self.Capacity           = {}
+        self.Factor             = Factor
+
         def update_capacity(self):
-            for i in range(len(self.Number_Units)):
+            for i in range(len(self.num_rooms_per_floor)):
                 self.Capacity[self.Types[i]]=self.Factor[i]*self.Sub_Class_People[i]
 
-class Healthcare():
-    def __init__(self,pm):
-        super().__init__(pm[:-1])
-        self.Types = ['Care_Center', 'Health_Center', 'Hospital']
-        self.Capacity={}
-        self.Factor=pm[-1]
+class Healthcare(Sector):
+    def __init__(self, pm, Factor=None):
+        super().__init__(pm, ['Healthcare'])
+        self.Types              = ['Care_Center', 'Health_Center', 'Hospital']
+        self.Capacity           = {}
+        self.Factor             = Factor
+
         def update_capacity(self):
-            for i in range(len(self.Number_Units)):
+            for i in range(len(self.num_rooms_per_floor)):
                 self.Capacity[self.Types[i]]=self.Factor[i]*self.Sub_Class_People[i]
 
-class Market():
+class Market(Sector):
     def __init__(self,pm):
-        super().__init__(pm)
-        self.Types=['Stationary', 'Vegetable Market', 'Department Store', 'Electronics Store']
+        super().__init__(pm, ['Market'])
+        self.Types              = ['Stationary', 'Vegetable Market', 'Department Store', 'Electronics Store']
 
-class GymKhana():
+class Gymkhana(Sector):
     def __init__(self,pm):
-        super().__init__(pm)
-        self.Types=['Indoor', 'Outdoor']
+        super().__init__(pm, ['Gymkhana'])
+        self.Types              = ['Indoor', 'Outdoor']
         self.Capacity={}
+
+class Grounds(Sector):
+    def __init__(self,pm):
+        super().__init__(pm, ['Grounds'])
+        self.Types              = ['Sports', 'Parks']
+
+class Non_Academic(Sector):
+    def __init__(self,pm):
+        super().__init__(pm, ['Non_Academic'])
 
     '''Class for initializing the academic workplaces
         Takes list of parameters as argument:
@@ -73,7 +131,7 @@ class GymKhana():
         5th pm is list of list of expected visitors coming in per day
         6th pm is the pointer to the parameters object itself
     '''
-"""
+
 
 
 if __name__ == '__main__':

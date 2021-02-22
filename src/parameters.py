@@ -9,61 +9,90 @@ from shapely.geometry import Polygon
 slots = json.load(open('data/Timetable/Schedule/slots.json'))
 
 class Parameters:
+    # make this code more systematic (only params to be declared in init, rest to be done in functions)
     def __init__(self, ShpFile, OtherFile):
-        # TODO make this code more systematic (only params to be declared in init, rest to be done in functions)
+        self.Departments                                = ['AE', 'AG', 'AR', 'BT', 'CE', 'CH',
+                                                           'CS', 'CY', 'EC', 'EE', 'EX', 'GG',
+                                                           'HS', 'IE', 'IM', 'MA', 'ME', 'MF',
+                                                           'MI', 'MT', 'NA', 'PH', 'QE', 'QM']
+        self.Number_Workers                             = []
+        self.Floor                                      = []
+        self.Daily_People_Expectation                   = []
 
-		self.Departments = ['AE', 'AG', 'AR', 'BT', 'CE', 'CH', 'CS', 'CY', 'EC', 'EE', 'EX', 'GG', 'HS', 'IE', 'IM', 'MA', 'ME', 'MF', 'MI', 'MT', 'NA', 'PH', 'QE', 'QM']
-        self.Number_Workers = []
-        self.Height = []
-        self.Daily_People_Expectation = []
+        gdf                                             = GP.read_file(ShpFile)
+        self.df                                         = pd.read_csv(OtherFile,na_filter=False)
+        self.building_name                              = gdf['name']
+        self.rooms_packing_fraction                     = [1 for i in range(len(self.building_name))]
+        self.description                                = gdf['descriptio']
+        self.coordinates, self.ref, self.polygons       = cal_coordinates(gdf)
+        self.rooms                                      = []
+        self.num_rooms_per_floor                        = list()
+        self.heights                                    = list()
+        self.xlist = []
+        self.ylist = []
 
-        gdf = GP.read_file(ShpFile)
-        self.df = pd.read_csv(OtherFile,na_filter=False)
-        self.building_name = gdf['name']
-        self.description = gdf['descriptio']
-        self.coordinates, self.ref, self.polygons = cal_coordinates(gdf)
-        self.rooms = []
-        self.num_rooms = list()
-        self.heights = list()
-        lib_area = self.polygons[2].area #area of lib
-        lbs_area = self.polygons[32].area #area of LBS
+        self.__assign_num_rooms_heights__()
+
+        self.__cal_rooms__(self.num_rooms_per_floor)
+
+        self.__assign_coords__()
+
+        self.__assign_remaining__()
+
+        #self.pm = [self.num_rooms,[],[],self.xlist,self.ylist,[]] #(7 parameters to be returned to Sector())
+
+    def __assign_remaining__(self):
+        for i in range(len(self.building_name)):
+            self.Number_Workers.append(np.random.randint(5,50))
+            self.Floor.append([])
+            
+            for j in range(1, self.heights[i]+1):
+                for k in range(self.num_rooms_per_floor[i]):
+                    self.Floor[i].append(j)
+                
+            self.Daily_People_Expectation.append(np.random.randint(0, 50, self.num_rooms_per_floor[i]*self.heights[i]))
+
+
+    def __assign_num_rooms_heights__(self):
+
+        '''assigns number of rooms by taking reference of the lib and lbs if not known  through KGP Data - Sheet1.csv
+        and randomly allocates no of floors if not known through KGP Data - Sheet1.csv
+        '''
+
+        lib_area                          = self.polygons[2].area #area of library
+        lib_num_rooms_per_floor           = 20
+        lbs_area                          = self.polygons[32].area #area of LBS Hall
+        lbs_num_rooms_per_floor           = 130
+
         for i in range(len(self.building_name)):
             try:
-                self.num_rooms.append(int(self.df['number of rooms/floor'][i]))
+                self.num_rooms_per_floor.append(int(self.df['number of rooms/floor'][i]))
                 self.heights.append(int(self.df['height'][i]))
             except:
                 if self.df['description'][i] == 'Academic':
-                    mu = 20*self.polygons[i].area/lib_area
+                    mu = lib_num_rooms_per_floor*self.polygons[i].area/lib_area
                 else:
-                    mu = 130*self.polygons[i].area/lbs_area
-                self.num_rooms.append(int(abs(np.round(np.random.normal(mu,3,1)))))
+                    mu = lbs_num_rooms_per_floor*self.polygons[i].area/lbs_area
+                self.num_rooms_per_floor.append(int(abs(np.round(np.random.normal(mu,3,1)))))
+                if self.num_rooms_per_floor[-1] == 0:
+                    self.num_rooms_per_floor[-1] = 1
                 self.heights.append(int(abs(np.round(np.random.normal(3,0.5,1)))))
-        self.cal_rooms(self.num_rooms)
-        self.xlist = []
-        self.ylist = []
+
+
+    def __assign_coords__(self):
         j = 0
         for buil in self.rooms:
             self.xlist.append([i.x for i in buil]*self.heights[j])
             self.ylist.append([i.y for i in buil]*self.heights[j])
             j+=1
 
-        #self.pm = [self.num_rooms,[],[],self.xlist,self.ylist,[]] #(7 parameters to be returned to Sector())
 
-        for i in range(len(self.building_name)):
-            self.Number_Workers.append(np.random.randint(5,50))
-            self.Height.append([])
-            
-            for j in range(1, self.heights[i]+1):
-                for k in range(self.num_rooms[i]):
-                    self.Height[i].append(j)
-                
-            self.Daily_People_Expectation.append(np.random.randint(0, 50, self.num_rooms[i]*self.heights[i]))
-
-    def cal_rooms(self, no_rooms):
+    def __cal_rooms__(self, no_rooms):
         for i in range(len(self.building_name)):
             points = random_points_in_polygon(no_rooms[i],self.polygons[i])
             self.rooms.append(points)
         return
+
 
 def cal_coordinates(df):
     temp = []
@@ -111,13 +140,13 @@ def random_points_in_polygon(number, polygon):
 
 
 if __name__=='__main__':
-    ShpFilePath = "shapes/kgpbuildings.shp"
-    FilePath = "Campus_data/KGP Data - Sheet1.csv"
+    ShpFilePath = "../data/shapes/kgpbuildings.shp"
+    FilePath = "../data/Campus_data/KGP Data - Sheet1.csv"
     pm = Parameters(ShpFilePath,FilePath)
     k = 0
     while True:
         try:
-            print(k,pm.building_name[k],"---- DESCRIPTION:",pm.description[k],"---- Number of Rooms:",pm.num_rooms[k],"---- Heights of the buildings",pm.heights[k])
+            print(k,pm.building_name[k],"---- DESCRIPTION:",pm.description[k],"---- Number of Rooms per Floor:",pm.num_rooms_per_floor[k],"---- Heights of the building",pm.heights[k])
             k+=1
         except:
             break
