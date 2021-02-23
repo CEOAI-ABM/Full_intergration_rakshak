@@ -203,7 +203,7 @@ class AgentStatusA(object):
 		return self.Status == self.status[0]
 	def is_Quarentined(self):
 		return self.Status == self.status[1]
-	def is_Out_of_Region(self):
+	def is_Out_of_Campus(self):
 		return self.Status == self.status[2]
 	def is_Hospitalized(self):
 		return self.Status == self.status[3]

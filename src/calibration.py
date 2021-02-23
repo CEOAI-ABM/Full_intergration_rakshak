@@ -4,10 +4,8 @@ import statistics
 
 from tabulate import tabulate
 
-# from .parameters_shape import Parameters as Param
-# pm = Param("Database/Kolkata/1_Ward_Population/Ward_300620.shp",'WardNo')
 # Applicable for entire city
-def distance_dist( pm1 ,distance,Dist=None):
+def distance_dist(pm, distance, Dist=None):
 	'''
 	This function represents Distance wise Absoulte Risk Distribution of the corona virus 
 	Inputs: 
@@ -22,7 +20,7 @@ def distance_dist( pm1 ,distance,Dist=None):
 	Ratio  	 = Per m decrease in Risk
 	'''
 	if Dist == None:
-		Param = pm1.Virus_DistanceDist.copy()
+		Param = pm.Virus_DistanceDist.copy()
 	else:
 		Param = Dist
 
@@ -32,7 +30,7 @@ def distance_dist( pm1 ,distance,Dist=None):
 		return Param["Constant"]/(distance*Param["Ratio"])
 
 # Applicable for entire city
-def effective_contact_rate(time,d,const,pm1):
+def effective_contact_rate(time, d, const, pm):
 	'''
 	Effective Contact Rate is calculated as follows
 	Beta(ECR) = gamma x p 
@@ -42,24 +40,24 @@ def effective_contact_rate(time,d,const,pm1):
 	def gamma(time,contacts_ph):
 		return time*contacts_ph
 	def p(distance):
-		return distance_dist(pm1,distance)
+		return distance_dist(pm, distance)
 	return gamma(time,const)*p(d)
 
-def get_TR(pm1,c=1):
+def get_TR(pm,c=1):
 	"""returns the TR of different sectors
 
 	Args:
 		c (int, optional): 	Constant value of virus. Defaults to 1.
-		pm1 (parameters object, optional): Parameters object. Defaults to pm.
+		pm (parameters object): Parameters object.
 
 	Returns:
 		TR: Transmission Rate of different sectors
 	"""	
 
-	sectors 		= pm1.sectors.copy()
-	Virus_Params 		= pm1.Virus_Params.copy()
-	Workplace_Params	= pm1.Workplace_Params.copy()
-	Mask_Fraction 		= pm1.Sector_Mask_Fraction.copy() # Fraction of the people in each sector who wear a mask.
+	sectors 		    = pm.sectors.copy()
+	Virus_Params 		= pm.Virus_Params.copy() 
+	Workplace_Params	= pm.Workplace_Params.copy() # sum([len(self.height[i]) for i in self.building_ids])
+	Mask_Fraction 		= pm.Sector_Mask_Fraction.copy() # Fraction of the people in each sector who wear a mask.
 
 	for sector in sectors:
 		Param 	= Workplace_Params[sector+"_VirusParamsOfSizei"]
@@ -70,29 +68,29 @@ def get_TR(pm1,c=1):
 	sectors += ['Home','Transport','Grocery','Unemployed','Random']
 	TR 				= {}
 	for sector in sectors:
-		TR[sector] = effective_contact_rate(Virus_Params[sector]['Time'],Virus_Params[sector]['Distance']*Mask_Fraction[sector],c,pm1)
+		TR[sector] = effective_contact_rate(Virus_Params[sector]['Time'],Virus_Params[sector]['Distance']*Mask_Fraction[sector],c,pm)
 	
 	return TR
 
 # Applicable for entire city
-def sector_proportions(pm1,sector=None,RegionName=None ):
+def sector_proportions(pm, sector=None, RegionName=None):
 	'''
 	sector Proportions(SP) is the Expected proportion of people employed in Different Sectors
 	SP 		= sum(AgeDist[x]*Employment[x]) at y axis
 	for all x in ageGroups
 	'''
-	sectors 		= pm1.sectors.copy()
-	EmploymentDist 	= pm1.Employment_params.copy()
-	AgeDist 		= pm1.Population_Dist.copy()
-	AgeGroups 		= pm1.Population_groups.copy()
-	ProblityPurchase = pm1.Transaction_ProbablityOfPurchase
-	Family_size 	= pm1.Family_size.copy()[0]
+	sectors 		= pm.sectors.copy()
+	EmploymentDist 	= pm.Employment_params.copy()
+	AgeDist 		= pm.Population_Dist.copy()
+	AgeGroups 		= pm.Population_groups.copy()
+	ProblityPurchase = pm.Transaction_ProbablityOfPurchase
+	Family_size 	= pm.Family_size.copy()[0]
 
 	# Family_
 	sectors.append('Unemployed')
 	proportions = {'Home':1,'Transport':0,'Grocery':ProblityPurchase/Family_size}
 
-	Prob_use_tran 	= pm1.Prob_use_TN
+	Prob_use_tran 	= pm.Prob_use_TN
 	# Family_
 	sectors.append('Unemployed')
 	proportions = {'Home':1,'Transport':Prob_use_tran,'Grocery':ProblityPurchase/Family_size,'Random':1}
@@ -111,7 +109,7 @@ def sector_proportions(pm1,sector=None,RegionName=None ):
 		return proportions[sector]
 		
 # Applicable for City/Region Wise
-def sectors_suspectible(pm1,sector=None,RegionName=None,):
+def sectors_suspectible(pm, sector=None, RegionName=None):
 	'''
 	returns the proportion of people suspectible in each sector when the entire population is working in that sector
 	i.e suspectible population when exactly 1 person works in that sector 
@@ -124,29 +122,29 @@ def sectors_suspectible(pm1,sector=None,RegionName=None,):
 	'''
 	if RegionName == None:
 		# For entire City
-		sectors 		= pm1.sectors.copy()
-		Workplace_Params= pm1.Workplace_Params.copy()
-		Family_size 	= pm1.Family_size.copy()[0]
-		Total_Pop 		= pm1.Population
-		Total_Regions	= pm1.Regions_to_simulate
-		AvgDensity		= statistics.mean(pm1.Region_Density.values()) # km2 to m2
+		sectors 		= pm.sectors.copy()
+		Workplace_Params= pm.Workplace_Params.copy()
+		Family_size 	= pm.Family_size.copy()[0]
+		Total_Pop 		= pm.Population
+		Total_Regions	= pm.Regions_to_simulate
+		AvgDensity		= statistics.mean(pm.Region_Density.values()) # km2 to m2
 		# raise
 	else:
 		# For a region
-		sectors 		= pm1.sectors.copy()
-		# Workplace_City 	= pm1.Workplace_Params.copy()
-		Workplace_Params= pm1.Workplace_Params.copy()
-		Family_size 	= pm1.Region_Family_size[RegionName][0]
-		Total_Pop 		= pm1.Region_population[RegionName]
+		sectors 		= pm.sectors.copy()
+		# Workplace_City 	= pm.Workplace_Params.copy()
+		Workplace_Params= pm.Workplace_Params.copy()
+		Family_size 	= pm.Region_Family_size[RegionName][0]
+		Total_Pop 		= pm.Region_population[RegionName]
 		Total_Regions 	= 1
-		AvgDensity 		= pm1.Region_Density[RegionName]
+		AvgDensity 		= pm.Region_Density[RegionName]
 
-	CR0					= pm1.Initial_Compliance_Rate 
-	TN_use_probablity 	= pm1.Prob_use_TN
-	Total_Num_Routes 	= pm1.NumRoutes
-	Total_Buses			= pm1.NumBuses
+	CR0					= pm.Initial_Compliance_Rate 
+	TN_use_probablity 	= pm.Prob_use_TN
+	Total_Num_Routes 	= pm.NumRoutes
+	Total_Buses			= pm.NumBuses
 
-	suspectibles = {'Home':Family_size}
+	suspectibles        = {'Home':Family_size}
 
 	for sector in sectors:
 		Numbers				 = Workplace_Params[sector + "_NumberOfSizei"]
@@ -159,14 +157,14 @@ def sectors_suspectible(pm1,sector=None,RegionName=None,):
 	Avg_Pop		 				= Total_Pop/Total_Regions
 
 	suspectibles['Grocery'] 	= (suspectibles['Commerce']+1.0/(Family_size*sum(Workplace_Params["Commerce_NumberOfSizei"]))) #TODO:update later
-	suspectibles['Unemployed'] 	= sector_proportions(pm1,sector='Unemployed')*Family_size*0 #UPDATE LATER
+	suspectibles['Unemployed'] 	= sector_proportions(pm,sector='Unemployed')*Family_size*0 #UPDATE LATER
 	suspectibles['Transport'] 	= TN_use_probablity/Total_Buses
 	
 	Const 						= 4*math.pi*AvgDensity
 	suspectibles['Random'] 		= Const*((Avg_Pop/Const)**(1-CR0))
 	return suspectibles
 		
-def R0(pm1,c=1,RegionName=None):
+def R0(pm, c=1, RegionName=None):
 	'''
 	returns R0 value of the given city
 	R0perday = Sum_i P(pop_i) x effective_contact_rate x Suspected_i
@@ -175,14 +173,14 @@ def R0(pm1,c=1,RegionName=None):
 	Suspected_i	: Suspected people at i
 	R0 		= R0perday x ExpectedIncubationPeriod
 	'''
-	sectors 		= pm1.sectors.copy()
-	Virus_Params 	= pm1.Virus_Params.copy()
-	Population 		= pm1.Population
-	Workplace_Params= pm1.Workplace_Params.copy()
-	Incubation_Per  = pm1.Virus_IncubationPeriod 
-	AgeDist 		= pm1.Population_Dist
-	suspectibles 	= sectors_suspectible(pm1=pm1)
-	proportions 	= sector_proportions(pm1=pm1)
+	sectors 		= pm.sectors.copy()
+	Virus_Params 	= pm.Virus_Params.copy()
+	Population 		= pm.Population
+	Workplace_Params= pm.Workplace_Params.copy()
+	Incubation_Per  = pm.Virus_IncubationPeriod 
+	AgeDist 		= pm.Population_Dist
+	suspectibles 	= sectors_suspectible(pm=pm)
+	proportions 	= sector_proportions(pm=pm)
 
 	for sector in sectors:
 		Param 	= Workplace_Params[sector+"_VirusParamsOfSizei"]
@@ -195,7 +193,7 @@ def R0(pm1,c=1,RegionName=None):
 	Rsector = {}
 	printdata = []
 	for sector in sectors:
-		ecr = effective_contact_rate(Virus_Params[sector]['Time'],Virus_Params[sector]['Distance'],c,pm1)
+		ecr = effective_contact_rate(Virus_Params[sector]['Time'],Virus_Params[sector]['Distance'],c,pm)
 		pop =(proportions[sector])
 		if sector in ['Home','Unemployed','Random']:
 			susp=(suspectibles[sector])
@@ -213,10 +211,10 @@ def R0(pm1,c=1,RegionName=None):
 	print(tabulate(printdata,headers=["Sector","EffContRate","Population","Suspectibles","Rate of sector"]))
 	return R0
 
-def calibrate(pm1,R0_val=None):
+def calibrate(pm,R0_val=None):
 	if R0_val==None:
-		R0_val = pm1.Virus_R0 
-	Current_R0 = R0(pm1=pm1)
+		R0_val = pm.Virus_R0 
+	Current_R0 = R0(pm=pm)
 	
     c = R0_val/Current_R0
 	return c

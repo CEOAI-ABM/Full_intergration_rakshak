@@ -33,7 +33,7 @@ class person(AgentStateA):
         self.master     = master
         self.residence  = residence
         self.Campus     = Campus
-        self.inCapmus   = inCampus # Whether the person is currently in Campus
+        self.inCampus   = inCampus # Whether the person is currently in Campus
         self.Role = role #  Namely student, faculty or staff
         self.dept = dept
 

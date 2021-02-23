@@ -34,7 +34,9 @@ class Simulate():
         # TODO (Varun)
         # for healthy persons normal schedule
         # for hosp/quar etc policy will be diff
-    
+
+        self.daily_transmissions()
+
         # TODO (Varun)
         # routine to spread virus using contact graph
 

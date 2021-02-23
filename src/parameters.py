@@ -54,6 +54,13 @@ class Spatial_Parameters:
 														   'CS', 'CY', 'EC', 'EE', 'EX', 'GG',
 														   'HS', 'IE', 'IM', 'MA', 'ME', 'MF',
 														   'MI', 'MT', 'NA', 'PH', 'QE', 'QM']
+		
+		self.sectors 									= ['Academic', 'Residence', 'Restaurant',
+															'Healthcare', 'Market', 'Gymkhana',
+															'Grounds', 'Non_Academic']
+
+		
+
 		self.Number_Workers                             = []
 		self.Floor                                      = []
 		self.Daily_People_Expectation                   = []
@@ -140,6 +147,17 @@ class Parameters(Virus_Parameters, Spatial_Parameters):
 	
 		Virus_Parameters.__init__(self, **kwargs)
 		Spatial_Parameters.__init__(self, ShpFile, OtherFile)
+
+class Contact_Graph_Parameters:
+	def __init__(self):
+        self.hostname		= "localhost"
+        self.username		= "root"
+        self.password		= "1234"
+        self.dbname			= "Contact_Graph"
+        self.duration 		= 14 # in days
+        self.infectdist		= 5 # in metres (infection radius, default value keep around 10)
+        self.tstep 			= 3600 # the current timestep for activity data in seconds
+        self.units 			= 10 #  maximum allowed units of tstep missing from the geo-coordinates data for imputation
 
 if __name__=='__main__':
 	ShpFilePath = "../data/shapes/kgpbuildings.shp"

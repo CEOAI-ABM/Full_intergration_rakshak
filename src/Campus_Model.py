@@ -1,11 +1,14 @@
 import random
+import numpy as np
 
 from .simulate import Simulate
+from .calibration import calibrate
+from .virusmodel import Virus_Model
 from .person import student, professor, get_movement_time_series
 from .utils import publish_loc, form_schedule, create_db_publish_locations
 from .Campus_Units import Unit, Academic, Residence, Restaurant, Healthcare, Market, Gymkhana, Grounds, Non_Academic
 
-class Campus(Simulate):
+class Campus(Simulate, Virus_Model):
 	def __init__(self):
 		super().__init__()
 
@@ -32,12 +35,21 @@ class Campus(Simulate):
 		self.Students 					= []
 		self.Profs						= []
 
+		self.__get_Virus_constants__() # get virus constants (calibration of transmission rates)
+
+	def __get_Virus_constants__(self):
+		"""
+		Calibrates the virus constant using calibration.py
+		"""
+		self.VirusC = calibrate(pm)
+
 	def initialize_campus(self):
 		self.__initialize_sectors__()
 		self.__initialize_units__()
 
 		self.Deptwise_Timetable = form_schedule()
 
+		# TODO (Vikram): Assign proper ids that denote the profession (student/prof/nts)
 		# Lists of students and profs
 		self.__init_students__()
 		self.__init_profs__(start_id=len(self.Students)+1)
@@ -111,7 +123,7 @@ class Campus(Simulate):
 					office_no = (len([d for d in self.Rooms if d[0:2]==dept])-dept_roomno-1)
 					office=dept+str(office_no)
 					someno = office_no
-					while someno>0 and self.RoomNo_to_Unit(office).isclassroom == True:
+					while someno>0 and self.__room2unit__(office).isclassroom == True:
 						someno-=1
 						office=dept+str(someno)
 					else:
@@ -124,7 +136,7 @@ class Campus(Simulate):
 					houseno+=1
 					dept_roomno+=1
 
-	def RoomNo_to_Unit(self, room_name):
+	def __room2unit__(self, room_name):
 		if room_name[0] == 'V':
 			code = room_name[0]
 			number = room_name[1:]
@@ -149,3 +161,11 @@ class Campus(Simulate):
 	def start_movement(self):
 		self.population = self.Students + self.Profs
 		get_movement_time_series(self.population, 1)
+
+	# TODO (Vikram): Update this to use the new idx system
+	def __get_person_obj__(self, idx):
+		if (idx>len(self.Students)): # Means the guy is a prof 
+			return self.Profs.find(idx) - len(self.Students)
+		
+		else: # Person is student
+			return self.Students.find(idx)
