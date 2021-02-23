@@ -1,11 +1,14 @@
-from .person import student, professor, get_movement_time_series
-from .Campus_Units import Unit, Academic, Residence, Restaurant, Healthcare, Market, Gymkhana, Grounds, Non_Academic
-from .utils import publish_loc, form_schedule, create_db_publish_locations
-
 import random
 
-class Campus:
+from .simulate import Simulate
+from .person import student, professor, get_movement_time_series
+from .utils import publish_loc, form_schedule, create_db_publish_locations
+from .Campus_Units import Unit, Academic, Residence, Restaurant, Healthcare, Market, Gymkhana, Grounds, Non_Academic
+
+class Campus(Simulate):
 	def __init__(self):
+		super().__init__()
+
 		#No of days to simulate movement
 		self.num_days					= self.pm.num_days
 
@@ -13,7 +16,7 @@ class Campus:
 		self.Departments 				= self.pm.Departments
 		self.Deptwise_Timetable 		= None # dept, year wise timetable
 
-		#Building Parameters
+		# Building Parameters
 		self.description				= self.pm.description
 		self.Number_Units_per_floor     = self.pm.num_rooms_per_floor
 		self.Total_Num_Buildings        = len(self.Number_Units_per_floor)
@@ -41,10 +44,9 @@ class Campus:
 		# Lists of students and profs
 		self.__init_students__()
 		self.__init_profs__(start_id=len(self.Students)+1)
-		#NTS
+		# Non Teaching Staff
 
-		#print(students[0].get_timetable())
-		#print(profs[1].daily_schedule_expected)
+		self.start_movement()
 
 	def __initialize_sectors__(self):
 		self.sectors = {'Academic': Academic(self.pm), 'Residence': Residence(self.pm), 'Restaurant': Restaurant(self.pm), 'Healthcare': Healthcare(self.pm), 'Market': Market(self.pm), 'Gymkhana':Gymkhana(self.pm), 'Grounds': Grounds(self.pm), 'Non_Academic': Non_Academic(self.pm)}

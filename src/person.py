@@ -10,8 +10,9 @@ from shapely.geometry import Point
 import matplotlib.animation as animation
 
 from .parameters import slots
+from .statemachine import AgentStatusA, AgentStateA, TestingState
 
-class person():
+class person(AgentStateA):
     """ Class for describing students
     Args:
         pm(object): parameter objects
@@ -26,25 +27,17 @@ class person():
 
     def __init__(self, Campus=None, ID=0, dept=None, inCampus=True, age=-1, ageclass=-1, role=None, year=None, schedule=None, master=None, residence=None):
 
-
         self.ID         = ID
         self.Age        = age
         self.AgeClass   = ageclass
         self.master     = master
         self.residence  = residence
         self.Campus     = Campus
-
-
-        # Whether the person is in
-        self.inCapmus   = inCampus
-        self.timetable={"sunday":{},"monday":{}, "tuesday":{}, "wednesday":{}, "thursday":{}, "friday":{}, "saturday":{}}
-
-        #  Namely student, faculty or staff
-        self.Role = role
+        self.inCapmus   = inCampus # Whether the person is currently in Campus
+        self.Role = role #  Namely student, faculty or staff
         self.dept = dept
 
-
-
+        self.timetable  = {"sunday": {}, "monday": {}, "tuesday": {}, "wednesday": {}, "thursday": {}, "friday": {}, "saturday": {}}
 
     def get_schedule(self):
         pass
