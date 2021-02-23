@@ -11,6 +11,7 @@ slots = json.load(open('data/Timetable/Schedule/slots.json'))
 class Parameters:
     # make this code more systematic (only params to be declared in init, rest to be done in functions)
     def __init__(self, ShpFile, OtherFile):
+        self.num_days                                   = 2  # Number of days for which movement of people has to be generated
         self.Departments                                = ['AE', 'AG', 'AR', 'BT', 'CE', 'CH',
                                                            'CS', 'CY', 'EC', 'EE', 'EX', 'GG',
                                                            'HS', 'IE', 'IM', 'MA', 'ME', 'MF',

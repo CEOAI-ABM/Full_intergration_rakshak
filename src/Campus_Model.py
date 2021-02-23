@@ -6,6 +6,9 @@ import random
 
 class Campus:
 	def __init__(self):
+		#No of days to simulate movement
+		self.num_days					= self.pm.num_days
+
 		# Timetable Params
 		self.Departments 				= self.pm.Departments
 		self.Deptwise_Timetable 		= None # dept, year wise timetable
@@ -146,4 +149,4 @@ class Campus:
 
 	def start_movement(self):
 		self.population = self.Students+self.Profs
-		get_movement_time_series(self.population, 1)
+		get_movement_time_series(self.population, self.num_days)
