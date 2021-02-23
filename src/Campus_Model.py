@@ -1,7 +1,7 @@
 import random
 
 from .simulate import Simulate
-from .person import student, professor, get_movement_time_series
+from .person import student, professor
 from .utils import publish_loc, form_schedule, create_db_publish_locations
 from .Campus_Units import Unit, Academic, Residence, Restaurant, Healthcare, Market, Gymkhana, Grounds, Non_Academic
 
@@ -9,8 +9,6 @@ class Campus(Simulate):
 	def __init__(self):
 		super().__init__()
 
-		#No of days to simulate movement
-		self.num_days					= self.pm.num_days
 
 		# Timetable Params
 		self.Departments 				= self.pm.Departments
@@ -46,7 +44,6 @@ class Campus(Simulate):
 		self.__init_profs__(start_id=len(self.Students)+1)
 		# Non Teaching Staff
 
-		self.start_movement()
 
 	def __initialize_sectors__(self):
 		self.sectors = {'Academic': Academic(self.pm), 'Residence': Residence(self.pm), 'Restaurant': Restaurant(self.pm), 'Healthcare': Healthcare(self.pm), 'Market': Market(self.pm), 'Gymkhana':Gymkhana(self.pm), 'Grounds': Grounds(self.pm), 'Non_Academic': Non_Academic(self.pm)}
@@ -93,7 +90,7 @@ class Campus(Simulate):
 					
 					hall = random.choices(residence_indices, weights)[0]
 					room = random.randint(0,len(self.Floor[hall])-1)
-					junta = student(Campus=self, role="student", ID=ctr, age=age, year=j, schedule=person_schedule, dept=dept, residence=[hall, room])
+					junta = student(Campus=self, role="student", ID=ctr, age=age, year=i, schedule=person_schedule, dept=dept, residence=[hall, room])
 					ctr += 1
 					
 					self.Students.append(junta)
@@ -149,6 +146,3 @@ class Campus(Simulate):
 				#print(code+number)
 		return self.Rooms[code+number]
 
-	def start_movement(self):
-		self.population = self.Students+self.Profs
-		get_movement_time_series(self.population, self.num_days)
