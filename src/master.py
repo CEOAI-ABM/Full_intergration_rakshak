@@ -13,13 +13,15 @@ class Master(Campus):
 	
 	def initiate(self):
 		self.initialize_campus()
+		
 		print(self.Students[0].timetable)
-		print(self.Profs[0].timetable)
-		self.start_movement()
+		#print(self.Profs[0].timetable)
+		#print(self.sectors['Academic'].Units_list)
+		#print(list(self.Students[0].schedule.keys())[0])
+
+		#self.
+
 
 def StartSimulation(pm):
 	m = Master(pm)
-	print(m)
 	m.initiate()
-	print(m.Students[0].schedule)
-	print(m.Profs[0].schedule)

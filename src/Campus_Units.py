@@ -30,7 +30,6 @@ class Unit():
 
 class Sector():
 
-    #def __init__(self,Num_Units_per_Floor,Building,Daily_People_Expectation,Number_Workers,Height,x_coordinate,y_coordinate,building_area)
     def __init__(self,pm,SectorName):
         self.building_ids               = []
         self.SectorName                 = SectorName
@@ -42,7 +41,7 @@ class Sector():
         self.building_area              = {}
         self.Units_list                 = {}
         self.rooms_packing_fraction     = {} # denotes how much of the area of a floor is covered by all the rooms
-        self.room_area                       = {}
+        self.room_area                  = {}
 
         self.__get_building_ids__(pm)
 
@@ -60,7 +59,7 @@ class Sector():
             self.room_area[i]                   = self.rooms_packing_fraction[i]*self.building_area[i]/self.num_rooms_per_floor[i]
 
 
-    def __get_building_ids__(self,pm):
+    def __get_building_ids__(self, pm):
         i = 0
         while i < len(pm.description):
             if pm.description[i] in self.SectorName:
@@ -120,19 +119,6 @@ class Grounds(Sector):
 class Non_Academic(Sector):
     def __init__(self,pm):
         super().__init__(pm, ['Non_Academic'])
-
-    '''Class for initializing the academic workplaces
-        Takes list of parameters as argument:
-        0th pm is list of number of units of each 'Building'
-        1st pm is list of number of workers
-        2nd pm is list of list of heights
-        3rd pm is list of list of x-coordinates
-        4th pm is list of list of y-coordinates
-        5th pm is list of list of expected visitors coming in per day
-        6th pm is the pointer to the parameters object itself
-    '''
-
-
 
 if __name__ == '__main__':
     from parameters import Parameters
