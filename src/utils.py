@@ -213,56 +213,114 @@ def form_schedule(file_path=None,save=False):
             
     return schedule
 
-def create_db():
-    pswd = input("Enter the password for your database server: ")
-    mydb = mysql.connector.connect(host='localhost', user='root', passwd=pswd)
-    stmt = 'CREATE DATABASE IF NOT EXISTS locations'
-    mycursor = mydb.cursor()
-    mycursor.execute(stmt)
-    return 'locations', pswd
+
+def get_movement_time_series(persons, date): # updates each person.today_schedule to a dictionary containing the timestamps of a given date and locations
+    time_in_sec = time.mktime(date)
+    for person in persons:
+        timestamp = time_in_sec
+        newschedule = {}
+        day = {0:'monday',1:'tuesday',2:'wednesday',3:'thursday',4:'friday',5:'saturday',6:'sunday'}
+        for j in range(24):
+            try:
+                tp = person.timetable['monday'][0]
+                j1 = j
+            except:
+                j1 = str(j)
+            temp = timestamp + j*60*60
+            newschedule[time.localtime(temp)] = person.timetable[time.strftime("%A",time.localtime(temp)).casefold()][j1]
+        person.today_schedule = newschedule
 
 
 def create_db_publish_locations():
     pswd = input("Enter the password for your database server: ")
     mydb = mysql.connector.connect(host='localhost', user='root', passwd=pswd)
     mycursor = mydb.cursor()
-    stmt = '''CREATE DATABASE IF NOT EXISTS current_locations'''
+    stmt = '''CREATE DATABASE IF NOT EXISTS contactgraph'''
     mycursor.execute(stmt)
-    stmt = '''USE current_locations'''
+    stmt = '''USE contactgraph'''
     mycursor.execute(stmt)
-    stmt1 = '''DROP TABLE IF EXISTS people_locations'''
+    stmt1 = '''DROP TABLE IF EXISTS `identity`'''
     mycursor.execute(stmt1)
-    stmt2 = '''CREATE TABLE people_locations(
-                        person_id INT,
-                        timestamp VARCHAR(20),
-                        person_role VARCHAR(10),
-                        person_age INT,
-                        person_status VARCHAR(20),
-                        location_x DOUBLE,
-                        location_y DOUBLE,
-                        location_building_id INT,
-                        location_unit_id INT,
-                        PRIMARY KEY(person_id, timestamp)
-                );
-                '''
+    stmt1 = '''DROP TABLE IF EXISTS `activity`'''
+    mycursor.execute(stmt1)
+    stmt1 = '''DROP TABLE IF EXISTS `imputed`'''
+    mycursor.execute(stmt1)
+    stmt2 = '''
+    CREATE TABLE `identity` (
+            `node` int NOT NULL AUTO_INCREMENT,
+            `deviceid` varchar(45) NOT NULL,
+            `student` varchar(45) DEFAULT NULL,
+            `rollno` varchar(45) NOT NULL,
+            PRIMARY KEY (`node`),
+            UNIQUE KEY `deviceid_UNIQUE` (`deviceid`),
+            UNIQUE KEY `Roll Number_UNIQUE` (`rollno`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+    '''
     mycursor.execute(stmt2)
 
-    return 'current_locations', pswd
+    stmt2 = '''
+    CREATE TABLE `activity` (
+        `slno` int NOT NULL AUTO_INCREMENT,
+        `time` datetime NOT NULL,
+        `node` int DEFAULT NULL,
+        `latitude` decimal(8,6) NOT NULL,
+        `longitude` decimal(9,6) NOT NULL,
+        PRIMARY KEY (`slno`),
+        UNIQUE KEY `slno_UNIQUE` (`slno`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+    '''
+    mycursor.execute(stmt2)
+
+    stmt2 = '''
+    CREATE TABLE `imputed` (
+        `sl_no` int NOT NULL AUTO_INCREMENT,
+        `time` datetime NOT NULL,
+        `node` int DEFAULT NULL,
+        `latitude` decimal(8,6) NOT NULL,
+        `longitude` decimal(9,6) NOT NULL,
+        PRIMARY KEY (`sl_no`),
+        UNIQUE KEY `sl_no_UNIQUE` (`sl_no`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+    '''
+    mycursor.execute(stmt2)
+
+    return 'contactgraph', pswd
+
+
 
 def publish_loc(persons, timestmp, dbname, pswd, insert=False):
     mydb = mysql.connector.connect(host='localhost', user='root', passwd=pswd, database=dbname)
     mycursor = mydb.cursor()
     if insert:
-        stmt = '''INSERT INTO people_locations VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)'''
+        stmt = '''INSERT INTO `identity`(`deviceid`,`student`,`rollno`) VALUES (%s, %s, %s)'''
+        data_ins = list()
+        for person in persons:
+            data_ins.append((str(person.ID), str(person.ID), person.dept+str(person.year)+str(person.Id)))
+        mycursor.executemany(stmt, data_ins)
+        mydb.commit()
+        stmt = '''INSERT INTO `activity` (`time`,`node`,`latitude`,`longitude`) VALUES (%s, %s, %s, %s)'''
         data_ins = list()
         tmstmp = time.strftime("%Y-%m-%d %H:%M:%S",timestmp)
         for person in persons:
-            unit  = person.schedule[timestmp]
+            unit  = person.today_schedule[timestmp]
             loc = unit.location
             x, y = loc.x, loc.y
             building_id = unit.Building
             unit_id = unit.Id + unit.Sector.Index_Holder[building_id]
-            data_ins.append((person.ID, tmstmp, person.Role, person.Age, None, x, y, building_id, unit_id))
+            data_ins.append((tmstmp, person.ID, x, y))
+        mycursor.executemany(stmt, data_ins)
+        mydb.commit()
+    else:
+        stmt = '''UPDATE `activity` set `time`=,`node`,`latitude`,`longitude`) VALUES (%s, %s, %s, %s)'''
+        data_ins = list()
+        tmstmp = time.strftime("%Y-%m-%d %H:%M:%S",timestmp)
+        for person in persons:
+            unit  = person.today_schedule[timestmp]
+            loc = unit.location
+            x, y = loc.x, loc.y
+            building_id = unit.Building
+            unit_id = unit.Id + unit.Sector.Index_Holder[building_id]
+            data_ins.append((tmstmp, person.ID, x, y))
         mycursor.executemany(stmt, data_ins)
         mydb.commit()
 

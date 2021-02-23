@@ -12,6 +12,7 @@ class Campus(Simulate, Virus_Model):
 	def __init__(self):
 		super().__init__()
 
+
 		# Timetable Params
 		self.Departments 				= self.pm.Departments
 		self.Deptwise_Timetable 		= None # dept, year wise timetable
@@ -55,7 +56,6 @@ class Campus(Simulate, Virus_Model):
 		self.__init_profs__(start_id=len(self.Students)+1)
 		# Non Teaching Staff
 
-		self.start_movement()
 
 	def __initialize_sectors__(self):
 		self.sectors = {'Academic': Academic(self.pm), 'Residence': Residence(self.pm), 'Restaurant': Restaurant(self.pm), 'Healthcare': Healthcare(self.pm), 'Market': Market(self.pm), 'Gymkhana':Gymkhana(self.pm), 'Grounds': Grounds(self.pm), 'Non_Academic': Non_Academic(self.pm)}
@@ -102,7 +102,7 @@ class Campus(Simulate, Virus_Model):
 					
 					hall = random.choices(residence_indices, weights)[0]
 					room = random.randint(0,len(self.Floor[hall])-1)
-					junta = student(Campus=self, role="student", ID=ctr, age=age, year=j, schedule=person_schedule, dept=dept, residence=[hall, room])
+					junta = student(Campus=self, role="student", ID=ctr, age=age, year=i, schedule=person_schedule, dept=dept, residence=[hall, room])
 					ctr += 1
 					
 					self.Students.append(junta)

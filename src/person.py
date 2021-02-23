@@ -27,17 +27,18 @@ class person(AgentStateA):
 
     def __init__(self, Campus=None, ID=0, dept=None, inCampus=True, age=-1, ageclass=-1, role=None, year=None, schedule=None, master=None, residence=None):
 
-        self.ID         = ID
-        self.Age        = age
-        self.AgeClass   = ageclass
-        self.master     = master
-        self.residence  = residence
-        self.Campus     = Campus
-        self.inCampus   = inCampus # Whether the person is currently in Campus
-        self.Role = role #  Namely student, faculty or staff
-        self.dept = dept
+        self.ID             = ID
+        self.Age            = age
+        self.AgeClass       = ageclass
+        self.master         = master
+        self.residence      = residence
+        self.Campus         = Campus
+        self.inCapmus       = inCampus # Whether the person is currently in Campus
+        self.Role           = role #  Namely student, faculty or staff
+        self.dept           = dept
+        self.today_schedule = None
 
-        self.timetable  = {"sunday": {}, "monday": {}, "tuesday": {}, "wednesday": {}, "thursday": {}, "friday": {}, "saturday": {}}
+        self.timetable      = {"sunday": {}, "monday": {}, "tuesday": {}, "wednesday": {}, "thursday": {}, "friday": {}, "saturday": {}}
 
     def get_schedule(self):
         pass
@@ -48,6 +49,7 @@ class student(person):
         super().__init__(ID=ID, role=role, age=age, dept=dept, residence=residence)
         self.Campus = Campus
         self.schedule = schedule
+        self.year = year
         self.residence_building_id = self.residence[0]
         self.residence_unit  = self.Campus.Units_Placeholder[self.residence[0]][self.residence[1]+self.Campus.Index_Holder[self.residence[0]]]
         self.residence_point = self.residence_unit.location
@@ -149,23 +151,7 @@ class professor(person):
                             altroom = sum([ord(char) for char in value['room']])+self.Campus.Index_Holder[42]
                             self.timetable[day][start_time]=self.Campus.Units_Placeholder[42][altroom]
 
-def get_movement_time_series(persons, no_of_days):
-    curr = time.localtime()
-    day1 = time.mktime(time.struct_time((curr.tm_year,curr.tm_mon,curr.tm_mday,0,0,0,curr.tm_wday,curr.tm_yday,curr.tm_isdst)))
-    for person in persons:
-        tmstamp = day1
-        newschedule = {}
-        day = {0:'monday',1:'tuesday',2:'wednesday',3:'thursday',4:'friday',5:'saturday',6:'sunday'}
-        for i in range(no_of_days):
-            for j in range(24):
-                try:
-                    tp = person.timetable['monday'][0]
-                    j1 = j
-                except:
-                    j1 = str(j)
-                temp = tmstamp + j*60*60 + 24*60*60*i
-                newschedule[time.localtime(temp)] = person.timetable[time.strftime("%A",time.localtime(temp)).casefold()][j1]
-        person.schedule = newschedule
+
 
 def main():
     from .utils import form_schedule

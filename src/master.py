@@ -17,9 +17,7 @@ class Master(Campus):
 		print(self.Students[0].timetable)
 		#print(self.Profs[0].timetable)
 		#print(self.sectors['Academic'].Units_list)
-		#print(list(self.Students[0].schedule.keys())[0])
 
-		#self.
 
 
 def StartSimulation(pm):
