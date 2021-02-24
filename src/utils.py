@@ -300,38 +300,21 @@ def publish_identity(persons, mydb, insert=False):
         pass
 
 
-def publish_activity(persons, timestmp, mydb, insert=False):
+def publish_activity(persons, timestmp, mydb):
     mycursor = mydb.cursor()
-    if insert:
-        stmt = '''INSERT INTO `activity` (`time`,`node`,`latitude`,`longitude`) VALUES (%s, %s, %s, %s)'''
-        data_ins = list()
-        #tmstmp = time.strftime("%Y-%m-%d %H:%M:%S",timestmp)
-        for person in persons:
-            unit  = person.today_schedule[timestmp]
-            loc = unit.location
-            x, y = loc.x, loc.y
-            data_ins.append((datetime.datetime.fromtimestamp(time.mktime(timestmp)), person.ID, y, x))
-        mycursor.executemany(stmt, data_ins)
-        mydb.commit()
-    else:
-        stmt = '''UPDATE `activity` SET `time`= %s,`latitude`= %s,`longitude`= %s WHERE `node`= %s'''
-        data_ins = list()
-        #tmstmp = time.strftime("%Y-%m-%d %H:%M:%S",timestmp)
-        i = 0
-        for person in persons:
-            i+=1
-            unit  = person.today_schedule[timestmp]
-            loc = unit.location
-            x, y = loc.x, loc.y
-            mycursor.execute(stmt,(datetime.datetime.fromtimestamp(time.mktime(timestmp)), y, x, person.ID))
-            print("execute done", i)
-            if i%200 == 0:
-                mydb.commit()
-                print("commited in db")
-        #mycursor.executemany(stmt, data_ins)
-        #print("mycursor.executemany done")
-        mydb.commit()
-        print("committed finally")
+    stmt = '''INSERT INTO `activity` (`time`,`node`,`latitude`,`longitude`) VALUES (%s, %s, %s, %s)'''
+    data_ins = list()
+    #tmstmp = time.strftime("%Y-%m-%d %H:%M:%S",timestmp)
+    i = 0
+    for person in persons:
+        i+=1
+        unit  = person.today_schedule[timestmp]
+        loc = unit.location
+        x, y = loc.x, loc.y
+        data_ins.append((datetime.datetime.fromtimestamp(time.mktime(timestmp)), person.ID, y, x))
+
+    mycursor.executemany(stmt, data_ins)
+    mydb.commit()
 
 
 

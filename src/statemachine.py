@@ -18,7 +18,7 @@ class AgentStatusA(object):
 		self.Last_Added_Placeholder = None
 		self.buffer = []
 
-		self.Status 				= self.status[0]	
+		self.Status 				= self.status[0]
 
 	# def log_update(self,message):
 

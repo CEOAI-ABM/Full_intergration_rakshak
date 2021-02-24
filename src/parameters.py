@@ -163,7 +163,7 @@ class Contact_Graph_Parameters:
 			db_cur.execute('''CREATE DATABASE IF NOT EXISTS Contact_Graph''')
 			self.database_conn = mysql.connector.connect(host=self.hostname, user=self.username, passwd=self.password, database=self.dbname)
 		self.duration 		= 14 # in days
-		self.infectdist		= 0.0005 # in metres (infection radius, default value keep around 10)
+		self.infectdist		= 0.005 # in metres (infection radius, default value keep around 10)
 		self.tstep 			= 3600 # the current timestep for activity data in seconds
 		self.units 			= 10 #  maximum allowed units of tstep missing from the geo-coordinates data for imputation
 

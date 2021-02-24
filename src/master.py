@@ -1,5 +1,6 @@
 from .Campus_Model import Campus
-from .Campus_Units import Unit, Sector, Academic, Residence
+from .virusmodel import TruthClassStatus
+
 
 class Master(Campus):
 	"""
@@ -13,11 +14,13 @@ class Master(Campus):
 	
 	def initiate(self):
 		self.initialize_campus()
-		
 		#print(self.Students[0].timetable)
 		#print(self.Profs[0].timetable)
 		#print(self.Staff[0].timetable)
 		#print(self.sectors['Academic'].Units_list)
+		for s in self.all_people:
+			s.update_objects(self)
+		self.__infect_person__(self.Students[0])
 		self.start_sim()
 
 	def start_sim(self):

@@ -10,7 +10,6 @@ from .Campus_Units import Unit, Academic, Residence, Restaurant, Healthcare, Mar
 
 class Campus(Simulate, Virus_Model):
 	def __init__(self):
-		print("Entered Campus")
 		super().__init__()
 
 
@@ -174,14 +173,10 @@ class Campus(Simulate, Virus_Model):
 				#print(code+number)
 		return self.Rooms[code+number]
 
-	def start_movement(self):
-		self.population = self.Students + self.Profs
-		get_movement_time_series(self.population, 1)
+	#def start_movement(self):
+	#	self.population = self.Students + self.Profs
+	#	get_movement_time_series(self.population, 1)
 
 	# TODO (Vikram): Update this to use the new idx system
 	def __get_person_obj__(self, idx):
-		if (idx>len(self.Students)): # Means the guy is a prof 
-			return self.Profs.find(idx) - len(self.Students)
-		
-		else: # Person is student
-			return self.Students.find(idx)
+		return self.all_people[idx]

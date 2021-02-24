@@ -7,7 +7,6 @@ from .utils import get_movement_time_series
 
 class Simulate():
     def __init__(self):
-        print("Entered Simulate")
         self.SIMULATE   = True
         self.TODAY      = 1
 
@@ -27,10 +26,10 @@ class Simulate():
         publish_identity(self.Students, self.database_conn, insert=True)
 
         while (self.SIMULATE):
-            #print("day",self.TODAY)
+            print("day",self.TODAY)
             self.__simulate_day__()
 
-            if self.TODAY >= self.no_of_days:
+            if self.TODAY > self.no_of_days:
                 self.SIMULATE = False
 
 
@@ -55,15 +54,22 @@ class Simulate():
         else: temp = False
         for tmstamp in tmstamps:
             #print(tmstamp)
-            publish_activity(self.Students,tmstamp,self.database_conn,insert=temp)
+            publish_activity(self.Students,tmstamp,self.database_conn)
         #print("publish_activity done")
 
         # TODO (Varun)
         # for healthy persons normal schedule
         # for hosp/quar etc policy will be diff
 
-        #self.daily_transmissions()
+        self.daily_transmissions()
+        print("Students whose State is not Healthy")
+        for s in self.Students:
+            if s.State != "Healthy":
+                print("studentid:", s.ID, "studentState:",s.State)
+        print()
+        #print("student id = 1 contacts:")
         #self.__get_contacts__(self.Students[0])
+        #print()
         #print("__get_contacts__ done")
 
         # TODO (Varun)

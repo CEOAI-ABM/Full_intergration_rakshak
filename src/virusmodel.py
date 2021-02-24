@@ -12,7 +12,6 @@ class TruthClassStatus:
 	"""
 
 	def __init__(self):
-		print("Entered TruthClassStatus")
 		super().__init__()
 
 		self.AFreeP 		= []
@@ -29,7 +28,6 @@ class Virus_Model(TruthClassStatus):
 	"""
 
 	def __init__(self):
-		print("Entered Virus_Model")
 		super().__init__()
 
 		self.Esymptomstime				= self.pm.Virus_IncubationPeriod
@@ -59,7 +57,7 @@ class Virus_Model(TruthClassStatus):
 
 				self.Symptom_placeholder[Symptom].append(person)
 				person.infected()
-				self.RepoRateSum+=1
+				#self.RepoRateSum+=1
 				return 1
 			else:
 				return 0
@@ -73,7 +71,9 @@ class Virus_Model(TruthClassStatus):
 
 		# Query MySQL database -> get contacts and their edge weights 
 		# Format it appropriately
-		getContacts(str(person.ID), datetime.datetime.fromtimestamp(time.mktime(self.curr_timestamp)))
+		contacts, edge_weights = getContacts(str(person.ID), datetime.datetime.fromtimestamp(time.mktime(self.curr_timestamp)))
+
+		return  contacts
 
 	
 	def has_symptoms(self, person, cure:int):
@@ -83,7 +83,7 @@ class Virus_Model(TruthClassStatus):
 			person (object): person object who has shown symptons
 			cure (int): days after which the person would be cured
 		"""
-		if person.is_Out_of_Region():
+		if person.is_Out_of_Campus():
 			person.quarentined()
 			return
 			

@@ -10,7 +10,7 @@ from shapely.geometry import Point
 import matplotlib.animation as animation
 
 from .parameters import slots
-from .statemachine import AgentStatusA, AgentStateA, TestingState
+from .statemachine import AgentStateA
 
 class person(AgentStateA):
     """ Class for describing students
@@ -26,7 +26,7 @@ class person(AgentStateA):
     """
 
     def __init__(self, Campus=None, ID=0, dept=None, inCampus=True, age=-1, ageclass=-1, role=None, year=None, schedule=None, master=None, residence=None):
-
+        super(person,self).__init__()
         self.ID             = ID
         self.Age            = age
         self.AgeClass       = ageclass
