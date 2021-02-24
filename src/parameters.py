@@ -54,6 +54,13 @@ class Spatial_Parameters:
 														   'CS', 'CY', 'EC', 'EE', 'EX', 'GG',
 														   'HS', 'IE', 'IM', 'MA', 'ME', 'MF',
 														   'MI', 'MT', 'NA', 'PH', 'QE', 'QM']
+		
+		self.sectors 									= ['Academic', 'Residence', 'Restaurant',
+															'Healthcare', 'Market', 'Gymkhana',
+															'Grounds', 'Non_Academic']
+
+		
+
 		self.Number_Workers                             = []
 		self.Floor                                      = []
 		self.Daily_People_Expectation                   = []
