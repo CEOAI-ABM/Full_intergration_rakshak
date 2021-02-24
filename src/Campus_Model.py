@@ -52,15 +52,14 @@ class Campus(Simulate, Virus_Model):
 
 		self.Deptwise_Timetable = form_schedule()
 
-		# TODO (Vikram): Assign proper ids that denote the profession (student/prof/nts)
-		# Lists of students and profs
 		self.__init_students__()
 		self.__init_profs__(start_id=len(self.Students)+1)
-		# Non Teaching Staff
-		self.__init_staff__(start_id=len(self.Students)+len(self.Profs)+1)
+		self.__init_staff__(start_id=len(self.Students)+len(self.Profs)+1) # Non Teaching Staff
 
 		self.all_people = self.Students+self.Profs+self.Staff
 
+		for person in self.all_people:
+			person.update_objects(self)
 
 	def __initialize_sectors__(self):
 		self.sectors = {'Academic': Academic(self.pm), 'Residence': Residence(self.pm), 'Restaurant': Restaurant(self.pm), 'Healthcare': Healthcare(self.pm), 'Market': Market(self.pm), 'Gymkhana':Gymkhana(self.pm), 'Grounds': Grounds(self.pm), 'Non_Academic': Non_Academic(self.pm), 'Guest_House': Guest_House(self.pm)}
@@ -150,7 +149,6 @@ class Campus(Simulate, Virus_Model):
 			houseno = houseno + 1
 			self.Staff.append(staff_person)
 
-
 	def __room2unit__(self, room_name):
 		if room_name[0] == 'V':
 			code = room_name[0]
@@ -177,6 +175,5 @@ class Campus(Simulate, Virus_Model):
 	#	self.population = self.Students + self.Profs
 	#	get_movement_time_series(self.population, 1)
 
-	# TODO (Vikram): Update this to use the new idx system
 	def __get_person_obj__(self, idx):
 		return self.all_people[idx]

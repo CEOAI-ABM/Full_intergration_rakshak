@@ -80,6 +80,7 @@ class AgentStatusA(object):
 				self.Region.TravellingCitizens.append(self)
 			
 	
+	'''
 	def _left_(self):
 		"""Leave campus, calls remove
 		"""
@@ -89,7 +90,7 @@ class AgentStatusA(object):
 		"""Come back to campus
 		"""
 		self._add_()
-		
+	'''
 
 	def __remove_from_placeholder__(self):
 		"""Remove the person from the Truth Status Placeholders
@@ -139,7 +140,7 @@ class AgentStatusA(object):
 			print('##########', self.Status)
 			raise
 		self.Status  		= self.status[0]
-		self._entered_()
+		#self._entered_()
 		if self.is_Asymptomatic():
 			self.TruthStatus.AFreeP.append(self)
 			self.Last_Added_Placeholder = 0
@@ -157,13 +158,13 @@ class AgentStatusA(object):
 
 		
 		self.Status  		= self.status[1]
-		self._remove_()
+		#self._remove_()
 
 	def hospitalized(self):
 		acceptable_states	= [self.status[0],self.status[1]]
 		assert self.Status in acceptable_states
 		self.Status  		= self.status[3]
-		self._remove_()
+		#self._remove_()
 
 		self.show_symptoms()
 
@@ -175,7 +176,7 @@ class AgentStatusA(object):
 		acceptable_states	= [self.status[0],self.status[1],self.status[3]]
 		assert self.Status in acceptable_states
 		self.Status  		= self.status[4]
-		self._remove_()
+		#self._remove_()
 
 		self.show_symptoms()
 
@@ -197,7 +198,7 @@ class AgentStatusA(object):
 
 
 		self.Status  	= self.status[5]
-		self._remove_()
+		#self._remove_()
 
 	def is_Free(self):
 		return self.Status == self.status[0]

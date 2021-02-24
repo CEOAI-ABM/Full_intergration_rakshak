@@ -58,7 +58,6 @@ class Sector():
             self.rooms_packing_fraction[i]      = pm.rooms_packing_fraction[i]
             self.room_area[i]                   = self.rooms_packing_fraction[i]*self.building_area[i]/self.num_rooms_per_floor[i]
 
-
     def __get_building_ids__(self, pm):
         i = 0
         while i < len(pm.description):
@@ -93,12 +92,20 @@ class Healthcare(Sector):
     def __init__(self, pm, Factor=None):
         super().__init__(pm, ['Healthcare'])
         self.Types              = ['Care_Center', 'Health_Center', 'Hospital']
-        self.Capacity           = {}
         self.Factor             = Factor
 
+        # TODO: Fix workaround (proper calc using ReduceFactor and TrueSecExp)
+        self.Capacity           = {'Care_Center': 200,
+                                    'Health_Center': 200,
+                                    'Hospital': 50
+                                    }
+        
+        # TODO: Add ReduceFactor
+        """
         def update_capacity(self):
             for i in range(len(self.num_rooms_per_floor)):
                 self.Capacity[self.Types[i]]=self.Factor[i]*self.Sub_Class_People[i]
+        """
 
 class Market(Sector):
     def __init__(self,pm):
@@ -123,6 +130,7 @@ class Non_Academic(Sector):
 class Guest_House(Sector):
     def __init__(self,pm):
         super().__init__(pm, ['Guest House'])
+
 if __name__ == '__main__':
     from parameters import Parameters
     pm = Parameters('shapes/kgpbuildings.shp','Campus_data/KGP Data - Sheet1.csv')

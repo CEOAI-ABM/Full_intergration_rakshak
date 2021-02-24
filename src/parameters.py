@@ -46,6 +46,14 @@ class Virus_Parameters:
 																			[0.40,0.40,0.20],
 																			[0.10,0.40,0.50]])  # Mild, Medicore, Severe between Age Groups        
 
+		self.Comorbidty_matrix = {
+		'ComorbidX' 	: [0.00,0.00,0.00,0.00,0.00,0.00] 	# Percentage of Population getting deasese X
+		}
+
+		self.Comorbidty_weights = {
+		'ComorbidX' 	: [0.1,0.7,0.2] 					# Probablity of increase in Severtiy if you have Disease X
+		}
+
 class Spatial_Parameters:
 	"""
 	All campus map related parameters
@@ -155,8 +163,9 @@ class Contact_Graph_Parameters:
 		self.database_conn	= db_conn
 		if self.database_conn == None:
 			self.hostname		= "localhost"
-			self.username		= "root"
-			self.password		= "vikram@mysql"
+			self.username		= "vm"
+			self.password		= "Cats#Peel!^Lemons!@31612"
+			#self.password		= "vikram@mysql"
 			self.dbname			= "Contact_Graph"
 			mydb = mysql.connector.connect(host=self.hostname, user=self.username, passwd=self.password)
 			db_cur = mydb.cursor()

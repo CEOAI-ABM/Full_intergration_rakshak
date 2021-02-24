@@ -32,13 +32,41 @@ class Virus_Model(TruthClassStatus):
 
 		self.Esymptomstime				= self.pm.Virus_IncubationPeriod
 		self.CureTime 					= self.pm.Virus_ExpectedCureDays
-		self.ProbSeverity 				= self.pm.Virus_ProbSeverity 
+		self.ProbSeverity 				= self.pm.Virus_ProbSeverity
+		self.AgeDR 						= self.pm.Virus_PerDayDeathRate
+		self.FullCapRatio 		 		= self.pm.Virus_FullCapRatio
+		self.TestingOn					= False
+		self.TracingOn					= False
 
 		# Day wise placeholder
 		self.Symptom_placeholder 		= [ [] for i in range(30) ]
 		self.Recovered_Placeholder 		= [ [] for i in range(60) ]
 		self.Deaths_Placeholder 		= [ [] for i in range(60) ]
-	
+
+	def apply_dr_multiplier(self, person, deathrate:float):
+		"""Apply Death Rate multipler to a person' death rate based on his comobrbidity
+
+		Args:
+			person (object): Person ojbect
+			deathrate (float): current deathrate
+
+		Returns:
+			float: new deathrate
+		"""
+
+		# TODO: Fix Hardcoding
+		multiplier = 1
+		if person.is_Isolation() and len(self.SIsolatedP) > self.sectors['Healthcare'].Capacity['Care_Center']:
+			multiplier = self.FullCapRatio[0]
+
+		elif person.is_Hospitalized() and len(self.SHospitalizedP) > self.sectors['Healthcare'].Capacity['Health_Center']:
+			multiplier = self.FullCapRatio[1]
+
+		elif person.is_ICU() and len(self.SIcuP) > self.sectors['Healthcare'].Capacity['Hospital']:
+			multiplier = self.FullCapRatio[2]
+
+		return deathrate*multiplier
+
 	def __infect_person__(self, person):
 		"""
 		State change of a person from healthy to infected
@@ -67,15 +95,12 @@ class Virus_Model(TruthClassStatus):
 	def __get_contacts__(self, person):
 		"""
 		Function to get the contacts of a person on a particular day
+		Query MySQL database -> get contacts and their edge weights
 		"""
-
-		# Query MySQL database -> get contacts and their edge weights 
-		# Format it appropriately
 		contacts, edge_weights = getContacts(str(person.ID), datetime.datetime.fromtimestamp(time.mktime(self.curr_timestamp)))
 
-		return  contacts
+		return  contacts, edge_weights
 
-	
 	def has_symptoms(self, person, cure:int):
 		"""Subroutine to change the state of person to symptomatic
 
@@ -86,23 +111,23 @@ class Virus_Model(TruthClassStatus):
 		if person.is_Out_of_Campus():
 			person.quarentined()
 			return
-			
+
 		prob_severity 	= person.get_prob_severity(self.ProbSeverity[person.AgeClass])
 		deathrate 	 	= person.get_death_rate(self.AgeDR[person.AgeClass])
 		deathrate 		= self.apply_dr_multiplier(person, deathrate)
 
 		choice = random.choices([person.quarentined, person.hospitalized, person.admit_icu], weights=prob_severity)[0]
-		choice() 
-		
+		choice()
+
 		if person.is_Quarentined():
 			person.show_symptoms()
 
 		if self.TestingOn:
 			self.put_to_test(person,"Fresh")
-		
+
 		if cure<0:
 			cure = 0
-		
+
 		deathrate = self.apply_dr_multiplier(person,deathrate)
 
 		sampledeaths = random.choices([True, False],[deathrate,1-deathrate],k=cure)
@@ -110,18 +135,18 @@ class Virus_Model(TruthClassStatus):
 		try: # Look for index of True , if present died before cure
 			deathday = sampledeaths.index(True)
 			self.Deaths_Placeholder[deathday].append(person) #Append Death Day
-		except ValueError: 
+		except ValueError:
 			self.Recovered_Placeholder[cure].append(person) # If not found, all is false, append cureday
 
 	def __daily_hospitals_check__(self):
 		"""Checks for all people who are supposed to be cured or died today i.e reach terminal state of statemachine
 		"""
 		today_cured = self.Recovered_Placeholder.pop(0)
-		for person in today_cured:	
+		for person in today_cured:
 			person.recover()
 
 		today_died  = self.Deaths_Placeholder.pop(0)
-		for person in today_died:	
+		for person in today_died:
 			person.die()
 
 	def __daily_symptoms_check__(self):
@@ -135,15 +160,20 @@ class Virus_Model(TruthClassStatus):
 			self.has_symptoms(person,int(curearray[i]))
 
 	def __daily_transmissions__(self):
-		for person in self.AFreeP:
-			contacts_idx = self.__get_contacts__(person)
-			# For each contact get P(transmission) from calibration.py as a function of interperson distance and time of contact
-			P_TR = 0.1 # Dummy value for now
+		temp_AFreeP = self.AFreeP.copy()
+
+		for person in temp_AFreeP:
+			print('Person id = {}'.format(person.ID))
+			contacts_idx, edge_weights = self.__get_contacts__(person)
+			print(contacts_idx)
+			# TODO: For each contact get P(transmission) from calibration.py as a function of interperson distance and time of contact
+			P_TR = 0.01 # TODO: Dummy value for now
 
 			for idx in contacts_idx:
 				contact = self.__get_person_obj__(idx=idx) # Add this function in Campus_Model
 				infect_bool = random.choices([True, False], weights=[P_TR, 1-P_TR])[0]
 				if (infect_bool):
+					print("Infecting person {}".format(contact.ID))
 					self.__infect_person__(contact)
 
 	def daily_transmissions(self):
@@ -154,7 +184,3 @@ class Virus_Model(TruthClassStatus):
 		self.Symptom_placeholder.append([])
 		self.Deaths_Placeholder.append([])
 		self.Recovered_Placeholder.append([])
-
-
-
-

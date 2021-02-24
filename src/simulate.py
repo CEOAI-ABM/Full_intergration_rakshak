@@ -26,12 +26,11 @@ class Simulate():
         publish_identity(self.Students, self.database_conn, insert=True)
 
         while (self.SIMULATE):
-            print("day",self.TODAY)
+            print("Simulating Day {}".format(self.TODAY))
             self.__simulate_day__()
 
             if self.TODAY > self.no_of_days:
                 self.SIMULATE = False
-
 
     def __save_results(self):
         # TODO: save case stats etc. + logging
@@ -54,14 +53,15 @@ class Simulate():
         else: temp = False
         for tmstamp in tmstamps:
             #print(tmstamp)
-            publish_activity(self.Students,tmstamp,self.database_conn)
+            publish_activity(self.Students, tmstamp, self.database_conn)
         #print("publish_activity done")
 
-        # TODO (Varun)
+        # TODO 
         # for healthy persons normal schedule
         # for hosp/quar etc policy will be diff
 
         self.daily_transmissions()
+
         print("Students whose State is not Healthy")
         for s in self.Students:
             if s.State != "Healthy":
@@ -72,10 +72,7 @@ class Simulate():
         #print()
         #print("__get_contacts__ done")
 
-        # TODO (Varun)
-        # routine to spread virus using contact graph
-
+        # TODO 
         # save case stats after today's spreading
 
         self.TODAY += 1
-        pass
