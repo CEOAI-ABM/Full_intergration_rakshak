@@ -17,6 +17,10 @@ class Master(Campus):
 		print(self.Students[0].timetable)
 		#print(self.Profs[0].timetable)
 		#print(self.sectors['Academic'].Units_list)
+		self.start_sim()
+
+	def start_sim(self):
+		self.simulation(no_of_days=1)
 
 
 

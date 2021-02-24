@@ -284,18 +284,17 @@ def create_db_publish_locations():
     '''
     mycursor.execute(stmt2)
 
-    return 'contactgraph', pswd
+    return mydb
 
 
 
-def publish_loc(persons, timestmp, dbname, pswd, insert=False):
-    mydb = mysql.connector.connect(host='localhost', user='root', passwd=pswd, database=dbname)
+def publish_loc(persons, timestmp, mydb, insert=False):
     mycursor = mydb.cursor()
     if insert:
         stmt = '''INSERT INTO `identity`(`deviceid`,`student`,`rollno`) VALUES (%s, %s, %s)'''
         data_ins = list()
         for person in persons:
-            data_ins.append((str(person.ID), str(person.ID), person.dept+str(person.year)+str(person.Id)))
+            data_ins.append((str(person.ID), str(person.ID), person.dept+str(person.year)+str(person.ID)))
         mycursor.executemany(stmt, data_ins)
         mydb.commit()
         stmt = '''INSERT INTO `activity` (`time`,`node`,`latitude`,`longitude`) VALUES (%s, %s, %s, %s)'''
@@ -305,8 +304,6 @@ def publish_loc(persons, timestmp, dbname, pswd, insert=False):
             unit  = person.today_schedule[timestmp]
             loc = unit.location
             x, y = loc.x, loc.y
-            building_id = unit.Building
-            unit_id = unit.Id + unit.Sector.Index_Holder[building_id]
             data_ins.append((tmstmp, person.ID, x, y))
         mycursor.executemany(stmt, data_ins)
         mydb.commit()
@@ -318,8 +315,6 @@ def publish_loc(persons, timestmp, dbname, pswd, insert=False):
             unit  = person.today_schedule[timestmp]
             loc = unit.location
             x, y = loc.x, loc.y
-            building_id = unit.Building
-            unit_id = unit.Id + unit.Sector.Index_Holder[building_id]
             data_ins.append((tmstmp, person.ID, x, y))
         mycursor.executemany(stmt, data_ins)
         mydb.commit()

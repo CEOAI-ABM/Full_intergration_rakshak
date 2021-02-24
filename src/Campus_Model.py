@@ -32,6 +32,7 @@ class Campus(Simulate):
 		# Campus Citizens 
 		self.Students 					= []
 		self.Profs						= []
+		self.all_people					= []
 
 	def initialize_campus(self):
 		self.__initialize_sectors__()
@@ -43,6 +44,8 @@ class Campus(Simulate):
 		self.__init_students__()
 		self.__init_profs__(start_id=len(self.Students)+1)
 		# Non Teaching Staff
+
+		self.all_people = self.Students+self.Profs
 
 
 	def __initialize_sectors__(self):

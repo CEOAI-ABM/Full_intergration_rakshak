@@ -11,19 +11,22 @@ class Simulate():
 
         super().__init__()
 
-    def simulation(self, all_persons, start_time=time.mktime(time.localtime()), no_of_days=30):
+    def simulation(self, start_time=None, no_of_days=30):
         self.start_time = start_time
+        if start_time==None:
+            curr = time.localtime()
+            self.start_time = time.struct_time((curr.tm_year,curr.tm_mon,curr.tm_mday,0,0,0,curr.tm_wday,curr.tm_yday,curr.tm_isdst))
         self.no_of_days = no_of_days
-        self.all_persons = all_persons
 
         # Infect people intially
 
         # bookkeeping funks
-        self.dbname, self.pswd = create_db_publish_locations()
+        self.database_conn = create_db_publish_locations()
 
         while (self.SIMULATE):
             self.__simulate_day__()
-            if self.TODAY == self.no_of_days:
+
+            if self.TODAY >= self.no_of_days:
                 self.SIMULATE = False
 
         
@@ -40,12 +43,13 @@ class Simulate():
         # TODO (Vikram)
         # routine to update today's movements for all people into the mysql server
         # update should be in the correct format
-        get_movement_time_series(self.all_persons, self.start_time)
-        tmstamps = list(self.all_persons[0].today_schedule.keys())
+        get_movement_time_series(self.Students, self.start_time)
+        tmstamps = list(self.Students[0].today_schedule.keys())
+        if self.TODAY==1: temp = True
+        else: temp = False
         for tmstamp in tmstamps:
-            if self.TODAY==1: temp = True
-            else: temp = False
-            publish_loc(self.all_persons,tmstamp,self.dbname,self.pswd,insert=temp)
+            print(tmstamp,temp)
+            publish_loc(self.Students,tmstamp,self.database_conn,insert=temp)
 
         # TODO (Varun)
         # for healthy persons normal schedule
