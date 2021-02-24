@@ -4,8 +4,8 @@ import numpy as np
 from .simulate import Simulate
 from .calibration import calibrate
 from .virusmodel import Virus_Model
-from .person import student, professor, get_movement_time_series
-from .utils import publish_loc, form_schedule, create_db_publish_locations
+from .person import student, professor
+from .utils import form_schedule, get_movement_time_series
 from .Campus_Units import Unit, Academic, Residence, Restaurant, Healthcare, Market, Gymkhana, Grounds, Non_Academic
 
 class Campus(Simulate, Virus_Model):
@@ -43,7 +43,7 @@ class Campus(Simulate, Virus_Model):
 		"""
 		Calibrates the virus constant using calibration.py
 		"""
-		self.VirusC = calibrate(pm)
+		#self.VirusC = calibrate(self.pm)
 
 	def initialize_campus(self):
 		self.__initialize_sectors__()

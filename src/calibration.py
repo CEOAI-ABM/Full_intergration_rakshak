@@ -215,7 +215,6 @@ def calibrate(pm,R0_val=None):
 	if R0_val==None:
 		R0_val = pm.Virus_R0 
 	Current_R0 = R0(pm=pm)
-	
-    c = R0_val/Current_R0
+
+	c = R0_val/Current_R0
 	return c
-	

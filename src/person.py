@@ -72,15 +72,15 @@ class student(person):
                     ending=int(timing[-1])
                     for i in range(starting, ending):
                         try:
-                            self.timetable[times[0]][i]=self.Campus.RoomNo_to_Unit(class_room)
-                            self.Campus.RoomNo_to_Unit(class_room).isclassroom = True
+                            self.timetable[times[0]][i]=self.Campus.__room2unit__(class_room)
+                            self.Campus.__room2unit__(class_room).isclassroom = True
                         except:
                             altroom = sum([ord(char) for char in class_room])+self.Campus.Index_Holder[42]
                             self.timetable[times[0]][i]=self.Campus.Units_Placeholder[42][altroom]
                             self.Campus.Units_Placeholder[42][altroom].isclassroom = True
                 else:
-                    self.timetable[times[0]][int(times[1].split('-')[0])]=self.Campus.RoomNo_to_Unit(class_room)
-                    self.Campus.RoomNo_to_Unit(class_room).isclassroom = True
+                    self.timetable[times[0]][int(times[1].split('-')[0])]=self.Campus.__room2unit__(class_room)
+                    self.Campus.__room2unit__(class_room).isclassroom = True
 
 class professor(person):
     def __init__(self, lab=None, office=None, Campus=None, HouseNo=None, ID=0, dept=None, inCampus=True, age=-1, ageclass=-1, role="faculty", year=None, schedule=None, master=None):
@@ -92,7 +92,7 @@ class professor(person):
         self.residence_point = self.residence_unit.location
         self.office = office
         try:
-            self.office_unit = self.Campus.RoomNo_to_Unit(self.office)
+            self.office_unit = self.Campus.__room2unit__(self.office)
             self.office_point = self.office_unit.location
         except:
             altroom = sum([ord(char) for char in office])+self.Campus.Index_Holder[42]
@@ -100,7 +100,7 @@ class professor(person):
             self.office_point = self.office_unit.location
         self.lab = lab
         try:
-            self.lab_unit = self.Campus.RoomNo_to_Unit(self.lab)
+            self.lab_unit = self.Campus.__room2unit__(self.lab)
             self.lab_point = self.lab_unit.location
         except:
             altroom = sum([ord(char) for char in office])+self.Campus.Index_Holder[42]
@@ -143,7 +143,7 @@ class professor(person):
                             #    if value['room'][0:2] == 'NR' or value['room'][0:2] == 'NC':
                             #        print(value['room'])
                             #        print(start_time)
-                            self.timetable[day][start_time] = self.Campus.RoomNo_to_Unit(value['room'])
+                            self.timetable[day][start_time] = self.Campus.__room2unit__(value['room'])
                             #self.daily_schedule_expected[day][start_time] = key
                             #if day == 'wednesday': print(self.daily_schedule_expected['wednesday'])
                         except:

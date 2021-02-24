@@ -1,7 +1,7 @@
 import random
 import numpy as np
 import time
-from .utils import publish_loc, create_db_publish_locations
+from .utils import publish_identity, publish_activity, create_db_publish_locations
 from .utils import get_movement_time_series
 
 class Simulate():
@@ -22,6 +22,7 @@ class Simulate():
 
         # bookkeeping funks
         self.database_conn = create_db_publish_locations()
+        publish_identity(self.Students, self.database_conn, insert=True)
 
         while (self.SIMULATE):
             self.__simulate_day__()
@@ -29,14 +30,14 @@ class Simulate():
             if self.TODAY >= self.no_of_days:
                 self.SIMULATE = False
 
-        
+
     def __save_results(self):
         # TODO: save case stats etc. + logging
         pass
 
     def __simulate_day__(self):
         # TODO (later): Lockdown checks go here
-        # TODO (later): Travel to and from campus goes here 
+        # TODO (later): Travel to and from campus goes here
         # TODO (later): CR and IFP Phases
         # TODO (later): Daily Transactions (TechM + Outside campus travel)
 
@@ -48,8 +49,7 @@ class Simulate():
         if self.TODAY==1: temp = True
         else: temp = False
         for tmstamp in tmstamps:
-            print(tmstamp,temp)
-            publish_loc(self.Students,tmstamp,self.database_conn,insert=temp)
+            publish_activity(self.Students,tmstamp,self.database_conn,insert=temp)
 
         # TODO (Varun)
         # for healthy persons normal schedule

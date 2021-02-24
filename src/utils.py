@@ -286,17 +286,22 @@ def create_db_publish_locations():
 
     return mydb
 
-
-
-def publish_loc(persons, timestmp, mydb, insert=False):
+def publish_identity(persons, mydb, insert=False):
     mycursor = mydb.cursor()
     if insert:
-        stmt = '''INSERT INTO `identity`(`deviceid`,`student`,`rollno`) VALUES (%s, %s, %s)'''
+        stmt = '''INSERT INTO `identity` VALUES (%s, %s, %s, %s)'''
         data_ins = list()
         for person in persons:
-            data_ins.append((str(person.ID), str(person.ID), person.dept+str(person.year)+str(person.ID)))
+            data_ins.append((person.ID, str(person.ID), str(person.ID), person.dept+str(person.year)+str(person.ID)))
         mycursor.executemany(stmt, data_ins)
         mydb.commit()
+    else:
+        pass
+
+
+def publish_activity(persons, timestmp, mydb, insert=False):
+    mycursor = mydb.cursor()
+    if insert:
         stmt = '''INSERT INTO `activity` (`time`,`node`,`latitude`,`longitude`) VALUES (%s, %s, %s, %s)'''
         data_ins = list()
         tmstmp = time.strftime("%Y-%m-%d %H:%M:%S",timestmp)
@@ -304,18 +309,18 @@ def publish_loc(persons, timestmp, mydb, insert=False):
             unit  = person.today_schedule[timestmp]
             loc = unit.location
             x, y = loc.x, loc.y
-            data_ins.append((tmstmp, person.ID, x, y))
+            data_ins.append((tmstmp, person.ID, y, x))
         mycursor.executemany(stmt, data_ins)
         mydb.commit()
     else:
-        stmt = '''UPDATE `activity` set `time`=,`node`,`latitude`,`longitude`) VALUES (%s, %s, %s, %s)'''
+        stmt = '''UPDATE `activity` set `time`= %s,`latitude`= %s,`longitude`= %s WHERE `node`= %s'''
         data_ins = list()
         tmstmp = time.strftime("%Y-%m-%d %H:%M:%S",timestmp)
         for person in persons:
             unit  = person.today_schedule[timestmp]
             loc = unit.location
             x, y = loc.x, loc.y
-            data_ins.append((tmstmp, person.ID, x, y))
+            data_ins.append((tmstmp, y, x, person.ID))
         mycursor.executemany(stmt, data_ins)
         mydb.commit()
 

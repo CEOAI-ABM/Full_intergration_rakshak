@@ -5,8 +5,8 @@ from tabulate import tabulate
 from .contact_graph import getContacts
 
 class TruthClassStatus:
-    """
-    Keeps track of all case statistics
+	"""
+	Keeps tract of all case statistics
 	"""
 
 	def __init__(self):
@@ -21,17 +21,17 @@ class TruthClassStatus:
 		self.RDiedP 		= []
 
 class Virus_Model(TruthClassStatus):
-    """
-    All virus related routines
-    """
+	"""
+	All virus related routines
+	"""
 
-    def __init__(self):
+	def __init__(self):
 
 		self.Esymptomstime				= self.pm.Virus_IncubationPeriod
 		self.CureTime 					= self.pm.Virus_ExpectedCureDays
 		self.ProbSeverity 				= self.pm.Virus_ProbSeverity 
 
-        # Day wise placeholder
+		# Day wise placeholder
 		self.Symptom_placeholder 		= [ [] for i in range(30) ]
 		self.Recovered_Placeholder 		= [ [] for i in range(60) ]
 		self.Deaths_Placeholder 		= [ [] for i in range(60) ]
@@ -68,7 +68,7 @@ class Virus_Model(TruthClassStatus):
 
 		# Query MySQL database -> get contacts and their edge weights 
 		# Format it appropriately
-		pass
+		getContacts()
 	
 	def has_symptoms(self, person, cure:int):
 		"""Subroutine to change the state of person to symptomatic
