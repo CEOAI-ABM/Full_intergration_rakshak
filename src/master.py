@@ -14,13 +14,14 @@ class Master(Campus):
 	def initiate(self):
 		self.initialize_campus()
 		
-		print(self.Students[0].timetable)
+		#print(self.Students[0].timetable)
 		#print(self.Profs[0].timetable)
+		#print(self.Staff[0].timetable)
 		#print(self.sectors['Academic'].Units_list)
 		self.start_sim()
 
 	def start_sim(self):
-		self.simulation(no_of_days=1)
+		self.simulation(no_of_days=10)
 
 
 

@@ -1,5 +1,7 @@
 import random
 import numpy as np
+import datetime
+import time
 from tabulate import tabulate
 
 from .contact_graph import getContacts
@@ -10,6 +12,7 @@ class TruthClassStatus:
 	"""
 
 	def __init__(self):
+		print("Entered TruthClassStatus")
 		super().__init__()
 
 		self.AFreeP 		= []
@@ -26,6 +29,8 @@ class Virus_Model(TruthClassStatus):
 	"""
 
 	def __init__(self):
+		print("Entered Virus_Model")
+		super().__init__()
 
 		self.Esymptomstime				= self.pm.Virus_IncubationPeriod
 		self.CureTime 					= self.pm.Virus_ExpectedCureDays
@@ -68,7 +73,8 @@ class Virus_Model(TruthClassStatus):
 
 		# Query MySQL database -> get contacts and their edge weights 
 		# Format it appropriately
-		getContacts()
+		getContacts(str(person.ID), datetime.datetime.fromtimestamp(time.mktime(self.curr_timestamp)))
+
 	
 	def has_symptoms(self, person, cure:int):
 		"""Subroutine to change the state of person to symptomatic
@@ -105,12 +111,12 @@ class Virus_Model(TruthClassStatus):
 			deathday = sampledeaths.index(True)
 			self.Deaths_Placeholder[deathday].append(person) #Append Death Day
 		except ValueError: 
-			self.Recovers_Placeholder[cure].append(person) # If not found, all is false, append cureday
+			self.Recovered_Placeholder[cure].append(person) # If not found, all is false, append cureday
 
 	def __daily_hospitals_check__(self):
 		"""Checks for all people who are supposed to be cured or died today i.e reach terminal state of statemachine
 		"""
-		today_cured = self.Recovers_Placeholder.pop(0)
+		today_cured = self.Recovered_Placeholder.pop(0)
 		for person in today_cured:	
 			person.recover()
 
@@ -147,7 +153,7 @@ class Virus_Model(TruthClassStatus):
 
 		self.Symptom_placeholder.append([])
 		self.Deaths_Placeholder.append([])
-		self.Recovers_Placeholder.append([])
+		self.Recovered_Placeholder.append([])
 
 
 

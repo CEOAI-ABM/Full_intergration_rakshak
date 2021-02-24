@@ -3,6 +3,7 @@ import json
 import time
 import random
 import mysql.connector
+import datetime
 
 def total_students(course, grades, grades_18A, grades_18S, na_list):
     """Gives the count of total students present in the course 
@@ -235,9 +236,9 @@ def create_db_publish_locations():
     pswd = input("Enter the password for your database server: ")
     mydb = mysql.connector.connect(host='localhost', user='root', passwd=pswd)
     mycursor = mydb.cursor()
-    stmt = '''CREATE DATABASE IF NOT EXISTS contactgraph'''
+    stmt = '''CREATE DATABASE IF NOT EXISTS Contact_Graph'''
     mycursor.execute(stmt)
-    stmt = '''USE contactgraph'''
+    stmt = '''USE Contact_Graph'''
     mycursor.execute(stmt)
     stmt1 = '''DROP TABLE IF EXISTS `identity`'''
     mycursor.execute(stmt1)
@@ -304,25 +305,33 @@ def publish_activity(persons, timestmp, mydb, insert=False):
     if insert:
         stmt = '''INSERT INTO `activity` (`time`,`node`,`latitude`,`longitude`) VALUES (%s, %s, %s, %s)'''
         data_ins = list()
-        tmstmp = time.strftime("%Y-%m-%d %H:%M:%S",timestmp)
+        #tmstmp = time.strftime("%Y-%m-%d %H:%M:%S",timestmp)
         for person in persons:
             unit  = person.today_schedule[timestmp]
             loc = unit.location
             x, y = loc.x, loc.y
-            data_ins.append((tmstmp, person.ID, y, x))
+            data_ins.append((datetime.datetime.fromtimestamp(time.mktime(timestmp)), person.ID, y, x))
         mycursor.executemany(stmt, data_ins)
         mydb.commit()
     else:
-        stmt = '''UPDATE `activity` set `time`= %s,`latitude`= %s,`longitude`= %s WHERE `node`= %s'''
+        stmt = '''UPDATE `activity` SET `time`= %s,`latitude`= %s,`longitude`= %s WHERE `node`= %s'''
         data_ins = list()
-        tmstmp = time.strftime("%Y-%m-%d %H:%M:%S",timestmp)
+        #tmstmp = time.strftime("%Y-%m-%d %H:%M:%S",timestmp)
+        i = 0
         for person in persons:
+            i+=1
             unit  = person.today_schedule[timestmp]
             loc = unit.location
             x, y = loc.x, loc.y
-            data_ins.append((tmstmp, y, x, person.ID))
-        mycursor.executemany(stmt, data_ins)
+            mycursor.execute(stmt,(datetime.datetime.fromtimestamp(time.mktime(timestmp)), y, x, person.ID))
+            print("execute done", i)
+            if i%200 == 0:
+                mydb.commit()
+                print("commited in db")
+        #mycursor.executemany(stmt, data_ins)
+        #print("mycursor.executemany done")
         mydb.commit()
+        print("committed finally")
 
 
 

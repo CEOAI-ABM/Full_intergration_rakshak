@@ -151,8 +151,28 @@ class professor(person):
                             altroom = sum([ord(char) for char in value['room']])+self.Campus.Index_Holder[42]
                             self.timetable[day][start_time]=self.Campus.Units_Placeholder[42][altroom]
 
+class staff(person):
+    def __init__(self,HouseNo=None, workplace_buildingid = None,  Campus=None, ID=0,  inCampus=True, age=-1, ageclass=-1, role="staff", master=None):
+        super().__init__(ID=ID, role=role, age=age)
+        self.Campus = Campus
+        self.residence = "Staff Residence"
+        self.residence_building_id = [i for i in range(len(self.Campus.description)) if self.Campus.description[i]=='Staff Residence'][0]
+        self.residence_unit = Campus.Units_Placeholder[self.residence_building_id][HouseNo+self.Campus.Index_Holder[self.residence_building_id]]
+        self.workplace_buildingid = workplace_buildingid
+
+        self.unit_ids_in_workplace_building = list(self.Campus.Units_Placeholder[self.workplace_buildingid].keys())
+        self.generate_exp_schedule()
+
+    def generate_exp_schedule(self):
+        for day in self.timetable:
+                for i in range(24):
+                    if i < 8 or i > 18 or i == 13:
+                        self.timetable[day][i] = self.residence_unit
+                    else:
+                        self.timetable[day][i] = self.workplace_unit = self.Campus.Units_Placeholder[self.workplace_buildingid][random.choice(self.unit_ids_in_workplace_building)]
 
 
+'''
 def main():
     from .utils import form_schedule
     from .campus import Sector, Unit
@@ -171,3 +191,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+'''

@@ -73,7 +73,7 @@ class Academic(Sector):
 
 class Residence(Sector):
     def __init__(self,pm):
-        super().__init__(pm, ['Residence', 'Faculty Residence'])
+        super().__init__(pm, ['Residence', 'Faculty Residence', 'Staff Residence'])
         self.Types              = ['Student Residence', 'Faculty Residence', 'Guest House', 'Staff Residence']
 
 # TO DO: All will inherit from sector
@@ -120,6 +120,9 @@ class Non_Academic(Sector):
     def __init__(self,pm):
         super().__init__(pm, ['Non_Academic'])
 
+class Guest_House(Sector):
+    def __init__(self,pm):
+        super().__init__(pm, ['Guest House'])
 if __name__ == '__main__':
     from parameters import Parameters
     pm = Parameters('shapes/kgpbuildings.shp','Campus_data/KGP Data - Sheet1.csv')

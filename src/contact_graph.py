@@ -10,6 +10,7 @@ from .graph_utils import decayfunc, proximityfunc, CG_pm
 # TODO: Cleanup, comments, functions
 
 def getContacts(deviceid, time_ref):
+	print("in getContacts")
 	""" 
 	Function print the nodes which came in contact with infected node in past few days. 
   
@@ -26,14 +27,17 @@ def getContacts(deviceid, time_ref):
 
 	# Establish connection to MySQL Server
 	try:
+		db_connection = CG_pm.database_conn
+		'''
 		db_connection = mysql.connector.connect(
 			host      = CG_pm.hostname,
 			user      = CG_pm.username,
 			passwd    = CG_pm.password,
 			database  = CG_pm.dbname
 		)
+		'''
 		db_cursor = db_connection.cursor()
-	
+
 	except:
 		print("Can't Connect to database, check credentials in parameters file")
 	
@@ -74,22 +78,25 @@ def getContacts(deviceid, time_ref):
 
 	################## Bluetooth Contruction ##############
 	#Bluetooth Connection and Score Generation
-	with open(r'C:\Users\HP\Desktop\project\Contact_Graph\bluetooth.txt') as json_file:
-		data1 = json.load(json_file)
-		data1 = data1[deviceid]
-		#print(data1)
-		for time, arr in data1.items():
-				time_obj = datetime.datetime.strptime(time, '%Y-%m-%d %H:%M:%S')
-				if (time_ref-datetime.timedelta(days=CG_pm.duration)) > time_obj:
-					continue
-				df_time= df2[df2.time==time_obj]
-				score_tmp= decayfunc(time_obj,time_ref)
-				for dev_id in arr:
-					if dev_id not in df_time.time:
-						try:
-							score[dict_identity[dev_id]]+= score_tmp
-						except:
-							score[dict_identity[dev_id]]= score_tmp
+	try:
+		with open(r'C:\Users\HP\Desktop\project\Contact_Graph\bluetooth.txt') as json_file:
+			data1 = json.load(json_file)
+			data1 = data1[deviceid]
+			#print(data1)
+			for time, arr in data1.items():
+					time_obj = datetime.datetime.strptime(time, '%Y-%m-%d %H:%M:%S')
+					if (time_ref-datetime.timedelta(days=CG_pm.duration)) > time_obj:
+						continue
+					df_time= df2[df2.time==time_obj]
+					score_tmp= decayfunc(time_obj,time_ref)
+					for dev_id in arr:
+						if dev_id not in df_time.time:
+							try:
+								score[dict_identity[dev_id]]+= score_tmp
+							except:
+								score[dict_identity[dev_id]]= score_tmp
+	except:
+		print("File C:\Users\HP\Desktop\project\Contact_Graph\bluetooth.txt not found")
 
 	#############################################imputed score addition ########
 	"""query = ("SELECT * FROM imputed WHERE time BETWEEN '{}' AND '{}'".format(max(begin_time,time_ref-datetime.timedelta(days=CG_pm.duration)),time_ref))  ## incomplete
@@ -114,7 +121,7 @@ def getContacts(deviceid, time_ref):
 						score[df_tmp.iloc[j,2]]= score_tmp
 		"""
 	#############################################
-	
+
 	node_list=[inf_node]
 	label_list=[deviceid]
 	color_list=["#C0392B"]
@@ -131,8 +138,8 @@ def getContacts(deviceid, time_ref):
 		title_list.append("Score: "+str(val))
 		print("Name",df1[df1.node==key].iloc[0,2]," node no. => ",key," and score =>",val)
 	#####Visualize###############
-	value_list[0]= max(value_list)*2
-	g= Network("500px", "500px",directed=False)
-	g.add_nodes(node_list,label=label_list,title=title_list,value=value_list,color=color_list)
-	g.add_edges(edges_list)
-	g.show("nx.html")
+#	value_list[0]= max(value_list)*2
+#	g= Network("500px", "500px",directed=False)
+#	g.add_nodes(node_list,label=label_list,title=title_list,value=value_list,color=color_list)
+#	g.add_edges(edges_list)
+#	g.show("nx.html")

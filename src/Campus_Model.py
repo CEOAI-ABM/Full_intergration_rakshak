@@ -4,12 +4,13 @@ import numpy as np
 from .simulate import Simulate
 from .calibration import calibrate
 from .virusmodel import Virus_Model
-from .person import student, professor
+from .person import student, professor, staff
 from .utils import form_schedule, get_movement_time_series
-from .Campus_Units import Unit, Academic, Residence, Restaurant, Healthcare, Market, Gymkhana, Grounds, Non_Academic
+from .Campus_Units import Unit, Academic, Residence, Restaurant, Healthcare, Market, Gymkhana, Grounds, Non_Academic, Guest_House
 
 class Campus(Simulate, Virus_Model):
 	def __init__(self):
+		print("Entered Campus")
 		super().__init__()
 
 
@@ -35,6 +36,7 @@ class Campus(Simulate, Virus_Model):
 		# Campus Citizens 
 		self.Students 					= []
 		self.Profs						= []
+		self.Staff						= []
 		self.all_people					= []
 
 		self.__get_Virus_constants__() # get virus constants (calibration of transmission rates)
@@ -56,12 +58,13 @@ class Campus(Simulate, Virus_Model):
 		self.__init_students__()
 		self.__init_profs__(start_id=len(self.Students)+1)
 		# Non Teaching Staff
+		self.__init_staff__(start_id=len(self.Students)+len(self.Profs)+1)
 
-		self.all_people = self.Students+self.Profs
+		self.all_people = self.Students+self.Profs+self.Staff
 
 
 	def __initialize_sectors__(self):
-		self.sectors = {'Academic': Academic(self.pm), 'Residence': Residence(self.pm), 'Restaurant': Restaurant(self.pm), 'Healthcare': Healthcare(self.pm), 'Market': Market(self.pm), 'Gymkhana':Gymkhana(self.pm), 'Grounds': Grounds(self.pm), 'Non_Academic': Non_Academic(self.pm)}
+		self.sectors = {'Academic': Academic(self.pm), 'Residence': Residence(self.pm), 'Restaurant': Restaurant(self.pm), 'Healthcare': Healthcare(self.pm), 'Market': Market(self.pm), 'Gymkhana':Gymkhana(self.pm), 'Grounds': Grounds(self.pm), 'Non_Academic': Non_Academic(self.pm), 'Guest_House': Guest_House(self.pm)}
 
 	def __initialize_units__(self):
 		k = 0
@@ -138,6 +141,16 @@ class Campus(Simulate, Virus_Model):
 					
 					houseno+=1
 					dept_roomno+=1
+
+	def __init_staff__(self, start_id):
+		houseno = 0
+		totalno_staff = 100
+		for i in range(totalno_staff):
+			workplace = random.randrange(0,112)
+			staff_person = staff(Campus=self, HouseNo=houseno, ID=start_id+houseno, workplace_buildingid = workplace)
+			houseno = houseno + 1
+			self.Staff.append(staff_person)
+
 
 	def __room2unit__(self, room_name):
 		if room_name[0] == 'V':

@@ -4,7 +4,9 @@ import numpy as np
 import pandas as pd
 import geopandas as GP
 import matplotlib.pyplot as plt
+import mysql.connector
 from shapely.geometry import Polygon, Point
+
 
 from .map_utils import random_points_in_polygon, cal_coordinates
 
@@ -149,13 +151,19 @@ class Parameters(Virus_Parameters, Spatial_Parameters):
 		Spatial_Parameters.__init__(self, ShpFile, OtherFile)
 
 class Contact_Graph_Parameters:
-	def __init__(self):
-		self.hostname		= "localhost"
-		self.username		= "root"
-		self.password		= "1234"
-		self.dbname			= "Contact_Graph"
+	def __init__(self, db_conn=None):
+		self.database_conn	= db_conn
+		if self.database_conn == None:
+			self.hostname		= "localhost"
+			self.username		= "root"
+			self.password		= "vikram@mysql"
+			self.dbname			= "Contact_Graph"
+			mydb = mysql.connector.connect(host=self.hostname, user=self.username, passwd=self.password)
+			db_cur = mydb.cursor()
+			db_cur.execute('''CREATE DATABASE IF NOT EXISTS Contact_Graph''')
+			self.database_conn = mysql.connector.connect(host=self.hostname, user=self.username, passwd=self.password, database=self.dbname)
 		self.duration 		= 14 # in days
-		self.infectdist		= 5 # in metres (infection radius, default value keep around 10)
+		self.infectdist		= 0.0005 # in metres (infection radius, default value keep around 10)
 		self.tstep 			= 3600 # the current timestep for activity data in seconds
 		self.units 			= 10 #  maximum allowed units of tstep missing from the geo-coordinates data for imputation
 

@@ -1,11 +1,13 @@
 import random
 import numpy as np
 import time
+import datetime
 from .utils import publish_identity, publish_activity, create_db_publish_locations
 from .utils import get_movement_time_series
 
 class Simulate():
     def __init__(self):
+        print("Entered Simulate")
         self.SIMULATE   = True
         self.TODAY      = 1
 
@@ -25,6 +27,7 @@ class Simulate():
         publish_identity(self.Students, self.database_conn, insert=True)
 
         while (self.SIMULATE):
+            #print("day",self.TODAY)
             self.__simulate_day__()
 
             if self.TODAY >= self.no_of_days:
@@ -44,18 +47,24 @@ class Simulate():
         # TODO (Vikram)
         # routine to update today's movements for all people into the mysql server
         # update should be in the correct format
-        get_movement_time_series(self.Students, self.start_time)
+        self.curr_timestamp = time.localtime(time.mktime(self.start_time)+(self.TODAY-1)*24*60*60)
+        get_movement_time_series(self.Students, self.curr_timestamp)
+        #print("get_movement_time_series done")
         tmstamps = list(self.Students[0].today_schedule.keys())
         if self.TODAY==1: temp = True
         else: temp = False
         for tmstamp in tmstamps:
+            #print(tmstamp)
             publish_activity(self.Students,tmstamp,self.database_conn,insert=temp)
+        #print("publish_activity done")
 
         # TODO (Varun)
         # for healthy persons normal schedule
         # for hosp/quar etc policy will be diff
 
-        self.daily_transmissions()
+        #self.daily_transmissions()
+        #self.__get_contacts__(self.Students[0])
+        #print("__get_contacts__ done")
 
         # TODO (Varun)
         # routine to spread virus using contact graph
