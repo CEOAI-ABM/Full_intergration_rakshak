@@ -24,6 +24,7 @@ class Simulate():
         # bookkeeping funks
         self.database_conn = create_db_publish_locations()
         publish_identity(self.Students, self.database_conn, insert=True)
+        self.curr_timestamp = time.localtime(time.mktime(self.start_time)+(self.TODAY-1)*24*60*60)
 
         while (self.SIMULATE):
             print("Simulating Day {}".format(self.TODAY))
@@ -45,7 +46,7 @@ class Simulate():
         # TODO (Vikram)
         # routine to update today's movements for all people into the mysql server
         # update should be in the correct format
-        self.curr_timestamp = time.localtime(time.mktime(self.start_time)+(self.TODAY-1)*24*60*60)
+
         get_movement_time_series(self.Students, self.curr_timestamp)
         #print("get_movement_time_series done")
         tmstamps = list(self.Students[0].today_schedule.keys())
@@ -59,13 +60,14 @@ class Simulate():
         # TODO 
         # for healthy persons normal schedule
         # for hosp/quar etc policy will be diff
-
+        self.curr_timestamp = time.localtime(time.mktime(self.start_time)+(self.TODAY)*24*60*60)
         self.daily_transmissions()
-
+        print('----------')
         print("Students whose State is not Healthy")
         for s in self.Students:
             if s.State != "Healthy":
                 print("studentid:", s.ID, "studentState:",s.State)
+        print('----------')
         print()
         #print("student id = 1 contacts:")
         #self.__get_contacts__(self.Students[0])

@@ -161,7 +161,7 @@ class Virus_Model(TruthClassStatus):
 
 	def __daily_transmissions__(self):
 		temp_AFreeP = self.AFreeP.copy()
-
+		print("")
 		for person in temp_AFreeP:
 			print('Person id = {}'.format(person.ID))
 			contacts_idx, edge_weights = self.__get_contacts__(person)
@@ -170,7 +170,7 @@ class Virus_Model(TruthClassStatus):
 			P_TR = 0.01 # TODO: Dummy value for now
 
 			for idx in contacts_idx:
-				contact = self.__get_person_obj__(idx=idx) # Add this function in Campus_Model
+				contact = self.__get_person_obj__(idx=idx)
 				infect_bool = random.choices([True, False], weights=[P_TR, 1-P_TR])[0]
 				if (infect_bool):
 					print("Infecting person {}".format(contact.ID))

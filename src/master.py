@@ -15,13 +15,14 @@ class Master(Campus):
 	def initiate(self):
 		self.initialize_campus()
 
-		for i in range(2):
-			self.__infect_person__(self.Students[i])
-		
+
+		self.__infect_person__(self.Students[0])
+		self.__infect_person__(self.Students[1000])
+
 		self.start_sim()
 
 	def start_sim(self):
-		self.simulation(no_of_days=10)
+		self.simulation(no_of_days=7)
 
 def StartSimulation(pm):
 	m = Master(pm)
