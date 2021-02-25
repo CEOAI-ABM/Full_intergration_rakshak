@@ -163,9 +163,9 @@ class Contact_Graph_Parameters:
 		self.database_conn	= db_conn
 		if self.database_conn == None:
 			self.hostname		= "localhost"
-			self.username		= "vm"
-			self.password		= "Cats#Peel!^Lemons!@31612"
-			#self.password		= "vikram@mysql"
+			self.username		= "root"
+			#self.password		= "Cats#Peel!^Lemons!@31612"
+			self.password		= "vikram@mysql"
 			self.dbname			= "Contact_Graph"
 			mydb = mysql.connector.connect(host=self.hostname, user=self.username, passwd=self.password)
 			db_cur = mydb.cursor()

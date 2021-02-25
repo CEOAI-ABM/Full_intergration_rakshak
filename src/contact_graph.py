@@ -140,8 +140,8 @@ def getContacts(deviceid, time_ref):
 	return node_list, edges_list
 	
 	#####Visualize###############
-#	value_list[0]= max(value_list)*2
-#	g= Network("500px", "500px",directed=False)
-#	g.add_nodes(node_list,label=label_list,title=title_list,value=value_list,color=color_list)
-#	g.add_edges(edges_list)
-#	g.show("nx.html")
+	value_list[0]= max(value_list)*2
+	g= Network("500px", "500px",directed=False)
+	g.add_nodes(node_list,label=label_list,title=title_list,value=value_list,color=color_list)
+	g.add_edges(edges_list)
+	g.show("nx.html")

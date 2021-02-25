@@ -22,7 +22,7 @@ class Master(Campus):
 		self.start_sim()
 
 	def start_sim(self):
-		self.simulation(no_of_days=7)
+		self.simulation(no_of_days=5)
 
 def StartSimulation(pm):
 	m = Master(pm)

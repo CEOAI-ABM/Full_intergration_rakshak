@@ -66,7 +66,7 @@ class Simulate():
         print("Students whose State is not Healthy")
         for s in self.Students:
             if s.State != "Healthy":
-                print("studentid:", s.ID, "studentState:",s.State)
+                print("studentid:", s.ID, "studentState:",s.State, "studentStatus", s.Status)
         print('----------')
         print()
         #print("student id = 1 contacts:")
