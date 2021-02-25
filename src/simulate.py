@@ -23,7 +23,7 @@ class Simulate():
 
         # bookkeeping funks
         self.database_conn = create_db_publish_locations()
-        publish_identity(self.Students, self.database_conn, insert=True)
+        publish_identity(self.all_people, self.database_conn, insert=True)
         self.curr_timestamp = time.localtime(time.mktime(self.start_time)+(self.TODAY-1)*24*60*60)
 
         while (self.SIMULATE):
@@ -47,14 +47,14 @@ class Simulate():
         # routine to update today's movements for all people into the mysql server
         # update should be in the correct format
 
-        get_movement_time_series(self.Students, self.curr_timestamp)
+        get_movement_time_series(self.all_people, self.curr_timestamp)
         #print("get_movement_time_series done")
-        tmstamps = list(self.Students[0].today_schedule.keys())
+        tmstamps = list(self.all_people[0].today_schedule.keys())
         if self.TODAY==1: temp = True
         else: temp = False
         for tmstamp in tmstamps:
             #print(tmstamp)
-            publish_activity(self.Students, tmstamp, self.database_conn)
+            publish_activity(self.all_people, tmstamp, self.database_conn)
         #print("publish_activity done")
 
         # TODO 
@@ -63,10 +63,10 @@ class Simulate():
         self.curr_timestamp = time.localtime(time.mktime(self.start_time)+(self.TODAY)*24*60*60)
         self.daily_transmissions()
         print('----------')
-        print("Students whose State is not Healthy")
-        for s in self.Students:
+        print("Persons whose State is not Healthy")
+        for s in self.all_people:
             if s.State != "Healthy":
-                print("studentid:", s.ID, "studentState:",s.State, "studentStatus", s.Status)
+                print("personid:", s.ID, "personState:",s.State, "personStatus", s.Status)
         print('----------')
         print()
         #print("student id = 1 contacts:")

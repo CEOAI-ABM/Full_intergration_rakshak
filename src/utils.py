@@ -300,7 +300,7 @@ def publish_identity(persons, mydb, insert=False):
         stmt = '''INSERT INTO `identity` VALUES (%s, %s, %s, %s)'''
         data_ins = list()
         for person in persons:
-            data_ins.append((person.ID, str(person.ID), str(person.ID), person.dept+str(person.year)+str(person.ID)))
+            data_ins.append((person.ID, str(person.ID), str(person.ID), str(person.ID)))
         mycursor.executemany(stmt, data_ins)
         mydb.commit()
     else:
