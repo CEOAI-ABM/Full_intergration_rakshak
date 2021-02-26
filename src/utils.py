@@ -228,13 +228,20 @@ def get_movement_time_series(persons, date): # updates each person.today_schedul
             except:
                 j1 = str(j)
             temp = timestamp + j*60*60
-            newschedule[time.localtime(temp)] = person.timetable[time.strftime("%A",time.localtime(temp)).casefold()][j1]
+            if person.Status == 'Free' :
+                newschedule[time.localtime(temp)] = person.timetable[time.strftime("%A",time.localtime(temp)).casefold()][j1]
+            elif person.Status == 'Quarentined' :
+                newschedule[time.localtime(temp)] = person.residence_unit
+            else :
+                building_id = person.Campus.sectors['Healthcare'].building_ids[0]
+                unit_id = random.choice(list(person.Campus.sectors['Healthcare'].Units_list[building_id].keys()))
+                newschedule[time.localtime(temp)] = person.Campus.sectors['Healthcare'].Units_list[building_id][unit_id]
         person.today_schedule = newschedule
 
 
 def create_db_publish_locations():
     #pswd = input("Enter the password for your database server: ")
-    mydb = mysql.connector.connect(host='localhost', user='vm', passwd='Cats#Peel!^Lemons!@31612')
+    mydb = mysql.connector.connect(host='localhost', user='root', passwd='vikram@mysql')
     mycursor = mydb.cursor()
     stmt = '''CREATE DATABASE IF NOT EXISTS Contact_Graph'''
     mycursor.execute(stmt)
@@ -293,7 +300,7 @@ def publish_identity(persons, mydb, insert=False):
         stmt = '''INSERT INTO `identity` VALUES (%s, %s, %s, %s)'''
         data_ins = list()
         for person in persons:
-            data_ins.append((person.ID, str(person.ID), str(person.ID), person.dept+str(person.year)+str(person.ID)))
+            data_ins.append((person.ID, str(person.ID), str(person.ID), str(person.ID)))
         mycursor.executemany(stmt, data_ins)
         mydb.commit()
     else:

@@ -176,4 +176,4 @@ class Campus(Simulate, Virus_Model):
 	#	get_movement_time_series(self.population, 1)
 
 	def __get_person_obj__(self, idx):
-		return self.all_people[idx]
+		return self.all_people[idx-1]

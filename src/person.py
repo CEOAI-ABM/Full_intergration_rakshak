@@ -106,7 +106,7 @@ class student(person):
 					self.Campus.__room2unit__(class_room).isclassroom = True
 
 class professor(person):
-	def __init__(self, lab=None, office=None, Campus=None, HouseNo=None, ID=0, dept=None, inCampus=True, age=-1, ageclass=-1, role="faculty", year=None, schedule=None, master=None):
+	def __init__(self, prob_to_go_out=0.05, lab=None, office=None, Campus=None, HouseNo=None, ID=0, dept=None, inCampus=True, age=-1, ageclass=-1, role="faculty", year=None, schedule=None, master=None):
 		super().__init__(ID=ID, role=role, age=age, dept=dept)
 		self.Campus = Campus
 		self.residence = "Faculty Quarters"
@@ -114,6 +114,7 @@ class professor(person):
 		self.residence_unit = Campus.Units_Placeholder[self.residence_building_id][HouseNo+self.Campus.Index_Holder[self.residence_building_id]]
 		self.residence_point = self.residence_unit.location
 		self.office = office
+		self.prob_to_go_out = prob_to_go_out
 		try:
 			self.office_unit = self.Campus.__room2unit__(self.office)
 			self.office_point = self.office_unit.location
@@ -135,8 +136,13 @@ class professor(person):
 	def generate_exp_schedule(self):
 		for day in self.timetable:
 				for i in range(24):
-					if i < 8 or i > 18 or i == 13:
+					if i < 8 or i >= 18 or i == 13:
 						self.timetable[day][i] = self.residence_unit
+						if i >= 18 and i <= 21:
+							if random.random()<self.prob_to_go_out:
+								building_id = random.choices(self.Campus.sectors['Market'].building_ids, weights=[95,5])[0] #Hard Coded 95 5 weights for market and rabi shop respectively
+								unit_id = random.choice(list(self.Campus.sectors['Market'].Units_list[building_id].keys()))
+								self.timetable[day][i] = self.Campus.sectors['Market'].Units_list[building_id][unit_id]
 						#self.daily_schedule_expected[day][i] = 'residence'+str(self.residence_building_id)
 					else:
 						if day != 'sunday':
@@ -146,6 +152,10 @@ class professor(person):
 							#self.daily_schedule_expected[day][i] = 'office'+self.office
 						else:
 							self.timetable[day][i] = self.residence_unit
+							if random.random()<self.prob_to_go_out:
+								building_id = random.choice(self.Campus.sectors['Market'].building_ids+self.Campus.sectors['Grounds'].building_ids+self.Campus.sectors['Restaurant'].building_ids) #TODO: have to send systematically on sundays; for now he has equal probabilty of going anywhere(i.e. all the mentioned sectors places)
+								unit_id = random.choice(list(self.Campus.Units_Placeholder[building_id].keys()))
+								self.timetable[day][i] = self.Campus.Units_Placeholder[building_id][unit_id]
 							#self.daily_schedule_expected[day][i] = 'residence'+str(self.residence_building_id)
 
 		day = {'0':'monday','1':'tuesday','2':'wednesday','3':'thursday','4':'friday','5':'saturday','6':'sunday'}
@@ -175,14 +185,14 @@ class professor(person):
 							self.timetable[day][start_time]=self.Campus.Units_Placeholder[42][altroom]
 
 class staff(person):
-	def __init__(self,HouseNo=None, workplace_buildingid = None,  Campus=None, ID=0,  inCampus=True, age=-1, ageclass=-1, role="staff", master=None):
+	def __init__(self,prob_to_go_out=0.1,HouseNo=None, workplace_buildingid = None,  Campus=None, ID=0,  inCampus=True, age=-1, ageclass=-1, role="staff", master=None):
 		super().__init__(ID=ID, role=role, age=age)
 		self.Campus = Campus
 		self.residence = "Staff Residence"
 		self.residence_building_id = [i for i in range(len(self.Campus.description)) if self.Campus.description[i]=='Staff Residence'][0]
 		self.residence_unit = Campus.Units_Placeholder[self.residence_building_id][HouseNo+self.Campus.Index_Holder[self.residence_building_id]]
 		self.workplace_buildingid = workplace_buildingid
-
+		self.prob_to_go_out = prob_to_go_out
 		self.unit_ids_in_workplace_building = list(self.Campus.Units_Placeholder[self.workplace_buildingid].keys())
 		self.generate_exp_schedule()
 
@@ -191,6 +201,11 @@ class staff(person):
 				for i in range(24):
 					if i < 8 or i > 18 or i == 13:
 						self.timetable[day][i] = self.residence_unit
+						if i >= 18 and i <= 21:
+							if random.random()<self.prob_to_go_out:
+								building_id = random.choices(self.Campus.sectors['Market'].building_ids, weights=[95,5])[0] #Hard coded 95 for Tech Market 5 for Rabi Shop
+								unit_id = random.choice(list(self.Campus.sectors['Market'].Units_list[building_id].keys()))
+								self.timetable[day][i] = self.Campus.sectors['Market'].Units_list[building_id][unit_id]
 					else:
 						self.timetable[day][i] = self.workplace_unit = self.Campus.Units_Placeholder[self.workplace_buildingid][random.choice(self.unit_ids_in_workplace_building)]
 

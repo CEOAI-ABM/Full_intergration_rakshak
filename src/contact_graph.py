@@ -136,6 +136,13 @@ def getContacts(deviceid, time_ref):
 		value_list.append(val)
 		title_list.append("Score: "+str(val))
 		#print("Name",df1[df1.node==key].iloc[0,2]," node no. => ",key," and score =>",val)
+
+	#####Visualize###############
+	value_list[0]= max(value_list)*2
+	g= Network("500px", "500px",directed=False)
+	g.add_nodes(node_list,label=label_list,title=title_list,value=value_list,color=color_list)
+	g.add_edges(edges_list)
+	g.show("nx.html")
 	
 	return node_list, edges_list
 	
