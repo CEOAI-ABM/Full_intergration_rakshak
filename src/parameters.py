@@ -115,9 +115,9 @@ class Spatial_Parameters:
 		'''
 
 		lib_area                          = self.polygons[2].area #area of library
-		lib_num_rooms_per_floor           = 20
+		lib_num_rooms_per_floor           = 60
 		lbs_area                          = self.polygons[32].area #area of LBS Hall
-		lbs_num_rooms_per_floor           = 130
+		lbs_num_rooms_per_floor           = 650
 
 		for i in range(len(self.building_name)):
 			try:
