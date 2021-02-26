@@ -53,7 +53,7 @@ class Simulate():
         if len(self.SIsolatedP)+len(self.SHospitalizedP)+len(self.SIcuP) >=100:
             lockdown=True
 
-        get_movement_time_series(self.all_people, self.curr_timestam,lockdown)
+        get_movement_time_series(self.all_people, self.curr_timestamp,lockdown)
         #print("get_movement_time_series done")
         tmstamps = list(self.all_people[0].today_schedule.keys())
         if self.TODAY==1: temp = True
