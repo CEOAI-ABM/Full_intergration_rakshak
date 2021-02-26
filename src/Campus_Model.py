@@ -32,7 +32,7 @@ class Campus(Simulate, Virus_Model):
 		self.Units_Placeholder          = {i:{} for i in range(self.Total_Num_Buildings)} #
 		self.People_In_Buildings        = [0]*(self.Total_Num_Buildings)
 
-		# Campus Citizens 
+		# Campus Citizens
 		self.Students 					= []
 		self.Profs						= []
 		self.Staff						= []
@@ -103,12 +103,12 @@ class Campus(Simulate, Virus_Model):
 				for j in range(1,random.randrange(40, 60)//10):
 					person_schedule = self.Deptwise_Timetable[dept][i]
 					age = str(18 + (i-1) + random.choice([0,1]))
-					
+
 					hall = random.choices(residence_indices, weights)[0]
 					room = random.randint(0,len(self.Floor[hall])-1)
 					junta = student(Campus=self, role="student", ID=ctr, age=age, year=i, schedule=person_schedule, dept=dept, residence=[hall, room])
 					ctr += 1
-					
+
 					self.Students.append(junta)
 
 	def __init_profs__(self, start_id):
@@ -133,21 +133,24 @@ class Campus(Simulate, Virus_Model):
 					else:
 						if someno < 0:
 							office = lab
-					
+
 					prof = professor(Campus=self, HouseNo=houseno, ID=start_id+houseno, dept=dept, schedule=subj, lab=lab, office=office)
 					self.Profs.append(prof)
-					
+
 					houseno+=1
 					dept_roomno+=1
 
 	def __init_staff__(self, start_id):
 		houseno = 0
-		totalno_staff = 100
-		for i in range(totalno_staff):
-			workplace = random.randrange(0,112)
-			staff_person = staff(Campus=self, HouseNo=houseno, ID=start_id+houseno, workplace_buildingid = workplace)
-			houseno = houseno + 1
-			self.Staff.append(staff_person)
+		k=0
+		for i in range(len(self.description)):
+			for num_workers in range(self.Number_Workers[i]):
+				workplace = i
+				staff_person = staff(Campus=self, HouseNo=houseno, ID=start_id+houseno, workplace_buildingid = workplace)
+				houseno = houseno + 1
+				self.Staff.append(staff_person)
+			k = k+num_workers
+
 
 	def __room2unit__(self, room_name):
 		if room_name[0] == 'V':
