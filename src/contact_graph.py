@@ -9,7 +9,7 @@ from .graph_utils import decayfunc, proximityfunc, graphformation, CG_pm
 
 # TODO: Cleanup, comments, functions
 
-def getContacts(deviceid, time_ref):
+def getContacts(deviceid, time_ref, conn):
 	""" 
 	Function print the nodes which came in contact with infected node in past few days. 
   
@@ -26,7 +26,8 @@ def getContacts(deviceid, time_ref):
 
 	# Establish connection to MySQL Server
 	try:
-		db_connection = CG_pm.database_conn
+		db_connection = conn
+		#db_connection = CG_pm.database_conn
 		'''
 		db_connection = mysql.connector.connect(
 			host      = CG_pm.hostname,

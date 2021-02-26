@@ -32,7 +32,7 @@ class Simulate():
 
             if self.TODAY > self.no_of_days:
                 self.SIMULATE = False
-        fullgraphplot(datetime.datetime.fromtimestamp(time.mktime(self.start_time)),  datetime.datetime.fromtimestamp(time.mktime(self.start_time)+24*60*60))
+        #fullgraphplot(datetime.datetime.fromtimestamp(time.mktime(self.start_time)),  datetime.datetime.fromtimestamp(time.mktime(self.start_time)+24*60*60))
 
     def __save_results(self):
         # TODO: save case stats etc. + logging

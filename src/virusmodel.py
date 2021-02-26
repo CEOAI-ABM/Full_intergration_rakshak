@@ -97,7 +97,7 @@ class Virus_Model(TruthClassStatus):
 		Function to get the contacts of a person on a particular day
 		Query MySQL database -> get contacts and their edge weights
 		"""
-		contacts, edge_weights = getContacts(str(person.ID), datetime.datetime.fromtimestamp(time.mktime(self.curr_timestamp)))
+		contacts, edge_weights = getContacts(str(person.ID), datetime.datetime.fromtimestamp(time.mktime(self.curr_timestamp)),self.database_conn)
 
 		return  contacts, edge_weights
 
