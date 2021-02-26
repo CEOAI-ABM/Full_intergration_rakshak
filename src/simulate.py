@@ -51,7 +51,7 @@ class Simulate():
         lockdown=False
 
         if len(self.SIsolatedP)+len(self.SHospitalizedP)+len(self.SIcuP) >=100:
-            lockdown=true
+            lockdown=True
 
         get_movement_time_series(self.all_people, self.curr_timestam,lockdown)
         #print("get_movement_time_series done")
