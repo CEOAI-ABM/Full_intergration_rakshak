@@ -215,7 +215,7 @@ def form_schedule(file_path=None,save=False):
     return schedule
 
 
-def get_movement_time_series(persons, date): # updates each person.today_schedule to a dictionary containing the timestamps of a given date and locations
+def get_movement_time_series(persons, date, lockdown=False): # updates each person.today_schedule to a dictionary containing the timestamps of a given date and locations
     time_in_sec = time.mktime(date)
     for person in persons:
         timestamp = time_in_sec
@@ -228,8 +228,12 @@ def get_movement_time_series(persons, date): # updates each person.today_schedul
             except:
                 j1 = str(j)
             temp = timestamp + j*60*60
+
             if person.Status == 'Free' :
                 newschedule[time.localtime(temp)] = person.timetable[time.strftime("%A",time.localtime(temp)).casefold()][j1]
+                if lockdown==True:
+                    newschedule[time.localtime(temp)] = person.residence_unit
+
             elif person.Status == 'Quarentined' or person.Status == 'Isolation' :
                 newschedule[time.localtime(temp)] = person.residence_unit
             else :

@@ -48,7 +48,12 @@ class Simulate():
         # routine to update today's movements for all people into the mysql server
         # update should be in the correct format
 
-        get_movement_time_series(self.all_people, self.curr_timestamp)
+        lockdown=False
+
+        if len(self.SIsolatedP)+len(self.SHospitalizedP)+len(self.SIcuP) >=100:
+            lockdown=true
+
+        get_movement_time_series(self.all_people, self.curr_timestam,lockdown)
         #print("get_movement_time_series done")
         tmstamps = list(self.all_people[0].today_schedule.keys())
         if self.TODAY==1: temp = True
