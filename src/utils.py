@@ -241,7 +241,7 @@ def get_movement_time_series(persons, date): # updates each person.today_schedul
 
 def create_db_publish_locations():
     #pswd = input("Enter the password for your database server: ")
-    mydb = mysql.connector.connect(host='localhost', user='root', passwd='welcome123')
+    mydb = mysql.connector.connect(host='localhost', user='root', passwd='vikram@mysql')
     mycursor = mydb.cursor()
     stmt = '''CREATE DATABASE IF NOT EXISTS Contact_Graph'''
     mycursor.execute(stmt)
