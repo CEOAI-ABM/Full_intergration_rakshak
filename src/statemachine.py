@@ -58,7 +58,7 @@ class AgentStatusA(object):
 				obj.Counter.value -=1
 				lock.release()
 			self.ADDED_BIT = False
-			
+
 			self.__remove_from_transport__()
 
 	def _add_(self):
@@ -75,11 +75,11 @@ class AgentStatusA(object):
 					obj.Counter.value +=1
 					lock.release()
 				self.ADDED_BIT = True
-			
+
 			if self.useTN == True:
 				self.Region.TravellingCitizens.append(self)
-			
-	
+
+
 	'''
 	def _left_(self):
 		"""Leave campus, calls remove
@@ -148,15 +148,15 @@ class AgentStatusA(object):
 	def quarentined(self):
 		acceptable_states	= [self.status[0],self.status[1],self.status[2]]
 		assert self.Status in acceptable_states
-		
+
 		if self.Last_Added_Placeholder != 1:
 			self.__remove_from_placeholder__()
 
 		if self.is_Free():	# If free add to quarentined placeholders
 			self.TruthStatus.AQuarentinedP.append(self)
-			self.Last_Added_Placeholder = 1 
+			self.Last_Added_Placeholder = 1
 
-		
+
 		self.Status  		= self.status[1]
 		#self._remove_()
 
@@ -187,7 +187,7 @@ class AgentStatusA(object):
 	def isolate(self):
 		acceptable_states	= [self.status[0],self.status[1],self.status[3],self.status[4],self.status[5]]
 		assert self.Status in acceptable_states
-		
+
 		if self.Status == self.status[0] or self.Status == self.status[1]:
 			self.show_symptoms()
 
@@ -223,7 +223,7 @@ class AgentStateA(AgentStatusA):
 		#self 				= person
 		self.State 			= self.states[0]
 		self.TruthStatus 	= None
-		
+
 	def infected(self):
 		acceptable_states	= [self.states[0]]
 		assert self.State in acceptable_states
@@ -245,7 +245,7 @@ class AgentStateA(AgentStatusA):
 		self.Status   		= self.status[5]
 		if self.__remove_from_placeholder__(): #Removal is succesful, mtlb seher me h
 			self.TruthStatus.RRecoveredP.append(self)
-			self.Last_Added_Placeholder =5 
+			self.Last_Added_Placeholder =5
 
 
 	def die(self):
@@ -255,7 +255,7 @@ class AgentStateA(AgentStatusA):
 		self.Status 		= self.status[5]
 		if self.__remove_from_placeholder__(): #Removal is succesful, mtlb seher me h
 			self.TruthStatus.RDiedP.append(self)
-			self.Last_Added_Placeholder = 6 
+			self.Last_Added_Placeholder = 6
 
 	def is_Healthy(self):
 		return self.State == self.states[0]
@@ -269,25 +269,25 @@ class AgentStateA(AgentStatusA):
 		return self.State == self.states[4]
 
 class TestingState(object):
-    
+
 	"""Summary
-	
+
 	Attributes:
 	    in_stack (bool): Description
 	    machine (TYPE): Description
 	    state (str): Description
 	    tested (bool): Description
 	"""
-	
+
 	machine = transitions.Machine(model=None, states=['Not_tested', 'Awaiting_Testing', 'Tested_Positive','Tested_Negative'], initial='Not_tested',
 					  transitions=[
 						  {'trigger': 'awaiting_test', 'source': ['Not_tested','Awaiting_Testing','Tested_Negative'], 'dest': 'Awaiting_Testing','before':'add_to_TestingQueue'},
 						  {'trigger': 'tested_positive', 'source': 'Awaiting_Testing', 'dest': 'Tested_Positive','before':'tested_positive_func'},
 						  {'trigger': 'tested_negative', 'source': 'Awaiting_Testing', 'dest': 'Tested_Negative','before':'tested_negative_func'},
 					  ])
-	def __init__(self): 
+	def __init__(self):
 		"""This is responsible for updating testing state of the person
-		
+
 		Deleted Parameters:
 		    person (object): Home object
 		    VM (object): Virusmodel object
@@ -296,7 +296,7 @@ class TestingState(object):
 		logging.getLogger('transitions').setLevel(logging.WARNING)
 		self.state 		= 'Not_tested'
 
-	def add_to_TestingQueue(self, PrivateTest=False): 
+	def add_to_TestingQueue(self, PrivateTest=False):
 		"""Summary
 		"""
 		# This function is for the region to add citizens into testingQueue
@@ -307,15 +307,15 @@ class TestingState(object):
 				#print('Region {} added person {}'.format(self.Region.Name, self.IntID))
 
 	#pass type of test
-	def tested_positive_func(self, PrivateTest=False): 
+	def tested_positive_func(self, PrivateTest=False):
 		"""Summary
 		"""
 		self.Region.TestedP['Positive'].append(self)
-		self.Region.NumTestedPositive.value += 1 
+		self.Region.NumTestedPositive.value += 1
 
-		if PrivateTest == False: 
+		if PrivateTest == False:
 			self.__remove_from_testing_list__()
-		
+
 		if self.is_Quarentined():
 			self.isolate()
 
@@ -328,15 +328,15 @@ class TestingState(object):
 		if PrivateTest == False:
 			self.__remove_from_testing_list__()
 
-	def __remove_from_testing_list__(self): 
+	def __remove_from_testing_list__(self):
 		self.Region.TestingQueue.remove(self)
 
 	def __getattribute__(self, item):
 		"""Summary
-		
+
 		Args:
 		    item (TYPE): Description
-		
+
 		Returns:
 		    TYPE: Description
 		"""
