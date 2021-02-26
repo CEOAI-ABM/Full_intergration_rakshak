@@ -230,7 +230,7 @@ def get_movement_time_series(persons, date): # updates each person.today_schedul
             temp = timestamp + j*60*60
             if person.Status == 'Free' :
                 newschedule[time.localtime(temp)] = person.timetable[time.strftime("%A",time.localtime(temp)).casefold()][j1]
-            elif person.Status == 'Quarentined' :
+            elif person.Status == 'Quarentined' or person.Status == 'Isolation' :
                 newschedule[time.localtime(temp)] = person.residence_unit
             else :
                 building_id = person.Campus.sectors['Healthcare'].building_ids[0]
