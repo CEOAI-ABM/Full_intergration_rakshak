@@ -2,8 +2,8 @@ import random
 import numpy as np
 import time
 import datetime
-from .utils import publish_identity, publish_activity, create_db_publish_locations
-from .utils import get_movement_time_series
+from .utils import publish_identity, publish_activity, create_db_publish_locations, get_movement_time_series
+from .contact_graph import fullgraphplot
 
 class Simulate():
     def __init__(self):
@@ -32,6 +32,7 @@ class Simulate():
 
             if self.TODAY > self.no_of_days:
                 self.SIMULATE = False
+        fullgraphplot(datetime.datetime.fromtimestamp(time.mktime(self.start_time)),  datetime.datetime.fromtimestamp(time.mktime(self.start_time)+24*60*60))
 
     def __save_results(self):
         # TODO: save case stats etc. + logging

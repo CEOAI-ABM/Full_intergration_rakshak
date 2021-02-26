@@ -100,7 +100,7 @@ class Campus(Simulate, Virus_Model):
 		for dept in self.Departments:
 			dept_schedule = self.Deptwise_Timetable[dept]
 			for i in range(2, 5):
-				for j in range(1,random.randrange(40, 60)):
+				for j in range(1,random.randrange(40, 60)//10):
 					person_schedule = self.Deptwise_Timetable[dept][i]
 					age = str(18 + (i-1) + random.choice([0,1]))
 					

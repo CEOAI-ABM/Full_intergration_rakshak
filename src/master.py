@@ -17,12 +17,12 @@ class Master(Campus):
 
 
 		self.__infect_person__(self.Students[0])
-		self.__infect_person__(self.Students[1000])
+		self.__infect_person__(self.Students[100])
 
 		self.start_sim()
 
 	def start_sim(self):
-		self.simulation(no_of_days=5)
+		self.simulation(no_of_days=2)
 
 def StartSimulation(pm):
 	m = Master(pm)
