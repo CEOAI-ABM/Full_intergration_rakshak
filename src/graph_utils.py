@@ -76,8 +76,8 @@ def graphformation(time_lower, time_upper):
 	score = {}
 	#print(activity_data)
 	time_groups = activity_data.groupby('time')
-	with open(r'C:\Users\HP\Desktop\project\Contact_Graph\bluetooth.txt') as json_file:
-		data1 = json.load(json_file)
+	#with open(r'C:\Users\HP\Desktop\project\Contact_Graph\bluetooth.txt') as json_file:
+	#	data1 = json.load(json_file)
 	for name, group in time_groups:
 		score_tmp = decayfunc(name,time_upper)
 		group = group.sort_values('node')
@@ -97,6 +97,7 @@ def graphformation(time_lower, time_upper):
 				pass
 			###########################
 			for j in range(i+1,len(group)):
+				print("in the third for-loop", i, j)
 				node2 =group.iloc[j,2]
 				if proximityfunc(group.iloc[i,3],group.iloc[i,4],group.iloc[j,3],group.iloc[j,4]) and node2 not in listnearby:
 					try:

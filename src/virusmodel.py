@@ -124,7 +124,7 @@ class Virus_Model(TruthClassStatus):
 			person.show_symptoms()
 
 		if self.TestingOn:
-			self.put_to_test(person,"Fresh")
+			self.put_to_test(person, "Fresh")
 
 		if cure<0:
 			cure = 0

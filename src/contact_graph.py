@@ -63,6 +63,7 @@ def fullgraphplot(time_lower,time_upper):
 	edges_list,node_list,title_list = graphformation(time_lower,time_upper)
 	node_size = []
 	for i in range(len(node_list)):
+		print("\nin fullgraphplot "+str(i)+"th element of node_list")
 		node_size.append(5)
 		g = Network(
             height="750px",

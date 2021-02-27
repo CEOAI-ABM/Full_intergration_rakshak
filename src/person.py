@@ -12,6 +12,8 @@ import matplotlib.animation as animation
 from .parameters import slots
 from .statemachine import AgentStateA
 
+wifidata = json.load(open('data/Timetable/post5_probs.json'))
+
 class person(AgentStateA):
 	""" Class for describing students
 	Args:
@@ -83,6 +85,14 @@ class student(person):
 			for i in range(24):
 				#self.timetable[day][str(i)+'-'+str(i+1)]=self.Campus.ParamObj.building_name[self.residence_unit.Building]
 				self.timetable[day][i]=self.residence_unit
+				if i >= 18 or i < 8:
+					weights = []
+					for key in wifidata:
+						weights.append(wifidata[key][day][str(i)+'-'+str(i+1)])
+					building_id = random.choices([i for i in range(self.Campus.Total_Num_Buildings)],weights)[0]
+					unit_id = random.choice(list(self.Campus.Units_Placeholder[building_id].keys()))
+					self.timetable[day][i] = self.Campus.Units_Placeholder[building_id][unit_id]
+
 		for subject in self.schedule:
 			class_room=self.schedule[subject]['room']
 			slot_name=self.schedule[subject]['slot']

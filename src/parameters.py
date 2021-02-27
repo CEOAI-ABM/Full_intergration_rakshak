@@ -20,31 +20,31 @@ class Virus_Parameters:
 	def __init__(self, **kwargs):
 
 		self.Virus_Name 			    = "CoronaVirus"
-		self.Virus_R0 				    = kwargs.get("Virus_R0", 2.0)	
-		self.Initial_Compliance_Rate 	= 0.8			
-		
+		self.Virus_R0 				    = kwargs.get("Virus_R0", 2.0)
+		self.Initial_Compliance_Rate 	= 0.8
+
 		self.Virus_Params = {
-			'Transport' : {'Time':1,    'Distance':1}, 
+			'Transport' : {'Time':1,    'Distance':1},
 			'Home' 		: {'Time':16,   'Distance':1},
 			'Grocery'	: {'Time':0.5,  'Distance':4},
 			'Unemployed': {'Time':8,    'Distance':1},
-			'Random'	: {'Time':1,    'Distance':2}, 
+			'Random'	: {'Time':1,    'Distance':2},
 			}
-		
+
 		self.Virus_DistanceDist 		= {"Constant": 0.128, "Ratio": 2.02}
 		self.Virus_Deathrates 			= kwargs.get("Virus_Deathrates", [0.01/2,0.005/2,0.01/2,0.01/2,0.04/2,0.30/2]) # Between age groups in agedist model
-		self.Virus_IncubationPeriod		= kwargs.get("Virus_IncubationPeriod", [6,6,8,5,2,2]) # Between Age groups 
+		self.Virus_IncubationPeriod		= kwargs.get("Virus_IncubationPeriod", [6,6,8,5,2,2]) # Between Age groups
 		self.Virus_ExpectedCureDays		= kwargs.get("Virus_ExpectedCureDays", 14) # Days to cure
 		self.Virus_FullCapRatio 		= kwargs.get("Virus_FullCapRatio", [5/3,5/3,5/3]) # When hopitals are overwhelmed by how much propertion deathrateincreases
 		self.Virus_PerDayDeathRate		= [EE/self.Virus_ExpectedCureDays for EE in self.Virus_Deathrates]
 
 		self.Virus_ProbSeverity 		= kwargs.get("Virus_ProbSeverity", [[0.70,0.26,0.04],
 																			[0.80,0.16,0.04],
-																			[0.80,0.16,0.04], 
+																			[0.80,0.16,0.04],
 																			[0.95,0.04,0.01],
 																			[0.60,0.30,0.10],
 																			[0.40,0.40,0.20],
-																			[0.10,0.40,0.50]])  # Mild, Medicore, Severe between Age Groups        
+																			[0.10,0.40,0.50]])  # Mild, Medicore, Severe between Age Groups
 
 		self.Comorbidty_matrix = {
 		'ComorbidX' 	: [0.00,0.00,0.00,0.00,0.00,0.00] 	# Percentage of Population getting deasese X
@@ -64,12 +64,12 @@ class Spatial_Parameters:
 														   'CS', 'CY', 'EC', 'EE', 'EX', 'GG',
 														   'HS', 'IE', 'IM', 'MA', 'ME', 'MF',
 														   'MI', 'MT', 'NA', 'PH', 'QE', 'QM']
-		
+
 		self.sectors 									= ['Academic', 'Residence', 'Restaurant',
 															'Healthcare', 'Market', 'Gymkhana',
 															'Grounds', 'Non_Academic']
 
-		
+
 
 		self.Number_Workers                             = []
 		self.Floor                                      = []
@@ -99,13 +99,13 @@ class Spatial_Parameters:
 
 	def __assign_remaining__(self):
 		for i in range(len(self.building_name)):
-			self.Number_Workers.append(np.random.randint(5,50))
+			self.Number_Workers.append(np.random.randint(5,20))
 			self.Floor.append([])
-			
+
 			for j in range(1, self.heights[i]+1):
 				for k in range(self.num_rooms_per_floor[i]):
 					self.Floor[i].append(j)
-				
+
 			self.Daily_People_Expectation.append(np.random.randint(0, 50, self.num_rooms_per_floor[i]*self.heights[i]))
 
 	def __assign_num_rooms_heights__(self):
@@ -115,9 +115,9 @@ class Spatial_Parameters:
 		'''
 
 		lib_area                          = self.polygons[2].area #area of library
-		lib_num_rooms_per_floor           = 20
+		lib_num_rooms_per_floor           = 60
 		lbs_area                          = self.polygons[32].area #area of LBS Hall
-		lbs_num_rooms_per_floor           = 130
+		lbs_num_rooms_per_floor           = 650
 
 		for i in range(len(self.building_name)):
 			try:
@@ -148,13 +148,13 @@ class Spatial_Parameters:
 
 class Parameters(Virus_Parameters, Spatial_Parameters):
 	"""
-	All Parameters 
+	All Parameters
 	"""
 	def __init__(self, **kwargs):
 
 		ShpFile = kwargs.get("ShpFile", "")
 		OtherFile = kwargs.get("OtherFile", "")
-	
+
 		Virus_Parameters.__init__(self, **kwargs)
 		Spatial_Parameters.__init__(self, ShpFile, OtherFile)
 

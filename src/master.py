@@ -5,12 +5,12 @@ class Master(Campus):
 	"""
 	Handles all the initialization and eventually parallelization (if required)
 	"""
-	
+
 	def __init__(self, pm):
 		self.pm = pm
 
 		super().__init__()
-	
+
 	def initiate(self):
 		self.initialize_campus()
 		
