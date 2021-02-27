@@ -12,7 +12,6 @@ class Campus(Simulate, Virus_Model):
 	def __init__(self):
 		super().__init__()
 
-
 		# Timetable Params
 		self.Departments 				= self.pm.Departments
 		self.Deptwise_Timetable 		= None # dept, year wise timetable
@@ -45,6 +44,7 @@ class Campus(Simulate, Virus_Model):
 		Calibrates the virus constant using calibration.py
 		"""
 		#self.VirusC = calibrate(self.pm)
+		pass
 
 	def initialize_campus(self):
 		self.__initialize_sectors__()
@@ -170,10 +170,6 @@ class Campus(Simulate, Virus_Model):
 				number = room_name[2:]
 				#print(code+number)
 		return self.Rooms[code+number]
-
-	#def start_movement(self):
-	#	self.population = self.Students + self.Profs
-	#	get_movement_time_series(self.population, 1)
 
 	def __get_person_obj__(self, idx):
 		return self.all_people[idx-1]

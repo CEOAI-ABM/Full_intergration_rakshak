@@ -2,7 +2,6 @@ import os
 import json
 import time
 import random
-import mysql.connector
 import datetime
 
 def total_students(course, grades, grades_18A, grades_18S, na_list):
@@ -213,117 +212,6 @@ def form_schedule(file_path=None,save=False):
                 schedule[dept] = temp_dict
             
     return schedule
-
-
-def get_movement_time_series(persons, date): # updates each person.today_schedule to a dictionary containing the timestamps of a given date and locations
-    time_in_sec = time.mktime(date)
-    for person in persons:
-        timestamp = time_in_sec
-        newschedule = {}
-        day = {0:'monday',1:'tuesday',2:'wednesday',3:'thursday',4:'friday',5:'saturday',6:'sunday'}
-        for j in range(24):
-            try:
-                tp = person.timetable['monday'][0]
-                j1 = j
-            except:
-                j1 = str(j)
-            temp = timestamp + j*60*60
-            if person.Status == 'Free' :
-                newschedule[time.localtime(temp)] = person.timetable[time.strftime("%A",time.localtime(temp)).casefold()][j1]
-            elif person.Status == 'Quarentined' or person.Status == 'Isolation' :
-                newschedule[time.localtime(temp)] = person.residence_unit
-            else :
-                building_id = person.Campus.sectors['Healthcare'].building_ids[0]
-                unit_id = random.choice(list(person.Campus.sectors['Healthcare'].Units_list[building_id].keys()))
-                newschedule[time.localtime(temp)] = person.Campus.sectors['Healthcare'].Units_list[building_id][unit_id]
-        person.today_schedule = newschedule
-
-
-def create_db_publish_locations():
-    #pswd = input("Enter the password for your database server: ")
-    mydb = mysql.connector.connect(host='localhost', user='root', passwd='vikram@mysql')
-    mycursor = mydb.cursor()
-    stmt = '''CREATE DATABASE IF NOT EXISTS Contact_Graph'''
-    mycursor.execute(stmt)
-    stmt = '''USE Contact_Graph'''
-    mycursor.execute(stmt)
-    stmt1 = '''DROP TABLE IF EXISTS `identity`'''
-    mycursor.execute(stmt1)
-    stmt1 = '''DROP TABLE IF EXISTS `activity`'''
-    mycursor.execute(stmt1)
-    stmt1 = '''DROP TABLE IF EXISTS `imputed`'''
-    mycursor.execute(stmt1)
-    stmt2 = '''
-    CREATE TABLE `identity` (
-            `node` int NOT NULL AUTO_INCREMENT,
-            `deviceid` varchar(45) NOT NULL,
-            `student` varchar(45) DEFAULT NULL,
-            `rollno` varchar(45) NOT NULL,
-            PRIMARY KEY (`node`),
-            UNIQUE KEY `deviceid_UNIQUE` (`deviceid`),
-            UNIQUE KEY `Roll Number_UNIQUE` (`rollno`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-    '''
-    mycursor.execute(stmt2)
-
-    stmt2 = '''
-    CREATE TABLE `activity` (
-        `slno` int NOT NULL AUTO_INCREMENT,
-        `time` datetime NOT NULL,
-        `node` int DEFAULT NULL,
-        `latitude` decimal(8,6) NOT NULL,
-        `longitude` decimal(9,6) NOT NULL,
-        PRIMARY KEY (`slno`),
-        UNIQUE KEY `slno_UNIQUE` (`slno`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-    '''
-    mycursor.execute(stmt2)
-
-    stmt2 = '''
-    CREATE TABLE `imputed` (
-        `sl_no` int NOT NULL AUTO_INCREMENT,
-        `time` datetime NOT NULL,
-        `node` int DEFAULT NULL,
-        `latitude` decimal(8,6) NOT NULL,
-        `longitude` decimal(9,6) NOT NULL,
-        PRIMARY KEY (`sl_no`),
-        UNIQUE KEY `sl_no_UNIQUE` (`sl_no`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-    '''
-    mycursor.execute(stmt2)
-
-    return mydb
-
-def publish_identity(persons, mydb, insert=False):
-    mycursor = mydb.cursor()
-    if insert:
-        stmt = '''INSERT INTO `identity` VALUES (%s, %s, %s, %s)'''
-        data_ins = list()
-        for person in persons:
-            data_ins.append((person.ID, str(person.ID), str(person.ID), str(person.ID)))
-        mycursor.executemany(stmt, data_ins)
-        mydb.commit()
-    else:
-        pass
-
-
-def publish_activity(persons, timestmp, mydb):
-    mycursor = mydb.cursor()
-    stmt = '''INSERT INTO `activity` (`time`,`node`,`latitude`,`longitude`) VALUES (%s, %s, %s, %s)'''
-    data_ins = list()
-    #tmstmp = time.strftime("%Y-%m-%d %H:%M:%S",timestmp)
-    i = 0
-    for person in persons:
-        i+=1
-        unit  = person.today_schedule[timestmp]
-        loc = unit.location
-        x, y = loc.x, loc.y
-        data_ins.append((datetime.datetime.fromtimestamp(time.mktime(timestmp)), person.ID, y, x))
-
-    mycursor.executemany(stmt, data_ins)
-    mydb.commit()
-
-
 
 def main():
     # Can be set to wherever the json files are present

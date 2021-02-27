@@ -1,7 +1,6 @@
 from .Campus_Model import Campus
 from .virusmodel import TruthClassStatus
 
-
 class Master(Campus):
 	"""
 	Handles all the initialization and eventually parallelization (if required)
@@ -14,15 +13,9 @@ class Master(Campus):
 	
 	def initiate(self):
 		self.initialize_campus()
-
-
-		self.__infect_person__(self.Students[0])
-		self.__infect_person__(self.Students[1000])
-
-		self.start_sim()
-
-	def start_sim(self):
-		self.simulation(no_of_days=5)
+		
+		self.SIM_DAYS = 10
+		self.simulation()
 
 def StartSimulation(pm):
 	m = Master(pm)

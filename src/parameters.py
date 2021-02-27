@@ -50,7 +50,7 @@ class Virus_Parameters:
 		'ComorbidX' 	: [0.00,0.00,0.00,0.00,0.00,0.00] 	# Percentage of Population getting deasese X
 		}
 
-		self.Comorbidty_weights = {
+		self.Comorbidty_weights = {self.pm.duration
 		'ComorbidX' 	: [0.1,0.7,0.2] 					# Probablity of increase in Severtiy if you have Disease X
 		}
 
@@ -160,17 +160,6 @@ class Parameters(Virus_Parameters, Spatial_Parameters):
 
 class Contact_Graph_Parameters:
 	def __init__(self, db_conn=None):
-		self.database_conn	= db_conn
-		if self.database_conn == None:
-			self.hostname		= "localhost"
-			self.username		= "root"
-			#self.password		= "Cats#Peel!^Lemons!@31612"
-			self.password		= "vikram@mysql"
-			self.dbname			= "Contact_Graph"
-			mydb = mysql.connector.connect(host=self.hostname, user=self.username, passwd=self.password)
-			db_cur = mydb.cursor()
-			db_cur.execute('''CREATE DATABASE IF NOT EXISTS Contact_Graph''')
-			self.database_conn = mysql.connector.connect(host=self.hostname, user=self.username, passwd=self.password, database=self.dbname)
 		self.duration 		= 14 # in days
 		self.infectdist		= 0.005 # in metres (infection radius, default value keep around 10)
 		self.tstep 			= 3600 # the current timestep for activity data in seconds

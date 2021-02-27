@@ -4,7 +4,7 @@ import datetime
 import time
 from tabulate import tabulate
 
-from .contact_graph import getContacts
+from .contact_graph import get_contacts_from_server
 
 class TruthClassStatus:
 	"""
@@ -97,9 +97,10 @@ class Virus_Model(TruthClassStatus):
 		Function to get the contacts of a person on a particular day
 		Query MySQL database -> get contacts and their edge weights
 		"""
-		contacts, edge_weights = getContacts(str(person.ID), datetime.datetime.fromtimestamp(time.mktime(self.curr_timestamp)))
+		time = datetime.datetime.fromtimestamp(time.mktime(self.curr_timestamp))
+		contacts, edge_weights = get_contacts_from_server(person, time, self.pm.duration, self.db_conn)
 
-		return  contacts, edge_weights
+		return contacts, edge_weights
 
 	def has_symptoms(self, person, cure:int):
 		"""Subroutine to change the state of person to symptomatic
@@ -166,6 +167,7 @@ class Virus_Model(TruthClassStatus):
 			print('Person id = {}'.format(person.ID))
 			contacts_idx, edge_weights = self.__get_contacts__(person)
 			print(contacts_idx)
+			
 			# TODO: For each contact get P(transmission) from calibration.py as a function of interperson distance and time of contact
 			P_TR = 0.01 # TODO: Dummy value for now
 
