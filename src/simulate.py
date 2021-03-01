@@ -62,8 +62,8 @@ class Simulate():
         # TODO (later): Travel to and from campus goes here
         # TODO (later): CR and IFP Phases
         # TODO (later): Daily Transactions (TechM + Outside campus travel)
-
-        if len(self.SIsolatedP)+len(self.SHospitalizedP)+len(self.SIcuP)>=100:
+        self.healthy, self.asymptomatic, self.symptomatic, self.recovered, self.died = len(self.all_people), 0, 0, 0, 0
+        if self.symptomatic>=100:
             self.Lockdown=7
         else:
             self.Lockdown = max(0,self.Lockdown-1)
@@ -72,6 +72,18 @@ class Simulate():
         self.__update_movement_time_series__(self.all_people, self.curr_timestamp)
         end  = time.time()
         self.__update_today_movements__()
+        '''
+        viz = []
+        if self.TODAY:
+            timestamps = list(self.all_people[0].today_schedule.keys())
+            for timestamp in timestamps:
+                temp = []
+                for s in self.all_people:
+                    temp.append([s.ID, s.today_schedule[timestamp].location.x, s.today_schedule[timestamp].location.y, s.State, s.Role])
+                viz.append(temp)
+        with open('day'+str(self.TODAY)+'viz.txt','w') as fh:
+            fh.write('viz = '+str(viz))
+        '''
 
         self.curr_timestamp = time.localtime(time.mktime(self.start_time)+(self.TODAY)*24*60*60)
         # Spreading of virus
@@ -88,13 +100,23 @@ class Simulate():
         # TODO: save case stats etc. to file instead of printing 
         print('----------')
         #print("Persons whose State is not Healthy")
-        print("No of people who are not Healthy: ", end='')
-        i = 0
+
         for s in self.all_people:
-            if s.State != "Healthy":
-                #print("personid:", s.ID, "personState:", s.State, "personStatus", s.Status)
-                i+=1
-        print(i)
+            if s.State == "Healthy":
+                self.healthy+=1
+            elif s.State == 'Asymptomatic':
+                self.asymptomatic+=1
+            elif s.State == 'Symptomatic':
+                self.symptomatic+=1
+            elif s.State == 'Recovered':
+                self.recovered+=1
+            else:
+                self.died+=1
+        print("Persons whose State is Healthy: ",self.healthy)
+        print("Persons whose State is Asymptomatic: ",self.asymptomatic)
+        print("Persons whose State is Symptomatic: ",self.symptomatic)
+        print("Persons whose State is Recovered: ",self.recovered)
+        print("Persons whose State is Died: ",self.died)
         print('----------')
         print()
 

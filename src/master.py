@@ -14,7 +14,7 @@ class Master(Campus):
 	def initiate(self):
 		self.initialize_campus()
 		
-		self.SIM_DAYS = 10
+		self.SIM_DAYS = 100
 		self.simulation()
 
 def StartSimulation(pm):
