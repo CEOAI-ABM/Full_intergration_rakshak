@@ -3,6 +3,7 @@ import numpy as np
 import datetime
 import time
 from tabulate import tabulate
+import mysql.connector
 
 from .contact_graph import get_contacts_from_server
 
@@ -92,13 +93,14 @@ class Virus_Model(TruthClassStatus):
 		else:
 			return 0
 
-	def __get_contacts__(self, person):
+	def __get_contacts__(self, person, begin_time):
 		"""
 		Function to get the contacts of a person on a particular day
 		Query MySQL database -> get contacts and their edge weights
 		"""
 		time_datetime = datetime.datetime.fromtimestamp(time.mktime(self.curr_timestamp))
-		contacts, edge_weights = get_contacts_from_server(person.ID, time_datetime, self.db_conn)
+
+		contacts, edge_weights = get_contacts_from_server(person.ID, time_datetime, self.db_conn, begin_time=begin_time)
 
 		return contacts, edge_weights
 
@@ -162,24 +164,35 @@ class Virus_Model(TruthClassStatus):
 
 	def __daily_transmissions__(self):
 		temp_AFreeP = self.AFreeP.copy()
-		print("")
+		#print("")
+		start = time.time()
+		query = ("SELECT MIN(time) FROM activity")
+		db_cursor = self.db_conn.cursor()
+		db_cursor.execute(query)
+		row = db_cursor.fetchone()
+		begin_time=row[0]
+		end = time.time()
+		#print ("Time elapsed to get min time:", end - start)
 		for person in temp_AFreeP:
-			print('Person id = {}'.format(person.ID))
-			contacts_idx, edge_weights = self.__get_contacts__(person)
-			print(contacts_idx)
+			#print('Person id = {}'.format(person.ID))
+			contacts_idx, edge_weights = self.__get_contacts__(person, begin_time=begin_time)
+			#print(contacts_idx)
 			
 			# TODO: For each contact get P(transmission) from calibration.py as a function of interperson distance and time of contact
-			P_TR = 0.01 # TODO: Dummy value for now
+			P_TR = 0.022 # TODO: Dummy value for now
 			start = time.time()
 
 			for idx in contacts_idx:
 				contact = self.__get_person_obj__(idx=idx)
 				infect_bool = random.choices([True, False], weights=[P_TR, 1-P_TR])[0]
 				if (infect_bool):
-					print("Infecting person {}".format(contact.ID))
+					#print("Infecting person {}".format(contact.ID))
 					self.__infect_person__(contact)
 			end = time.time()
-			print ("Time elapsed to infect:", end - start)
+			#print("Time elapsed to infect:", end - start)
+		time_datetime = datetime.datetime.fromtimestamp(time.mktime(self.curr_timestamp))
+		if time_datetime-begin_time == datetime.timedelta(days=1):
+			db_cursor.execute("DELETE FROM activity WHERE time BETWEEN '{}' AND '{}'".format(begin_time,begin_time+datetime.timedelta(days=1)))
 
 	def daily_transmissions(self):
 		self.__daily_hospitals_check__()

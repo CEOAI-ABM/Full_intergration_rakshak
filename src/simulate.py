@@ -9,6 +9,7 @@ class Simulate():
     def __init__(self):
         self.SIMULATE   = True
         self.TODAY      = 1
+        self.Lockdown   = 0
 
         super().__init__()
 
@@ -62,11 +63,21 @@ class Simulate():
         # TODO (later): CR and IFP Phases
         # TODO (later): Daily Transactions (TechM + Outside campus travel)
 
+        if len(self.SIsolatedP)+len(self.SHospitalizedP)+len(self.SIcuP)>=100:
+            self.Lockdown=7
+        else:
+            self.Lockdown = max(0,self.Lockdown-1)
+
+        start = time.time()
         self.__update_movement_time_series__(self.all_people, self.curr_timestamp)
-        self.__update_today_movements__() 
+        end  = time.time()
+        self.__update_today_movements__()
+
         self.curr_timestamp = time.localtime(time.mktime(self.start_time)+(self.TODAY)*24*60*60)
         # Spreading of virus
         self.daily_transmissions()
+
+
 
         # TODO: Save case stats after today's spreading
         self.__save_results__()
@@ -76,10 +87,14 @@ class Simulate():
     def __save_results__(self):
         # TODO: save case stats etc. to file instead of printing 
         print('----------')
-        print("Persons whose State is not Healthy")
+        #print("Persons whose State is not Healthy")
+        print("No of people who are not Healthy: ", end='')
+        i = 0
         for s in self.all_people:
             if s.State != "Healthy":
-                print("personid:", s.ID, "personState:", s.State, "personStatus", s.Status)
+                #print("personid:", s.ID, "personState:", s.State, "personStatus", s.Status)
+                i+=1
+        print(i)
         print('----------')
         print()
 
@@ -91,7 +106,7 @@ class Simulate():
         for tmstamp in tmstamps:
             publish_activity(self.all_people, tmstamp, self.db_conn)
 
-    def __update_movement_time_series__(self, persons, date): 
+    def __update_movement_time_series__(self, persons, date):
         """
         Updates each person.today_schedule to a dictionary containing the timestamps of a given date and locations
         """
@@ -110,6 +125,8 @@ class Simulate():
                 temp = timestamp + j*60*60
                 if person.Status == 'Free' :
                     newschedule[time.localtime(temp)] = person.timetable[time.strftime("%A",time.localtime(temp)).casefold()][j1]
+                    if self.Lockdown>0:
+                        newschedule[time.localtime(temp)] = person.residence_unit
                 elif person.Status == 'Quarentined' or person.Status == 'Isolation' :
                     newschedule[time.localtime(temp)] = person.residence_unit
                 else :

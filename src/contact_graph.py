@@ -8,7 +8,7 @@ from pyvis.network import Network
 
 # from .graph_utils import decayfunc, proximityfunc, graphformation
 
-def get_contacts_from_server(personid, time_datetime, db_conn, duration=1):  # have to remove this hardcoding
+def get_contacts_from_server(personid, time_datetime, db_conn, begin_time, duration=1):  # have to remove this hardcoding
 	""" 
 	Function print the nodes which came in contact with infected node in past few days. 
   
@@ -26,7 +26,7 @@ def get_contacts_from_server(personid, time_datetime, db_conn, duration=1):  # h
 	db_cursor = db_conn.cursor()
 	 
 	# TODO
-
+	'''
 	start = time.time()
 	query = ("SELECT MIN(time) FROM activity")
 	db_cursor.execute(query)
@@ -34,13 +34,13 @@ def get_contacts_from_server(personid, time_datetime, db_conn, duration=1):  # h
 	begin_time=row[0]
 	end = time.time()
 	print ("Time elapsed to get min time:", end - start)
-
+	'''
 	start = time.time()
 	db_cursor.execute("SELECT unit_id,time FROM activity WHERE time BETWEEN '{}' AND '{}' AND node = {}".format(max(begin_time,time_datetime-datetime.timedelta(days=duration)),time_datetime, personid))
-	units_times = db_cursor.fetchall()
+	units_times = db_cursor.fetchall()  #[(unit_id,time)]
 	end = time.time()
-	print ("Time elapsed to get inf_node's units:", end - start)
-
+	#print ("Time elapsed to get inf_node's units:", end - start)
+	'''
 	start = time.time()
 	temp_contacts = list()
 	for unit,tmstmp in units_times:
@@ -49,6 +49,12 @@ def get_contacts_from_server(personid, time_datetime, db_conn, duration=1):  # h
 		temp_contacts.extend([i[0] for i in temp_nodes])
 	end = time.time()
 	print("Time elapsed to get execute retriving inf_node's contacts for 24 timestamps:", end - start)
+	'''
+	start = time.time()
+	db_cursor.execute("SELECT node FROM activity WHERE node!={} AND (unit_id,time) IN (SELECT unit_id,time FROM activity WHERE time BETWEEN '{}' AND '{}' AND node = {})".format(personid,max(begin_time,time_datetime-datetime.timedelta(days=duration)),time_datetime,personid))
+	temp_contacts = [i[0] for i in db_cursor.fetchall()]
+	end = time.time()
+	#print("Time elapsed to get execute retriving inf_node's contacts for 24 timestamps at once:", end - start)
 	contacts = dict()
 	for i in temp_contacts:
 		contacts[i] = contacts.get(i,0)+1
@@ -59,9 +65,12 @@ def get_contacts_from_server(personid, time_datetime, db_conn, duration=1):  # h
 	# node list should be unique
 	# edges = duration of contact 
 
+
+	#print("getting contacts done")
+
+
+
 	db_cursor.close()
-	print("getting contacts done")
-	
 	return node_list, edges_list
 
 
