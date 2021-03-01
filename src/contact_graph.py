@@ -1,13 +1,14 @@
 import os
 import json
 import datetime
+import time
 import pandas as pd
 import mysql.connector
 from pyvis.network import Network
 
 # from .graph_utils import decayfunc, proximityfunc, graphformation
 
-def get_contacts_from_server(person, time, duration, db_conn):
+def get_contacts_from_server(personid, time_datetime, db_conn, duration=1):  # have to remove this hardcoding
 	""" 
 	Function print the nodes which came in contact with infected node in past few days. 
   
@@ -21,26 +22,45 @@ def get_contacts_from_server(person, time, duration, db_conn):
 	None: List of nodes(contacts) and the correspondings edge weights
 	"""
 
-	# consider sending only cursor
+
 	db_cursor = db_conn.cursor()
 	 
 	# TODO
-	"""
-	for day in range(duration):
-		for hour in range(24):
-			# get person's unit 
-			db_cursor.execute("SELECT unit_id FROM activity WHERE node = %s WHERE time []") # temp
-			unit = db_cursor.fetchone()[0]
-			
-			# get all people in that unit
-			db_cursor.execute("SELECT node FROM activity WHERE unit_id = %s") # temp
-			contacts += db_cursor.fetchall()
-	"""
 
+	start = time.time()
+	query = ("SELECT MIN(time) FROM activity")
+	db_cursor.execute(query)
+	row = db_cursor.fetchone()
+	begin_time=row[0]
+	end = time.time()
+	print ("Time elapsed to get min time:", end - start)
+
+	start = time.time()
+	db_cursor.execute("SELECT unit_id,time FROM activity WHERE time BETWEEN '{}' AND '{}' AND node = {}".format(max(begin_time,time_datetime-datetime.timedelta(days=duration)),time_datetime, personid))
+	units_times = db_cursor.fetchall()
+	end = time.time()
+	print ("Time elapsed to get inf_node's units:", end - start)
+
+	start = time.time()
+	temp_contacts = list()
+	for unit,tmstmp in units_times:
+		db_cursor.execute("SELECT node FROM activity WHERE unit_id = {} AND time = '{}'".format(unit,tmstmp))
+		temp_nodes = db_cursor.fetchall()
+		temp_contacts.extend([i[0] for i in temp_nodes])
+	end = time.time()
+	print("Time elapsed to get execute retriving inf_node's contacts for 24 timestamps:", end - start)
+	contacts = dict()
+	for i in temp_contacts:
+		contacts[i] = contacts.get(i,0)+1
+	node_list = list(contacts.keys())
+	edges_list = []
+	for i in node_list:
+		edges_list.append(contacts[i])
 	# node list should be unique
 	# edges = duration of contact 
 
-	# close cursor?
+	db_cursor.close()
+	print("getting contacts done")
 	
 	return node_list, edges_list
 

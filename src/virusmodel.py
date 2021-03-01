@@ -97,8 +97,8 @@ class Virus_Model(TruthClassStatus):
 		Function to get the contacts of a person on a particular day
 		Query MySQL database -> get contacts and their edge weights
 		"""
-		time = datetime.datetime.fromtimestamp(time.mktime(self.curr_timestamp))
-		contacts, edge_weights = get_contacts_from_server(person, time, self.pm.duration, self.db_conn)
+		time_datetime = datetime.datetime.fromtimestamp(time.mktime(self.curr_timestamp))
+		contacts, edge_weights = get_contacts_from_server(person.ID, time_datetime, self.db_conn)
 
 		return contacts, edge_weights
 
@@ -170,6 +170,7 @@ class Virus_Model(TruthClassStatus):
 			
 			# TODO: For each contact get P(transmission) from calibration.py as a function of interperson distance and time of contact
 			P_TR = 0.01 # TODO: Dummy value for now
+			start = time.time()
 
 			for idx in contacts_idx:
 				contact = self.__get_person_obj__(idx=idx)
@@ -177,6 +178,8 @@ class Virus_Model(TruthClassStatus):
 				if (infect_bool):
 					print("Infecting person {}".format(contact.ID))
 					self.__infect_person__(contact)
+			end = time.time()
+			print ("Time elapsed to infect:", end - start)
 
 	def daily_transmissions(self):
 		self.__daily_hospitals_check__()

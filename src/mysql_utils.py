@@ -1,13 +1,18 @@
 import datetime
+import time
 import mysql.connector
 
-from .mysql_credentials import username, password
+from .mysql_credentials import username, password, database
 
 def create_db_publish_locations():
     mydb = mysql.connector.connect(host='localhost', user=username, passwd=password)
     mycursor = mydb.cursor()
 
     mycursor.execute("CREATE DATABASE IF NOT EXISTS Contact_Graph")
+    mycursor.close()
+    mydb.close()
+    mydb = mysql.connector.connect(host='localhost', user=username, passwd=password, database=database)
+    mycursor  = mydb.cursor()
     mycursor.execute("USE Contact_Graph")
     mycursor.execute("DROP TABLE IF EXISTS `identity`")
     mycursor.execute("DROP TABLE IF EXISTS `activity`")
@@ -34,12 +39,14 @@ def create_db_publish_locations():
         `node` int DEFAULT NULL,
         `latitude` decimal(8,6) NOT NULL,
         `longitude` decimal(9,6) NOT NULL,
-        `unit_id` int 
+        `unit_id` INT DEFAULT NULL,
+        `building_id` INT DEFAULT NULL,
         PRIMARY KEY (`slno`),
         UNIQUE KEY `slno_UNIQUE` (`slno`)
     ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
     """
     mycursor.execute(stmt_a)
+    mycursor.close()
 
     return mydb
 
@@ -54,18 +61,21 @@ def publish_identity(persons, mydb):
     
     mycursor.executemany(stmt, data_ins)
     mydb.commit()
+    mycursor.close()
 
 def publish_activity(persons, timestmp, mydb):
     mycursor = mydb.cursor()
-    stmt = "INSERT INTO `activity` (`time`, `node`, `latitude`, `longitude`, `unit_id`) VALUES (%s, %s, %s, %s, %s)"
+    stmt = "INSERT INTO `activity` (`time`, `node`, `latitude`, `longitude`, `unit_id`, `building_id`) VALUES (%s, %s, %s, %s, %s, %s)"
     
     data_ins = []
     for person in persons:
         unit        = person.today_schedule[timestmp]
         unit_id     = unit.Id
+        building_id = unit.Building
         x, y        = unit.location.x, unit.location.y
         
-        data_ins.append((datetime.datetime.fromtimestamp(time.mktime(timestmp)), person.ID, y, x, unit_id))
+        data_ins.append((datetime.datetime.fromtimestamp(time.mktime(timestmp)), person.ID, y, x, unit_id, building_id))
 
     mycursor.executemany(stmt, data_ins)
     mydb.commit()
+    mycursor.close()

@@ -16,7 +16,7 @@ class Simulate():
         """
         Infect people initially as required
         """
-        persons_to_infect = random.choices(self.all_people, k=num)
+        persons_to_infect = random.sample(self.all_people, num)
         
         for person in persons_to_infect:
             print('Infected person {} who is a {} initially'.format(person.ID, person.Role))
@@ -39,17 +39,16 @@ class Simulate():
         # Establish database connection
         self.db_conn = create_db_publish_locations()
         #publish_identity(self.all_people, self.db_conn)
-
+        self.curr_timestamp = time.localtime(time.mktime(self.start_time)+(self.TODAY-1)*24*60*60)
         # Simulation loop
         while (self.SIMULATE):
             print("Simulating Day {}".format(self.TODAY))
-            self.curr_timestamp = time.localtime(time.mktime(self.start_time)+(self.TODAY-1)*24*60*60)
             
             self.__simulate_day__()
 
-            if self.TODAY%self.pm.duration == 0:
+            #if self.TODAY%self.pm.duration == 0:
                 #TODO: clear activity table
-                pass
+            #    pass
 
             if self.TODAY > self.SIM_DAYS:
                 self.SIMULATE = False
@@ -65,7 +64,7 @@ class Simulate():
 
         self.__update_movement_time_series__(self.all_people, self.curr_timestamp)
         self.__update_today_movements__() 
-
+        self.curr_timestamp = time.localtime(time.mktime(self.start_time)+(self.TODAY)*24*60*60)
         # Spreading of virus
         self.daily_transmissions()
 

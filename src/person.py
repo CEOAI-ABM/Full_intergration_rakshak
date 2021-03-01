@@ -72,6 +72,7 @@ class person(AgentStateA):
 class student(person):
 	def __init__(self,  Campus=None, ID=0, dept=None, inCampus=True, age=-1, ageclass=-1, role="student", year=None, schedule=None, master=None,residence=None):
 		super().__init__(ID=ID, role=role, age=age, dept=dept, residence=residence)
+		self.personID = dept+str(ID)
 		self.Campus = Campus
 		self.schedule = schedule
 		self.year = year
@@ -117,7 +118,8 @@ class student(person):
 
 class professor(person):
 	def __init__(self, prob_to_go_out=0.05, lab=None, office=None, Campus=None, HouseNo=None, ID=0, dept=None, inCampus=True, age=-1, ageclass=-1, role="faculty", year=None, schedule=None, master=None):
-		super().__init__(ID=ID, role=role, age=age, dept=dept)
+		super().__init__(ID=ID, role=role, age=age, ageclass=ageclass,dept=dept)
+		self.personID = dept+str(ID)
 		self.Campus = Campus
 		self.residence = "Faculty Quarters"
 		self.residence_building_id = [i for i in range(len(self.Campus.description)) if self.Campus.description[i]=='Faculty Residence'][0]
@@ -196,7 +198,8 @@ class professor(person):
 
 class staff(person):
 	def __init__(self,prob_to_go_out=0.1,HouseNo=None, workplace_buildingid = None,  Campus=None, ID=0,  inCampus=True, age=-1, ageclass=-1, role="staff", master=None):
-		super().__init__(ID=ID, role=role, age=age)
+		super().__init__(ID=ID, role=role, age=age, ageclass=ageclass)
+		self.personID = 'St'+str(ID)
 		self.Campus = Campus
 		self.residence = "Staff Residence"
 		self.residence_building_id = [i for i in range(len(self.Campus.description)) if self.Campus.description[i]=='Staff Residence'][0]

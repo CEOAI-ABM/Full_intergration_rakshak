@@ -5,7 +5,7 @@ from .simulate import Simulate
 from .calibration import calibrate
 from .virusmodel import Virus_Model
 from .person import student, professor, staff
-from .utils import form_schedule, get_movement_time_series
+from .utils import form_schedule
 from .Campus_Units import Unit, Academic, Residence, Restaurant, Healthcare, Market, Gymkhana, Grounds, Non_Academic, Guest_House
 
 class Campus(Simulate, Virus_Model):
@@ -78,7 +78,7 @@ class Campus(Simulate, Virus_Model):
 					#print(self.RoomCodes[-1])
 					for j in range(len(self.Floor[building])):
 						#print(len(self.Location[0][building]),j,self.FLoor[building])
-						self.sectors[sector].Units_list[building][k] = self.Units_Placeholder[building][k] = Unit(j,building,self.Daily_People_Expectation[building][j],self.Number_Workers[building],self.Floor[building][j],self.Location[0][building][j],self.Location[1][building][j],sector,self.sectors[sector].room_area[building])
+						self.sectors[sector].Units_list[building][k] = self.Units_Placeholder[building][k] = Unit(k,building,self.Daily_People_Expectation[building][j],self.Number_Workers[building],self.Floor[building][j],self.Location[0][building][j],self.Location[1][building][j],sector,self.sectors[sector].room_area[building])
 						if len(temp_room_code) != 0:
 							some_temp_no = int(j/(len(self.Floor[building])//len(self.RoomCodes[-1])))
 							if some_temp_no >= len(self.RoomCodes[-1]): some_temp_no = len(self.RoomCodes[-1])-1
@@ -100,13 +100,13 @@ class Campus(Simulate, Virus_Model):
 		for dept in self.Departments:
 			dept_schedule = self.Deptwise_Timetable[dept]
 			for i in range(2, 5):
-				for j in range(1,random.randrange(40, 60)//10):
+				for j in range(1,random.randrange(40, 60)):
 					person_schedule = self.Deptwise_Timetable[dept][i]
 					age = str(18 + (i-1) + random.choice([0,1]))
 
 					hall = random.choices(residence_indices, weights)[0]
 					room = random.randint(0,len(self.Floor[hall])-1)
-					junta = student(Campus=self, role="student", ID=ctr, age=age, year=i, schedule=person_schedule, dept=dept, residence=[hall, room])
+					junta = student(Campus=self, role="student", ID=ctr, age=age, ageclass=2, year=i, schedule=person_schedule, dept=dept, residence=[hall, room])
 					ctr += 1
 
 					self.Students.append(junta)
@@ -134,7 +134,7 @@ class Campus(Simulate, Virus_Model):
 						if someno < 0:
 							office = lab
 
-					prof = professor(Campus=self, HouseNo=houseno, ID=start_id+houseno, dept=dept, schedule=subj, lab=lab, office=office)
+					prof = professor(Campus=self, ageclass=3, HouseNo=houseno, ID=start_id+houseno, dept=dept, schedule=subj, lab=lab, office=office)
 					self.Profs.append(prof)
 
 					houseno+=1
@@ -146,7 +146,7 @@ class Campus(Simulate, Virus_Model):
 		for i in range(len(self.description)):
 			for num_workers in range(self.Number_Workers[i]):
 				workplace = i
-				staff_person = staff(Campus=self, HouseNo=houseno, ID=start_id+houseno, workplace_buildingid = workplace)
+				staff_person = staff(Campus=self, ageclass=3,HouseNo=houseno, ID=start_id+houseno, workplace_buildingid = workplace)
 				houseno = houseno + 1
 				self.Staff.append(staff_person)
 			k = k+num_workers

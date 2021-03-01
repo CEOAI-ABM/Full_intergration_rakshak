@@ -50,7 +50,7 @@ class Virus_Parameters:
 		'ComorbidX' 	: [0.00,0.00,0.00,0.00,0.00,0.00] 	# Percentage of Population getting deasese X
 		}
 
-		self.Comorbidty_weights = {self.pm.duration
+		self.Comorbidty_weights = {#self.pm.duration
 		'ComorbidX' 	: [0.1,0.7,0.2] 					# Probablity of increase in Severtiy if you have Disease X
 		}
 
@@ -86,6 +86,8 @@ class Spatial_Parameters:
 		self.heights                                    = list()
 		self.xlist = []
 		self.ylist = []
+
+		self.Population_groups 	=  [5,18,25,60,80,150]                   #Max ages of different groups
 
 		self.__assign_num_rooms_heights__()
 
