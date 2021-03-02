@@ -10,6 +10,7 @@ class Simulate():
         self.SIMULATE   = True
         self.TODAY      = 1
         self.Lockdown   = 0
+        self.healthy, self.asymptomatic, self.symptomatic, self.recovered, self.died = 0, 0, 0, 0, 0
 
         super().__init__()
 
@@ -62,15 +63,15 @@ class Simulate():
         # TODO (later): Travel to and from campus goes here
         # TODO (later): CR and IFP Phases
         # TODO (later): Daily Transactions (TechM + Outside campus travel)
-        self.healthy, self.asymptomatic, self.symptomatic, self.recovered, self.died = len(self.all_people), 0, 0, 0, 0
         if self.symptomatic>=100:
             self.Lockdown=7
         else:
             self.Lockdown = max(0,self.Lockdown-1)
+        self.healthy, self.asymptomatic, self.symptomatic, self.recovered, self.died = 0, 0, 0, 0, 0
 
-        start = time.time()
+        #start = time.time()
         self.__update_movement_time_series__(self.all_people, self.curr_timestamp)
-        end  = time.time()
+        #end  = time.time()
         self.__update_today_movements__()
         '''
         viz = []
@@ -84,7 +85,6 @@ class Simulate():
         with open('day'+str(self.TODAY)+'viz.txt','w') as fh:
             fh.write('viz = '+str(viz))
         '''
-
         self.curr_timestamp = time.localtime(time.mktime(self.start_time)+(self.TODAY)*24*60*60)
         # Spreading of virus
         self.daily_transmissions()

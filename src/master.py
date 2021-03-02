@@ -1,5 +1,6 @@
 from .Campus_Model import Campus
 from .virusmodel import TruthClassStatus
+import time
 
 class Master(Campus):
 	"""
@@ -13,9 +14,9 @@ class Master(Campus):
 
 	def initiate(self):
 		self.initialize_campus()
-		
-		self.SIM_DAYS = 100
-		self.simulation()
+
+		self.SIM_DAYS = 50
+		self.simulation(start_time=time.struct_time((2021,1,4,0,0,0,0,4,0)))
 
 def StartSimulation(pm):
 	m = Master(pm)

@@ -35,25 +35,17 @@ def get_contacts_from_server(personid, time_datetime, db_conn, begin_time, durat
 	end = time.time()
 	print ("Time elapsed to get min time:", end - start)
 	'''
-	start = time.time()
+	#start = time.time()
 	db_cursor.execute("SELECT unit_id,time FROM activity WHERE time BETWEEN '{}' AND '{}' AND node = {}".format(max(begin_time,time_datetime-datetime.timedelta(days=duration)),time_datetime, personid))
 	units_times = db_cursor.fetchall()  #[(unit_id,time)]
-	end = time.time()
+	#end = time.time()
 	#print ("Time elapsed to get inf_node's units:", end - start)
-	'''
-	start = time.time()
-	temp_contacts = list()
-	for unit,tmstmp in units_times:
-		db_cursor.execute("SELECT node FROM activity WHERE unit_id = {} AND time = '{}'".format(unit,tmstmp))
-		temp_nodes = db_cursor.fetchall()
-		temp_contacts.extend([i[0] for i in temp_nodes])
-	end = time.time()
-	print("Time elapsed to get execute retriving inf_node's contacts for 24 timestamps:", end - start)
-	'''
-	start = time.time()
+
+
+	#start = time.time()
 	db_cursor.execute("SELECT node FROM activity WHERE node!={} AND (unit_id,time) IN (SELECT unit_id,time FROM activity WHERE time BETWEEN '{}' AND '{}' AND node = {})".format(personid,max(begin_time,time_datetime-datetime.timedelta(days=duration)),time_datetime,personid))
 	temp_contacts = [i[0] for i in db_cursor.fetchall()]
-	end = time.time()
+	#end = time.time()
 	#print("Time elapsed to get execute retriving inf_node's contacts for 24 timestamps at once:", end - start)
 	contacts = dict()
 	for i in temp_contacts:
