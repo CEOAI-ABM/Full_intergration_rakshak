@@ -82,7 +82,7 @@ class Simulate():
                 for s in self.all_people:
                     temp.append([s.ID, s.today_schedule[timestamp].location.x, s.today_schedule[timestamp].location.y, s.State, s.Role])
                 viz.append(temp)
-        with open('day'+str(self.TODAY)+'viz.txt','w') as fh:
+        with open('day'+str(self.TODAY)+'viz.py','w') as fh:
             fh.write('viz = '+str(viz))
         '''
         self.curr_timestamp = time.localtime(time.mktime(self.start_time)+(self.TODAY)*24*60*60)
