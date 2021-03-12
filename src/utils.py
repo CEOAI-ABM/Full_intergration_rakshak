@@ -3,6 +3,7 @@ import json
 import time
 import random
 import datetime
+import pandas as pd
 
 def total_students(course, grades, grades_18A, grades_18S, na_list):
     """Gives the count of total students present in the course
@@ -247,6 +248,29 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    #main()
 #    dbname, pwd = create_db_publish_locations()
 #    print(dbname,pwd)
+
+
+#####################   to create post class hour movements from survey data     ####################
+    import pandas as pd
+    #
+    # df = pd.read_csv("../data/survey_data/CAMPUS RAKSHAK (students).csv")
+    #
+    # df_req = df[df["Current Year of study"] != "1st"]
+    #
+    # print(df_req)
+    #
+    # df_req.to_csv("../data/survey_data/Student Choices.csv")
+
+
+
+
+
+
+
+
+
+    pass
+
