@@ -96,6 +96,7 @@ class Campus(Simulate, Virus_Model):
 		weights = [self.Number_Units_per_floor[i] for i in residence_indices]
 
 		# TODO: Remove all hard-coding
+		response_ctr = {}
 		ctr=1
 		for dept in self.Departments:
 			dept_schedule = self.Deptwise_Timetable[dept]
@@ -106,7 +107,11 @@ class Campus(Simulate, Virus_Model):
 
 					hall = random.choices(residence_indices, weights)[0]
 					room = random.randint(0,len(self.Floor[hall])-1)
-					junta = student(Campus=self, role="student", ID=ctr, age=age, ageclass=2, year=i, schedule=person_schedule, dept=dept, residence=[hall, room])
+					if hall not in response_ctr:
+						response_ctr[hall] = {}
+					response_ctr[hall][i] = response_ctr[hall].get(i, 0) + 1
+					junta = student(Campus=self, role="student", ID=ctr, age=age, ageclass=2, year=i, schedule=person_schedule, dept=dept, residence=[hall, room], personal_choice = response_ctr[hall][i])
+
 					ctr += 1
 
 					self.Students.append(junta)

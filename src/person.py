@@ -7,12 +7,22 @@ import numpy as np
 import geopandas as GP
 import matplotlib.pyplot as plt
 from shapely.geometry import Point
-import matplotlib.animation as animation
+import pandas as pd
+import json
+import csv
 
 from .parameters import slots
 from .statemachine import AgentStateA
 
-wifidata = json.load(open('data/Timetable/post5_probs.json'))
+# wifidata = json.load(open('data/Timetable/post5_probs.json'))
+with open('data/survey_data/student.json') as fh:
+	responses = json.load(fh)
+surveydata = pd.read_csv("data/survey_data/Student Choices.csv")
+with open("data/hall_wise_place_weights.json") as fh:
+	hall_wise_placeweights = json.load(fh)
+with open("data/year_wise_place_weights.json") as fh:
+	year_wise_placeweights = json.load(fh)
+
 
 class person(AgentStateA):
 	""" Class for describing students
@@ -70,7 +80,7 @@ class person(AgentStateA):
 		return deafaultDR
 
 class student(person):
-	def __init__(self,  Campus=None, ID=0, dept=None, inCampus=True, age=-1, ageclass=-1, role="student", year=None, schedule=None, master=None,residence=None):
+	def __init__(self,  Campus=None, ID=0, dept=None, inCampus=True, age=-1, ageclass=-1, role="student", year=None, schedule=None, master=None,residence=None, personal_choice=None):
 		super().__init__(ID=ID, role=role, age=age, dept=dept, residence=residence)
 		self.personID = dept+str(ID)
 		self.Campus = Campus
@@ -79,6 +89,7 @@ class student(person):
 		self.residence_building_id = self.residence[0]
 		self.residence_unit  = self.Campus.Units_Placeholder[self.residence[0]][self.residence[1]+self.Campus.Index_Holder[self.residence[0]]]
 		self.residence_point = self.residence_unit.location
+		self.personal_choice = personal_choice
 		self.get_timetable()
 
 	def get_timetable(self):
@@ -86,13 +97,13 @@ class student(person):
 			for i in range(24):
 				#self.timetable[day][str(i)+'-'+str(i+1)]=self.Campus.ParamObj.building_name[self.residence_unit.Building]
 				self.timetable[day][i]=self.residence_unit
-				if i >= 18 or i < 8:
-					weights = []
-					for key in wifidata:
-						weights.append(wifidata[key][day][str(i)+'-'+str(i+1)])
-					building_id = random.choices([i for i in range(self.Campus.Total_Num_Buildings)],weights)[0]
-					unit_id = random.choice(list(self.Campus.Units_Placeholder[building_id].keys()))
-					self.timetable[day][i] = self.Campus.Units_Placeholder[building_id][unit_id]
+				# if i >= 18 or i < 8:
+				# 	weights = []
+				# 	for key in wifidata:
+				# 		weights.append(wifidata[key][day][str(i)+'-'+str(i+1)])
+				# 	building_id = random.choices([i for i in range(self.Campus.Total_Num_Buildings)],weights)[0]
+				# 	unit_id = random.choice(list(self.Campus.Units_Placeholder[building_id].keys()))
+				# 	self.timetable[day][i] = self.Campus.Units_Placeholder[building_id][unit_id]
 
 		for subject in self.schedule:
 			class_room=self.schedule[subject]['room']
@@ -115,6 +126,48 @@ class student(person):
 				else:
 					self.timetable[times[0]][int(times[1].split('-')[0])]=self.Campus.__room2unit__(class_room)
 					self.Campus.__room2unit__(class_room).isclassroom = True
+
+		l = len(responses[self.residence_building_id][self.year])
+		response_no = responses[self.residence_building_id][self.year][self.personal_choice%l]
+		df_req = surveydata[surveydata["Unnamed: 0"] == response_no]
+		#self.clustering has to be done
+		no_of_weekdays = df_req.iloc[0,4]
+		no_of_hours_weekdays = df_req.iloc[0,5]
+		places_of_visit = []
+		with open('../data/survey_data/temp.csv', 'r',encoding="utf8") as file:
+			reader1 = csv.reader(file)
+			k=0
+			building_name_to_id = {}
+			for row in reader1:
+				building_name_to_id[row[0]] = int(row[1])
+				k+=1
+		for i in df_req.iloc[0,6].split(";"):
+			places_of_visit.append(building_name_to_id[i])
+		no_of_diff_places = df_req.iloc[0,7]
+		sleep_time = df_req.iloc[0,12]
+		if sleep_time == 'I usually stay in my room':
+			sleep_time = '21'
+		else:
+			sleep_time = int(sleep_time.split('-')[1][:-2])
+			if sleep_time < 4:
+				sleep_time += 24
+			else:
+				sleep_time+=12
+		days = random.sample(['monday','tuesday','wednesday','thursday','friday'],no_of_weekdays)
+		for day in days:
+			last_class_time = 17
+			while self.timetable[day][str(last_class_time)] == self.timetable[day]['18']:
+				last_class_time-=1
+			outside_hours = random.sample(range(last_class_time+1,sleep_time), no_of_hours_weekdays)
+			for hour in outside_hours:
+				if hour <= 23:
+					self.timetable[day][hour] =
+
+
+
+
+
+
 
 class professor(person):
 	def __init__(self, prob_to_go_out=0.05, lab=None, office=None, Campus=None, HouseNo=None, ID=0, dept=None, inCampus=True, age=-1, ageclass=-1, role="faculty", year=None, schedule=None, master=None):
