@@ -18,9 +18,9 @@ from .statemachine import AgentStateA
 with open('data/survey_data/student.json') as fh:
 	responses = json.load(fh)
 surveydata = pd.read_csv("data/survey_data/Student Choices.csv")
-with open("data/hall_wise_place_weights.json") as fh:
+with open("data/survey_data/hall_wise_place_weights.json") as fh:
 	hall_wise_placeweights = json.load(fh)
-with open("data/year_wise_place_weights.json") as fh:
+with open("data/survey_data/year_wise_place_weights.json") as fh:
 	year_wise_placeweights = json.load(fh)
 
 
@@ -93,6 +93,7 @@ class student(person):
 		self.get_timetable()
 
 	def get_timetable(self):
+		# print("entered get_timetable")
 		for day in self.timetable:
 			for i in range(24):
 				#self.timetable[day][str(i)+'-'+str(i+1)]=self.Campus.ParamObj.building_name[self.residence_unit.Building]
@@ -126,27 +127,35 @@ class student(person):
 				else:
 					self.timetable[times[0]][int(times[1].split('-')[0])]=self.Campus.__room2unit__(class_room)
 					self.Campus.__room2unit__(class_room).isclassroom = True
+		with open('data/survey_data/temp.csv', 'r',encoding="utf8") as file:
+			reader1 = csv.reader(file)
+			k=0
+			building_name_to_id = {}
+			building_id_to_name={}
+			for row in reader1:
+				building_name_to_id[row[0]] = int(row[1])
+				building_id_to_name[int(row[1])] =row[0]
+				k+=1
 
-		l = len(responses[self.residence_building_id][self.year])
-		response_no = responses[self.residence_building_id][self.year][self.personal_choice%l]
+
+		l = len(responses[building_id_to_name[self.residence_building_id]][str(self.year)])
+		if l == 0:
+			return
+		response_no = responses[building_id_to_name[self.residence_building_id]][str(self.year)][self.personal_choice%l]
 		df_req = surveydata[surveydata["Unnamed: 0"] == response_no]
 		#self.clustering has to be done
 		no_of_weekdays = df_req.iloc[0,4]
 		no_of_hours_weekdays = df_req.iloc[0,5]
 		places_of_visit = []
-		with open('../data/survey_data/temp.csv', 'r',encoding="utf8") as file:
-			reader1 = csv.reader(file)
-			k=0
-			building_name_to_id = {}
-			for row in reader1:
-				building_name_to_id[row[0]] = int(row[1])
-				k+=1
+
 		for i in df_req.iloc[0,6].split(";"):
+			if building_name_to_id[i] == -1:
+				continue
 			places_of_visit.append(building_name_to_id[i])
 		no_of_diff_places = df_req.iloc[0,7]
 		sleep_time = df_req.iloc[0,12]
 		if sleep_time == 'I usually stay in my room':
-			sleep_time = '21'
+			sleep_time = 21
 		else:
 			sleep_time = int(sleep_time.split('-')[1][:-2])
 			if sleep_time < 4:
@@ -154,14 +163,44 @@ class student(person):
 			else:
 				sleep_time+=12
 		days = random.sample(['monday','tuesday','wednesday','thursday','friday'],no_of_weekdays)
+		next_day = {'monday':'tuesday','tuesday':'wednesday','wednesday':'thursday','thursday':'friday','friday':'saturday'}
+		list_places = {}
+		m = 0
+		for day in days:
+			if len(places_of_visit) == 0:
+				return
+			if no_of_diff_places == 0:
+				return
+			list_places[day] = places_of_visit[m:m+no_of_diff_places]
+			while len(list_places[day])<no_of_diff_places:
+				list_places[day].extend(places_of_visit[0:no_of_diff_places-len(list_places[day])])
+				m = -len(list_places[day])
+				# print("hi", len(list_places[day]),no_of_diff_places)
+			m+=no_of_diff_places
+			if(m>no_of_diff_places):
+				m = m % no_of_diff_places
 		for day in days:
 			last_class_time = 17
-			while self.timetable[day][str(last_class_time)] == self.timetable[day]['18']:
+			while self.timetable[day][last_class_time] == self.timetable[day][18] and last_class_time > 14:
 				last_class_time-=1
-			outside_hours = random.sample(range(last_class_time+1,sleep_time), no_of_hours_weekdays)
+				# print("hi bye")
+			outside_hours = random.sample(list(range(last_class_time+1,sleep_time)), min(len(range(last_class_time+1,sleep_time)),no_of_hours_weekdays))
 			for hour in outside_hours:
 				if hour <= 23:
-					self.timetable[day][hour] =
+					k={}
+					for building in list_places[day]:
+						k[building] = hall_wise_placeweights[str(self.residence_building_id)]['weekdays'][str(building)] + year_wise_placeweights[str(self.year)]['weekdays'][str(building)]
+					self.timetable[day][hour] = k
+				else:
+					k={}
+					for building in list_places[day]:
+						k[building] = hall_wise_placeweights[str(self.residence_building_id)]['weekdays'][str(building)] + year_wise_placeweights[str(self.year)]['weekdays'][str(building)]
+					self.timetable[next_day[day]][hour-24] = k
+
+		#weekend movements
+
+
+
 
 
 

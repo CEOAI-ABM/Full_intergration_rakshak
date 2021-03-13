@@ -2,6 +2,7 @@ import time
 import random
 import datetime
 import numpy as np
+import csv
 
 from .mysql_utils import publish_identity, publish_activity, create_db_publish_locations
 
@@ -134,16 +135,16 @@ class Simulate():
         """
         time_in_sec = time.mktime(date)
 
-        hall_ids=[];
-        dep_ids=[];
+        hall_ids=[]
+        dep_ids=[]
 
-        with open('../data/Campus_data/KGP Data - Sheet1.csv','r',encoding="utf8") as file:
-            reader = csv.reader(file);
+        with open('data/Campus_data/KGP Data - Sheet1.csv','r',encoding="utf8") as file:
+            reader = csv.reader(file)
             for row in reader:
                 if row[2] == 'Residence':
-                    hall_ids.append(int(row[0]));
+                    hall_ids.append(int(row[0]))
                 elif row[2] == 'Academic':
-                    dep_ids.append(int(row[0]));
+                    dep_ids.append(int(row[0]))
         
         for person in persons:
             timestamp = time_in_sec
@@ -161,13 +162,13 @@ class Simulate():
                         bldg_id=random.choices(list(person.timetable[time.strftime("%A",time.localtime(temp)).casefold()][j1].keys()), list(person.timetable[time.strftime("%A",time.localtime(temp)).casefold()][j1].values()))[0];
                         if bldg_id == 'Other Hall of Residence':
                             while 1:
-                                bldg_id=random.choice(hall_ids);
+                                bldg_id=random.choice(hall_ids)
                                 if bldg_id != person.residence_building_id:
-                                    break;
+                                    break
                         elif bldg_id == 'A Department':
-                            bldg_id=random.choice(dep_ids);
-                        unt_id = random.choice(list(self.Campus.Units_Placeholder[bldg_id].keys()))
-                        newschedule[time.localtime(temp)] = self.Campus.Units_Placeholder[bldg_id][unt_id]
+                            bldg_id=random.choice(dep_ids)
+                        unt_id = random.choice(list(self.Units_Placeholder[bldg_id].keys()))
+                        newschedule[time.localtime(temp)] = self.Units_Placeholder[bldg_id][unt_id]
                     else:
                         newschedule[time.localtime(temp)] = person.timetable[time.strftime("%A",time.localtime(temp)).casefold()][j1]
                     if self.Lockdown>0:

@@ -111,7 +111,7 @@ class Campus(Simulate, Virus_Model):
 						response_ctr[hall] = {}
 					response_ctr[hall][i] = response_ctr[hall].get(i, 0) + 1
 					junta = student(Campus=self, role="student", ID=ctr, age=age, ageclass=2, year=i, schedule=person_schedule, dept=dept, residence=[hall, room], personal_choice = response_ctr[hall][i])
-
+					# print("student"+str(ctr)+"done")
 					ctr += 1
 
 					self.Students.append(junta)
