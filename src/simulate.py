@@ -167,7 +167,7 @@ class Simulate():
                         elif bldg_id == 'A Department':
                             bldg_id=random.choice(dep_ids);
                         unt_id = random.choice(list(self.Campus.Units_Placeholder[bldg_id].keys()))
-                        newschedule[time.localtime(temp)] = self.Campus.Units_Placeholder[building_id][unit_id]
+                        newschedule[time.localtime(temp)] = self.Campus.Units_Placeholder[bldg_id][unt_id]
                     else:
                         newschedule[time.localtime(temp)] = person.timetable[time.strftime("%A",time.localtime(temp)).casefold()][j1]
                     if self.Lockdown>0:
