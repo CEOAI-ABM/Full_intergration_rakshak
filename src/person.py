@@ -146,13 +146,15 @@ class student(person):
 		#self.clustering has to be done
 		no_of_weekdays = df_req.iloc[0,4]
 		no_of_hours_weekdays = df_req.iloc[0,5]
-		places_of_visit = []
 
+		places_of_visit = []
 		for i in df_req.iloc[0,6].split(";"):
 			if building_name_to_id[i] == -1:
 				continue
 			places_of_visit.append(building_name_to_id[i])
+
 		no_of_diff_places = df_req.iloc[0,7]
+
 		sleep_time = df_req.iloc[0,12]
 		if sleep_time == 'I usually stay in my room':
 			sleep_time = 21
@@ -162,6 +164,28 @@ class student(person):
 				sleep_time += 24
 			else:
 				sleep_time+=12
+
+		if df_req.iloc[0,10] != "Never": temp_times = list(map(lambda x: x.split("-"),df_req.iloc[0,10].split(";")))
+		else: temp_times = None
+		weekend_times = []
+		# print(temp_times)
+		if temp_times != None:
+			for time_range in temp_times:
+				if time_range[0] == 'Never':
+					continue
+				if time_range[0][-2:] == "PM":
+					weekend_times.extend([int(time_range[0][:-2])+12,int(time_range[0][:-2])+1+12])
+				else:
+					weekend_times.extend([int(time_range[0][:-2]),int(time_range[0][:-2])+1])
+
+		weekend_places_of_visit = []
+		for i in df_req.iloc[0,11].split(";"):
+			if building_name_to_id[i] == -1:
+				continue
+			weekend_places_of_visit.append(building_name_to_id[i])
+
+
+
 		days = random.sample(['monday','tuesday','wednesday','thursday','friday'],no_of_weekdays)
 		next_day = {'monday':'tuesday','tuesday':'wednesday','wednesday':'thursday','thursday':'friday','friday':'saturday'}
 		list_places = {}
@@ -198,6 +222,12 @@ class student(person):
 					self.timetable[next_day[day]][hour-24] = k
 
 		#weekend movements
+		for day in ['saturday','sunday']:
+			for t in weekend_times:
+				k={}
+				for building in weekend_places_of_visit:
+					k[building] = hall_wise_placeweights[str(self.residence_building_id)]['weekends'][str(building)] + year_wise_placeweights[str(self.year)]['weekends'][str(building)]
+				self.timetable[day][t] = k
 
 
 

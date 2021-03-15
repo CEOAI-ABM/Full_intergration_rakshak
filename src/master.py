@@ -15,7 +15,7 @@ class Master(Campus):
 	def initiate(self):
 		self.initialize_campus()
 
-		self.SIM_DAYS = 50
+		self.SIM_DAYS = self.pm.SIM_DAYS
 		self.simulation(start_time=time.struct_time((2021,1,4,0,0,0,0,4,0)))
 
 def StartSimulation(pm):
