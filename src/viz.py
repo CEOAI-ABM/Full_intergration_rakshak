@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
 import time
-
 from utils import form_schedule
 from param_with_shp import Parameters
 from sector import Sector

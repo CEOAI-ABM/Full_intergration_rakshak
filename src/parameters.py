@@ -6,8 +6,6 @@ import geopandas as GP
 import matplotlib.pyplot as plt
 import mysql.connector
 from shapely.geometry import Polygon, Point
-
-
 from .map_utils import random_points_in_polygon, cal_coordinates
 
 slots = json.load(open('data/Timetable/Schedule/slots.json'))
@@ -21,15 +19,15 @@ class Virus_Parameters:
 
 		self.Virus_Name 			    = "CoronaVirus"
 		self.Virus_R0 				    = kwargs.get("Virus_R0", 2.0)
-		self.Initial_Compliance_Rate 	= 0.8
+		self.Initial_Compliance_Rate 	= kwargs.get("Initial_Compliance_Rate", 0.8)
 
-		self.Virus_Params = {
+		self.Virus_Params = kwargs.get("Virus_Params",
 			'Transport' : {'Time':1,    'Distance':1},
 			'Home' 		: {'Time':16,   'Distance':1},
 			'Grocery'	: {'Time':0.5,  'Distance':4},
 			'Unemployed': {'Time':8,    'Distance':1},
 			'Random'	: {'Time':1,    'Distance':2},
-			}
+			)
 
 		self.Virus_DistanceDist 		= {"Constant": 0.128, "Ratio": 2.02}
 		self.Virus_Deathrates 			= kwargs.get("Virus_Deathrates", [0.01/2,0.005/2,0.01/2,0.01/2,0.04/2,0.30/2]) # Between age groups in agedist model
@@ -37,7 +35,6 @@ class Virus_Parameters:
 		self.Virus_ExpectedCureDays		= kwargs.get("Virus_ExpectedCureDays", 14) # Days to cure
 		self.Virus_FullCapRatio 		= kwargs.get("Virus_FullCapRatio", [5/3,5/3,5/3]) # When hopitals are overwhelmed by how much propertion deathrateincreases
 		self.Virus_PerDayDeathRate		= [EE/self.Virus_ExpectedCureDays for EE in self.Virus_Deathrates]
-
 		self.Virus_ProbSeverity 		= kwargs.get("Virus_ProbSeverity", [[0.70,0.26,0.04],
 																			[0.80,0.16,0.04],
 																			[0.80,0.16,0.04],
@@ -47,7 +44,7 @@ class Virus_Parameters:
 																			[0.10,0.40,0.50]])  # Mild, Medicore, Severe between Age Groups
 
 		self.Comorbidty_matrix = {
-		'ComorbidX' 	: [0.00,0.00,0.00,0.00,0.00,0.00] 	# Percentage of Population getting deasese X
+		'ComorbidX' 	: kwargs.get("Virus_Deathrates", [0.00,0.00,0.00,0.00,0.00,0.00] )	# Percentage of Population getting deasese X
 		}
 
 		self.Comorbidty_weights = {#self.pm.duration
@@ -159,6 +156,7 @@ class Parameters(Virus_Parameters, Spatial_Parameters):
 
 		Virus_Parameters.__init__(self, **kwargs)
 		Spatial_Parameters.__init__(self, ShpFile, OtherFile)
+		self.SIM_DAYS=5;
 
 class Contact_Graph_Parameters:
 	def __init__(self, db_conn=None):

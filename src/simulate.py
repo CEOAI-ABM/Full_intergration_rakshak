@@ -73,7 +73,7 @@ class Simulate():
         self.__update_movement_time_series__(self.all_people, self.curr_timestamp)
         #end  = time.time()
         self.__update_today_movements__()
-        '''
+       
         viz = []
         if self.TODAY:
             timestamps = list(self.all_people[0].today_schedule.keys())
@@ -84,7 +84,7 @@ class Simulate():
                 viz.append(temp)
         with open('day'+str(self.TODAY)+'viz.txt','w') as fh:
             fh.write('viz = '+str(viz))
-        '''
+       
         self.curr_timestamp = time.localtime(time.mktime(self.start_time)+(self.TODAY)*24*60*60)
         # Spreading of virus
         self.daily_transmissions()

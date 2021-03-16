@@ -2,16 +2,16 @@ import datetime
 import time
 import mysql.connector
 
-from .mysql_credentials import username, password, database
+from .mysql_credentials import username, password, database,auth_plugin
 
 def create_db_publish_locations():
-    mydb = mysql.connector.connect(host='localhost', user=username, passwd=password)
+    mydb = mysql.connector.connect(host='localhost', user=username, passwd=password,auth_plugin=auth_plugin)
     mycursor = mydb.cursor()
 
     mycursor.execute("CREATE DATABASE IF NOT EXISTS Contact_Graph")
     mycursor.close()
     mydb.close()
-    mydb = mysql.connector.connect(host='localhost', user=username, passwd=password, database=database)
+    mydb = mysql.connector.connect(host='localhost', user=username, passwd=password, database=database,auth_plugin=auth_plugin)
     mycursor  = mydb.cursor()
     mycursor.execute("USE Contact_Graph")
     mycursor.execute("DROP TABLE IF EXISTS `identity`")
