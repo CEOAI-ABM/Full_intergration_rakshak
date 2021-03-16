@@ -3,6 +3,7 @@ import json
 import time
 import random
 import datetime
+import pandas as pd
 
 def total_students(course, grades, grades_18A, grades_18S, na_list):
     """Gives the count of total students present in the course
@@ -247,6 +248,146 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    #main()
 #    dbname, pwd = create_db_publish_locations()
 #    print(dbname,pwd)
+
+
+#####################   to create post class hour movements from survey data     ####################
+    # import pandas as pd
+    #
+    # df = pd.read_csv("../data/survey_data/CAMPUS RAKSHAK (students).csv")
+    #
+    # df_req = df.loc[((df['Your academic program'] == 'PG') | (df['Current Year of study'] != '1st'))]
+    #
+    # print(df_req)
+    #
+    # df_req.to_csv("../data/survey_data/Student Choices.csv")
+
+
+
+    import csv
+
+    with open('../data/survey_data/temp.csv', 'r',encoding="utf8") as file:
+        reader2 = csv.reader(file)
+        k=0
+        x={}
+        hall_weights={}
+        year_weights={}
+        for i in range(113):
+            hall_weights[i]={'weekdays' :{},'weekends' : {}}
+        for i in range(1,6):
+            year_weights[i]={'weekdays' :{},'weekends' : {}}
+        for row in reader2:
+            x[row[0]] = int(row[1])
+            """
+            for i in range(113):
+                hall_weights[i]['weekdays'][int(row[1])] = 0
+                hall_weights[i]['weekends'][int(row[1])] = 0
+            for i in range(1,6):
+                year_weights[i]['weekdays'][int(row[1])] = 0
+                year_weights[i]['weekends'][int(row[1])] = 0
+            """
+            k+=1
+    for i in range(113):
+        for j in range(113):
+            hall_weights[i]['weekdays'][j] = 0
+            hall_weights[i]['weekends'][j] = 0
+        hall_weights[i]['weekdays']["Other Hall of Residence"] = 0
+        hall_weights[i]['weekdays']["A Department"] = 0
+        hall_weights[i]['weekends']["Other Hall of Residence"] = 0
+        hall_weights[i]['weekends']["A Department"] = 0
+    for i in range(1,6):
+        for j in range(113):
+            year_weights[i]['weekdays'][j] = 0
+            year_weights[i]['weekends'][j] = 0
+        year_weights[i]['weekdays']["Other Hall of Residence"] = 0
+        year_weights[i]['weekdays']["A Department"] = 0
+        year_weights[i]['weekends']["Other Hall of Residence"] = 0
+        year_weights[i]['weekends']["A Department"] = 0
+    print(x['Tata Sports Complex'])
+    with open('../data/survey_data/Student Choices.csv', 'r',encoding="utf8") as file:
+        reader = csv.reader(file)
+        k=0
+        no_people_hall ={}
+        no_people_year ={}
+        for i in range(113):
+            no_people_hall[i]=0
+        for i in range(1,6):
+            no_people_year[i]=0
+        for row in reader:
+            if(k==0):
+                k+=1
+                continue
+            if row[15] == 'Other':
+                k+=1
+                continue
+            no_people_hall[x[row[15]]]+=1
+            no_people_year[int(row[14][0])]+=1
+            lista = row[6].split(';')
+            for j in lista:
+                if j == 'Other Hall of Residence':
+                    hall_weights[x[row[15]]]['weekdays'][j]+=1
+                    continue
+                elif j == 'A Department':
+                    continue
+                elif j == 'Nalanda':
+                    continue
+                elif x[j]==-1 :
+                    continue
+                hall_weights[x[row[15]]]['weekdays'][x[j]]+=1
+                year_weights[int(row[14][0])]['weekdays'][x[j]]+=1
+            listb = row[11].split(';')
+            for j in listb:
+                if j == 'Other Hall of Residence':
+                    hall_weights[x[row[15]]]['weekends'][j]+=1
+                    continue
+                elif j == 'A Department':
+                    hall_weights[x[row[15]]]['weekends'][j]+=1
+                    continue
+                elif x[j]==-1 :
+                    continue
+                hall_weights[x[row[15]]]['weekends'][x[j]]+=1
+                year_weights[int(row[14][0])]['weekends'][x[j]]+=1
+            listc = row[9].split(';')
+            for j in listc:
+                if x[j]==-1 :
+                    continue
+                hall_weights[x[row[15]]]['weekdays'][x[j]]+=1
+                year_weights[int(row[14][0])]['weekdays'][x[j]]+=1
+                hall_weights[x[row[15]]]['weekends'][x[j]]+=1
+                year_weights[int(row[14][0])]['weekends'][x[j]]+=1
+
+            #print(k,lista,listb)
+            k+=1
+        for a in hall_weights:
+            if no_people_hall[a]==0:
+                continue
+            for i in hall_weights[a]['weekdays']:
+                hall_weights[a]['weekdays'][i] = hall_weights[a]['weekdays'][i]/no_people_hall[a]
+            for i in hall_weights[a]['weekends']:
+                hall_weights[a]['weekends'][i] = hall_weights[a]['weekends'][i]/no_people_hall[a]
+
+        for a in year_weights:
+            if no_people_year[a]==0:
+                continue
+            for i in year_weights[a]['weekdays']:
+                year_weights[a]['weekdays'][i] = year_weights[a]['weekdays'][i]/no_people_year[a]
+            for i in hall_weights[a]['weekends']:
+                year_weights[a]['weekends'][i] = year_weights[a]['weekends'][i]/no_people_year[a]
+    print(hall_weights)
+    print(year_weights)
+    with open("../data/survey_data/hall_wise_place_weights.json", 'w') as fh:
+        json.dump(hall_weights,fh, indent=3)
+    with open("../data/survey_data/year_wise_place_weights.json", 'w') as fh:
+        json.dump(year_weights,fh, indent=3)
+
+
+
+
+
+
+
+
+    pass
+

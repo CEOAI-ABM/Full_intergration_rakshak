@@ -158,6 +158,8 @@ class Parameters(Virus_Parameters, Spatial_Parameters):
 		Spatial_Parameters.__init__(self, ShpFile, OtherFile)
 		self.SIM_DAYS=5;
 
+		self.SIM_DAYS = kwargs.get("SIM_DAYS", 5)
+
 class Contact_Graph_Parameters:
 	def __init__(self, db_conn=None):
 		self.duration 		= 14 # in days

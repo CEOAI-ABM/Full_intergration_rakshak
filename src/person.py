@@ -7,12 +7,22 @@ import numpy as np
 import geopandas as GP
 import matplotlib.pyplot as plt
 from shapely.geometry import Point
-import matplotlib.animation as animation
+import pandas as pd
+import json
+import csv
 
 from .parameters import slots
 from .statemachine import AgentStateA
 
-wifidata = json.load(open('data/Timetable/post5_probs.json'))
+# wifidata = json.load(open('data/Timetable/post5_probs.json'))
+with open('data/survey_data/student.json') as fh:
+	responses = json.load(fh)
+surveydata = pd.read_csv("data/survey_data/Student Choices.csv")
+with open("data/survey_data/hall_wise_place_weights.json") as fh:
+	hall_wise_placeweights = json.load(fh)
+with open("data/survey_data/year_wise_place_weights.json") as fh:
+	year_wise_placeweights = json.load(fh)
+
 
 class person(AgentStateA):
 	""" Class for describing students
@@ -70,7 +80,7 @@ class person(AgentStateA):
 		return deafaultDR
 
 class student(person):
-	def __init__(self,  Campus=None, ID=0, dept=None, inCampus=True, age=-1, ageclass=-1, role="student", year=None, schedule=None, master=None,residence=None):
+	def __init__(self,  Campus=None, ID=0, dept=None, inCampus=True, age=-1, ageclass=-1, role="student", year=None, schedule=None, master=None,residence=None, personal_choice=None):
 		super().__init__(ID=ID, role=role, age=age, dept=dept, residence=residence)
 		self.personID = dept+str(ID)
 		self.Campus = Campus
@@ -79,20 +89,22 @@ class student(person):
 		self.residence_building_id = self.residence[0]
 		self.residence_unit  = self.Campus.Units_Placeholder[self.residence[0]][self.residence[1]+self.Campus.Index_Holder[self.residence[0]]]
 		self.residence_point = self.residence_unit.location
+		self.personal_choice = personal_choice
 		self.get_timetable()
 
 	def get_timetable(self):
+		# print("entered get_timetable")
 		for day in self.timetable:
 			for i in range(24):
 				#self.timetable[day][str(i)+'-'+str(i+1)]=self.Campus.ParamObj.building_name[self.residence_unit.Building]
 				self.timetable[day][i]=self.residence_unit
-				if i >= 18 or i < 8:
-					weights = []
-					for key in wifidata:
-						weights.append(wifidata[key][day][str(i)+'-'+str(i+1)])
-					building_id = random.choices([i for i in range(self.Campus.Total_Num_Buildings)],weights)[0]
-					unit_id = random.choice(list(self.Campus.Units_Placeholder[building_id].keys()))
-					self.timetable[day][i] = self.Campus.Units_Placeholder[building_id][unit_id]
+				# if i >= 18 or i < 8:
+				# 	weights = []
+				# 	for key in wifidata:
+				# 		weights.append(wifidata[key][day][str(i)+'-'+str(i+1)])
+				# 	building_id = random.choices([i for i in range(self.Campus.Total_Num_Buildings)],weights)[0]
+				# 	unit_id = random.choice(list(self.Campus.Units_Placeholder[building_id].keys()))
+				# 	self.timetable[day][i] = self.Campus.Units_Placeholder[building_id][unit_id]
 
 		for subject in self.schedule:
 			class_room=self.schedule[subject]['room']
@@ -115,6 +127,116 @@ class student(person):
 				else:
 					self.timetable[times[0]][int(times[1].split('-')[0])]=self.Campus.__room2unit__(class_room)
 					self.Campus.__room2unit__(class_room).isclassroom = True
+		with open('data/survey_data/temp.csv', 'r',encoding="utf8") as file:
+			reader1 = csv.reader(file)
+			k=0
+			building_name_to_id = {}
+			building_id_to_name={}
+			for row in reader1:
+				building_name_to_id[row[0]] = int(row[1])
+				building_id_to_name[int(row[1])] =row[0]
+				k+=1
+
+
+		l = len(responses[building_id_to_name[self.residence_building_id]][str(self.year)])
+		if l == 0:
+			return
+		response_no = responses[building_id_to_name[self.residence_building_id]][str(self.year)][self.personal_choice%l]
+		df_req = surveydata[surveydata["Unnamed: 0"] == response_no]
+		#self.clustering has to be done
+		no_of_weekdays = df_req.iloc[0,4]
+		no_of_hours_weekdays = df_req.iloc[0,5]
+
+		places_of_visit = []
+		for i in df_req.iloc[0,6].split(";"):
+			if building_name_to_id[i] == -1:
+				continue
+			places_of_visit.append(building_name_to_id[i])
+
+		no_of_diff_places = df_req.iloc[0,7]
+
+		sleep_time = df_req.iloc[0,12]
+		if sleep_time == 'I usually stay in my room':
+			sleep_time = 21
+		else:
+			sleep_time = int(sleep_time.split('-')[1][:-2])
+			if sleep_time < 4:
+				sleep_time += 24
+			else:
+				sleep_time+=12
+
+		if df_req.iloc[0,10] != "Never": temp_times = list(map(lambda x: x.split("-"),df_req.iloc[0,10].split(";")))
+		else: temp_times = None
+		weekend_times = []
+		# print(temp_times)
+		if temp_times != None:
+			for time_range in temp_times:
+				if time_range[0] == 'Never':
+					continue
+				if time_range[0][-2:] == "PM":
+					weekend_times.extend([int(time_range[0][:-2])+12,int(time_range[0][:-2])+1+12])
+				else:
+					weekend_times.extend([int(time_range[0][:-2]),int(time_range[0][:-2])+1])
+
+		weekend_places_of_visit = []
+		for i in df_req.iloc[0,11].split(";"):
+			if building_name_to_id[i] == -1:
+				continue
+			weekend_places_of_visit.append(building_name_to_id[i])
+
+
+
+		days = random.sample(['monday','tuesday','wednesday','thursday','friday'],no_of_weekdays)
+		next_day = {'monday':'tuesday','tuesday':'wednesday','wednesday':'thursday','thursday':'friday','friday':'saturday'}
+		list_places = {}
+		m = 0
+		for day in days:
+			if len(places_of_visit) == 0:
+				return
+			if no_of_diff_places == 0:
+				return
+			list_places[day] = places_of_visit[m:m+no_of_diff_places]
+			while len(list_places[day])<no_of_diff_places:
+				list_places[day].extend(places_of_visit[0:no_of_diff_places-len(list_places[day])])
+				m = -len(list_places[day])
+				# print("hi", len(list_places[day]),no_of_diff_places)
+			m+=no_of_diff_places
+			if(m>no_of_diff_places):
+				m = m % no_of_diff_places
+		for day in days:
+			last_class_time = 17
+			while self.timetable[day][last_class_time] == self.timetable[day][18] and last_class_time > 14:
+				last_class_time-=1
+				# print("hi bye")
+			outside_hours = random.sample(list(range(last_class_time+1,sleep_time)), min(len(range(last_class_time+1,sleep_time)),no_of_hours_weekdays))
+			for hour in outside_hours:
+				if hour <= 23:
+					k={}
+					for building in list_places[day]:
+						k[building] = hall_wise_placeweights[str(self.residence_building_id)]['weekdays'][str(building)] + year_wise_placeweights[str(self.year)]['weekdays'][str(building)]
+					self.timetable[day][hour] = k
+				else:
+					k={}
+					for building in list_places[day]:
+						k[building] = hall_wise_placeweights[str(self.residence_building_id)]['weekdays'][str(building)] + year_wise_placeweights[str(self.year)]['weekdays'][str(building)]
+					self.timetable[next_day[day]][hour-24] = k
+
+		#weekend movements
+		for day in ['saturday','sunday']:
+			for t in weekend_times:
+				k={}
+				for building in weekend_places_of_visit:
+					k[building] = hall_wise_placeweights[str(self.residence_building_id)]['weekends'][str(building)] + year_wise_placeweights[str(self.year)]['weekends'][str(building)]
+				self.timetable[day][t] = k
+
+
+
+
+
+
+
+
+
 
 class professor(person):
 	def __init__(self, prob_to_go_out=0.05, lab=None, office=None, Campus=None, HouseNo=None, ID=0, dept=None, inCampus=True, age=-1, ageclass=-1, role="faculty", year=None, schedule=None, master=None):
